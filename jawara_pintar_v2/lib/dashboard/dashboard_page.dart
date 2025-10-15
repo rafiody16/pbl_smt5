@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  final String userEmail;
+  const DashboardPage({super.key, required this.userEmail});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Sidebar(userEmail: userEmail),
       appBar: AppBar(
         title: const Text("Dashboard"),
         backgroundColor: Colors.blue,

@@ -24,7 +24,7 @@ class _LoginFormState extends State<LoginForm> {
       Future.delayed(const Duration(milliseconds: 500), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const DashboardPage()),
+          MaterialPageRoute(builder: (context) => DashboardPage(userEmail: email)),
         );
       });
     } else {
