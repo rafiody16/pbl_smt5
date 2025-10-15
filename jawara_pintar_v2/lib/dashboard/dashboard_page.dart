@@ -37,6 +37,11 @@ class DashboardPage extends StatelessWidget {
             label: "Profil",
             color: Colors.purple,
           ),
+          DashboardMenu(
+            icon: Icons.event,
+            label: "Kegiatan",
+            color: Colors.red,
+          ),
         ],
       ),
     );
@@ -59,9 +64,13 @@ class DashboardMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Membuka $label...')),
-        );
+        if (label == 'Kegiatan') {
+          Navigator.pushNamed(context, '/kegiatan');
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Membuka $label...')));
+        }
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -76,10 +85,7 @@ class DashboardMenu extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: color, fontWeight: FontWeight.bold),
             ),
           ],
         ),
