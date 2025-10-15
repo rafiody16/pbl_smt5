@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class Sidebar extends StatelessWidget {
   final String userEmail;
 
@@ -109,14 +110,17 @@ class Sidebar extends StatelessWidget {
             _buildSubMenu(context, "Semua Aktifitas"),
           ]),
 
-          _buildMenuSection("Manajemen Pengguna", Icons.settings, [
-            _buildSubMenu(context, "Daftar Pengguna"),
-            _buildSubMenu(context, "Tambah Pengguna"),
-          ]),
+           _buildMenuSection("Manajemen Pengguna", Icons.settings, [
+            _buildSubMenu(
+              context, 
+              "Daftar Pengguna", 
+              // Gunakan nama rute dari main.dart
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/daftarPengguna');
+              },
+              isActive: true,
+            ),
 
-          _buildMenuSection("Channel Transfer", Icons.swap_horiz, [
-            _buildSubMenu(context, "Daftar Channel"),
-            _buildSubMenu(context, "Tambah Channel"),
           ]),
 
           const SizedBox(height: 20),
@@ -146,8 +150,7 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildSubMenu(BuildContext context, String title,
-      {bool isActive = false}) {
+   Widget _buildSubMenu(BuildContext context, String title, {VoidCallback? onTap, bool isActive = false}) {
     return ListTile(
       title: Padding(
         padding: const EdgeInsets.only(left: 16.0),
@@ -159,7 +162,12 @@ class Sidebar extends StatelessWidget {
           ),
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        // 1. Selalu tutup sidebar saat item menu diklik
+        Navigator.pop(context);
+        // 2. Jalankan aksi onTap yang diberikan (navigasi, dll)
+        onTap?.call();
+      },
     );
   }
 }
