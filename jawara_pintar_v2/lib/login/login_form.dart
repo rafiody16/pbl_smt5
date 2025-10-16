@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/toast_service.dart';
 import '../data/login_data.dart';
 import '../dashboard/dashboard_page.dart';
 import 'email_field.dart';
@@ -30,30 +31,26 @@ class _LoginFormState extends State<LoginForm> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (LoginData.validateCredentials(_email, _password)) {
-        _showSnackBar("Login berhasil!", Colors.green);
+        ToastService.showSuccess(context, "Login berhasil!");
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => DashboardPage(userEmail: _email)),
-        );
+        await Future.delayed(const Duration(milliseconds: 1500));
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardPage(userEmail: _email)),
+          );
+        }
       } else {
-        _showSnackBar("Email atau password salah!", Colors.red);
+        ToastService.showError(context, "Email atau password salah!");
       }
 
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   String? _validateEmail(String? value) {
