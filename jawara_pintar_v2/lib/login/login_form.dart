@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../data/login_data.dart';
 import '../dashboard/dashboard_page.dart';
+import 'email_field.dart';
+import 'password_field.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -10,25 +12,37 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
-  void _login() {
-    final email = _emailController.text;
-    final password = _passwordController.text;
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      
+      setState(() {
+        _isLoading = true;
+      });
 
-    if (LoginData.validateCredentials(email, password)) {
-      _showSnackBar("Login berhasil!", Colors.green);
+      // proses login
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      Future.delayed(const Duration(milliseconds: 500), () {
+      if (LoginData.validateCredentials(_email, _password)) {
+        _showSnackBar("Login berhasil!", Colors.green);
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => DashboardPage(userEmail: email)),
+          MaterialPageRoute(builder: (context) => DashboardPage(userEmail: _email)),
         );
+      } else {
+        _showSnackBar("Email atau password salah!", Colors.red);
+      }
+
+      setState(() {
+        _isLoading = false;
       });
-    } else {
-      _showSnackBar("Email atau password salah!", Colors.red);
     }
   }
 
@@ -42,6 +56,31 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email harus diisi';
+    }
+    
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Format email tidak valid';
+    }
+    
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password harus diisi';
+    }
+    
+    if (value.length < 6) {
+      return 'Password minimal 6 karakter';
+    }
+    
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -51,121 +90,73 @@ class _LoginFormState extends State<LoginForm> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: Column(
-        children: [
-          const Center(
-            child: Text(
-              "Masuk ke akun anda",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Email Field
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Email"),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              hintText: "Masukkan email disini",
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-              filled: true,
-              fillColor: Colors.grey.shade50,
-              border: InputBorder.none,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Password Field
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Password"),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
-            decoration: InputDecoration(
-              hintText: "Masukkan password disini",
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-              filled: true,
-              fillColor: Colors.grey.shade50,
-              border: InputBorder.none,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                  size: 20,
-                  color: Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _login,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                "Login",
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Center(
+              child: Text(
+                "Masuk ke akun anda",
                 style: TextStyle(
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+
+            // email field
+            EmailField(
+              onSaved: (value) => _email = value ?? '',
+              validator: _validateEmail,
+            ),
+            const SizedBox(height: 16),
+
+            // password field
+            PasswordField(
+              onSaved: (value) => _password = value ?? '',
+              validator: _validatePassword,
+              obscureText: _obscurePassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }
