@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/form/form_warga.dart';
 import '../../../services/toast_service.dart';
+import '../../../data/warga_data.dart';
 
 class WargaEditPage extends StatefulWidget {
   final Map<String, dynamic> warga;
@@ -20,7 +21,7 @@ class _WargaEditPageState extends State<WargaEditPage> {
   late String _nama;
   late String _nik;
   late String _noTelepon;
-  late String _keluarga;
+  late String? _keluarga;
   late String _tempatLahir;
   late String _tanggalLahir;
   late String _agama;
@@ -32,13 +33,27 @@ class _WargaEditPageState extends State<WargaEditPage> {
   late String _statusPenduduk;
   late String _jenisKelamin;
 
+  String? _getKeluargaName() {
+    for (var keluarga in WargaData.dataKeluarga) {
+      var anggota = keluarga['anggota'] as List;
+      var found = anggota.cast<Map<String, dynamic>>().firstWhere(
+        (anggota) => anggota['nik'] == widget.warga['nik'],
+        orElse: () => <String, dynamic>{},
+      );
+      if (found.isNotEmpty) {
+        return keluarga['nama_keluarga'] as String;
+      }
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
-    _nama = widget.warga['nama'];
-    _nik = widget.warga['nik'];
-    _noTelepon = widget.warga['no_telepon'] ?? '082141744866';
-    _keluarga = widget.warga['keluarga'];
+    _nama = widget.warga['nama'] ?? '';
+    _nik = widget.warga['nik'] ?? '';
+    _noTelepon = widget.warga['no_telepon'] ?? '';
+    _keluarga = _getKeluargaName();
     _tempatLahir = widget.warga['tempat_lahir'] ?? '';
     _tanggalLahir = widget.warga['tanggal_lahir'] ?? '';
     _agama = widget.warga['agama'] ?? '';

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jawara_pintar_v2/warga/pages/keluarga.dart';
 import '../../warga/pages/warga_daftar_page.dart';
 import '../../warga/pages/warga_tambah_page.dart';
+
 import '../../kegiatan/kegiatan_page.dart';
 
 class SidebarMenu extends StatelessWidget {
@@ -24,12 +26,17 @@ class SidebarMenu extends StatelessWidget {
           );
         }),
         SubMenu("Warga - Tambah", onTap: (context) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const WargaTambahPage()),
           );
         }),
-        SubMenu("Keluarga"),
+        SubMenu("Keluarga", onTap: (context) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const KeluargaDaftarPage()),
+          );
+        }),
         SubMenu("Rumah - Daftar"),
         SubMenu("Rumah - Tambah"),
       ],

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import '../../sidebar/sidebar.dart';
-import '../components/tabel/warga/tabel_warga.dart';
-import '../components/filter/warga/filter_warga.dart';
+import '../../../sidebar/sidebar.dart';
+import '../components/filter/keluarga/filter_keluarga.dart';
+import '../components/tabel/keluarga/tabel_keluarga.dart';
 
-class WargaDaftarPage extends StatefulWidget {
-  const WargaDaftarPage({super.key});
+class KeluargaDaftarPage extends StatefulWidget {
+  const KeluargaDaftarPage({super.key});
 
   @override
-  State<WargaDaftarPage> createState() => _WargaDaftarPageState();
+  State<KeluargaDaftarPage> createState() => _KeluargaDaftarPageState();
 }
 
-class _WargaDaftarPageState extends State<WargaDaftarPage> {
+class _KeluargaDaftarPageState extends State<KeluargaDaftarPage> {
   final Map<String, String> _filters = {};
 
   void _onFilterApplied(Map<String, String> filters) {
@@ -30,7 +30,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return FilterWargaDialog(
+        return FilterKeluargaDialog(
           onFilterApplied: _onFilterApplied,
           onFilterReset: _onFilterReset,
         );
@@ -44,7 +44,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
-          'Data Warga - Daftar',
+          'Data Keluarga - Daftar',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -62,7 +62,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
         ],
       ),
       drawer: const Sidebar(userEmail: 'admin@jawara.com'),
-      body: TabelWarga(filters: _filters),
+      body: TabelKeluarga(filters: _filters),
     );
   }
 }

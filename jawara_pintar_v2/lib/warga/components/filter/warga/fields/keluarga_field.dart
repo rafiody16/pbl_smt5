@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../data/warga_data.dart';
+import '../../../../../data/warga_data.dart';
 
-class JenisKelaminField extends StatelessWidget {
+class KeluargaField extends StatelessWidget {
   final String? selectedValue;
   final Function(String?) onChanged;
 
-  const JenisKelaminField({
+  const KeluargaField({
     super.key,
     required this.selectedValue,
     required this.onChanged,
@@ -13,11 +13,15 @@ class JenisKelaminField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> keluargaList = WargaData.dataKeluarga
+        .map<String>((keluarga) => keluarga['nama_keluarga'] as String)
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Jenis Kelamin",
+          "Keluarga",
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -37,7 +41,7 @@ class JenisKelaminField extends StatelessWidget {
               hint: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  "Pilih Jenis Kelamin --",
+                  "Pilih Keluarga --",
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ),
@@ -48,7 +52,7 @@ class JenisKelaminField extends StatelessWidget {
               ),
               dropdownColor: Colors.white,
               style: const TextStyle(color: Colors.black87, fontSize: 14),
-              items: WargaData.jenisKelaminList.map((String value) {
+              items: keluargaList.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Padding(

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../data/warga_data.dart';
+import '../../../../../data/warga_data.dart';
 
-class KeluargaField extends StatelessWidget {
+class StatusField extends StatelessWidget {
   final String? selectedValue;
   final Function(String?) onChanged;
 
-  const KeluargaField({
+  const StatusField({
     super.key,
     required this.selectedValue,
     required this.onChanged,
@@ -17,7 +17,7 @@ class KeluargaField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Keluarga",
+          "Status",
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -37,7 +37,7 @@ class KeluargaField extends StatelessWidget {
               hint: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  "Pilih Keluarga --",
+                  "Pilih Status --",
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ),
@@ -48,7 +48,7 @@ class KeluargaField extends StatelessWidget {
               ),
               dropdownColor: Colors.white,
               style: const TextStyle(color: Colors.black87, fontSize: 14),
-              items: WargaData.keluargaList.map((String value) {
+              items: WargaData.statusDomisiliList.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Padding(

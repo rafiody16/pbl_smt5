@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../sidebar/sidebar.dart';
 import '../components/form/form_warga.dart';
 import '../../../services/toast_service.dart';
+import '../../../dashboard/dashboard_page.dart';
 
 class WargaTambahPage extends StatefulWidget {
   const WargaTambahPage({super.key});
@@ -52,9 +53,18 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
       ToastService.showSuccess(context, "Data warga berhasil ditambahkan");
 
       Future.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.of(context).pop();
+        _navigateToDashboard();
       });
     }
+  }
+
+  void _navigateToDashboard() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const DashboardPage(userEmail: 'admin@jawara.com')
+      ),
+      (route) => false,
+    );
   }
 
   void _resetForm() {
@@ -119,7 +129,7 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _navigateToDashboard,
         ),
       ),
       drawer: const Sidebar(userEmail: 'admin@jawara.com'),
