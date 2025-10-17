@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../warga/pages/warga_daftar_page.dart';
+import '../../warga/pages/warga_tambah_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
 
 class SidebarMenu extends StatelessWidget {
@@ -22,7 +23,12 @@ class SidebarMenu extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const WargaDaftarPage()),
           );
         }),
-        SubMenu("Warga - Tambah"),
+        SubMenu("Warga - Tambah", onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WargaTambahPage()),
+          );
+        }),
         SubMenu("Keluarga"),
         SubMenu("Rumah - Daftar"),
         SubMenu("Rumah - Tambah"),
