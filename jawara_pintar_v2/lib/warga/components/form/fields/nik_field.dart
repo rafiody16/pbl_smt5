@@ -27,6 +27,7 @@ class NikField extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextFormField(
+            cursorColor: Colors.blue,
             initialValue: initialValue,
             decoration: InputDecoration(
               filled: true,
