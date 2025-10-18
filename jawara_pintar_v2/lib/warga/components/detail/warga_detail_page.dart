@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../data/warga_data.dart';
 
 class WargaDetailPage extends StatelessWidget {
   final Map<String, dynamic> warga;
@@ -7,6 +8,21 @@ class WargaDetailPage extends StatelessWidget {
     super.key,
     required this.warga,
   });
+
+  // Method untuk mendapatkan nama keluarga dari warga
+  String _getKeluargaName() {
+    for (var keluarga in WargaData.dataKeluarga) {
+      var anggota = keluarga['anggota'] as List;
+      var found = anggota.cast<Map<String, dynamic>>().firstWhere(
+        (anggota) => anggota['nik'] == warga['nik'],
+        orElse: () => <String, dynamic>{},
+      );
+      if (found.isNotEmpty) {
+        return keluarga['nama_keluarga'] as String;
+      }
+    }
+    return '-';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,18 +85,20 @@ class WargaDetailPage extends StatelessWidget {
                     const Divider(height: 1, color: Colors.grey),
                     const SizedBox(height: 24),
 
-                    _buildDetailItem('Nama Lengkap:', warga['nama']),
+                    _buildDetailItem('Nama Lengkap:', warga['nama'] ?? '-'),
+                    _buildDetailItem('NIK:', warga['nik'] ?? '-'),
                     _buildDetailItem('Tempat, Tanggal Lahir:', 
                       '${warga['tempat_lahir'] ?? '-'}, ${warga['tanggal_lahir'] ?? '-'}'),
-                    _buildDetailItem('Nomor telepon:', warga['no_telepon'] ?? '082141744866'),
-                    _buildDetailItem('Jenis Kelamin:', warga['jenis_kelamin']),
+                    _buildDetailItem('Nomor telepon:', warga['no_telepon'] ?? '-'),
+                    _buildDetailItem('Jenis Kelamin:', warga['jenis_kelamin'] ?? '-'),
                     _buildDetailItem('Agama:', warga['agama'] ?? '-'),
                     _buildDetailItem('Golongan Darah:', warga['golongan_darah'] ?? '-'),
                     _buildDetailItem('Pendidikan Terakhir:', warga['pendidikan'] ?? '-'),
                     _buildDetailItem('Pekerjaan:', warga['pekerjaan'] ?? '-'),
-                    _buildDetailItem('Peran dalam Keluarga:', warga['peran'] ?? 'Kepala Keluarga'),
-                    _buildDetailItem('Status Penduduk:', warga['status_domisili'] ?? 'Aktif'),
-                    _buildDetailItem('Keluarga:', warga['keluarga']),
+                    _buildDetailItem('Peran dalam Keluarga:', warga['peran'] ?? '-'),
+                    _buildDetailItem('Status Domisili:', warga['status_domisili'] ?? '-'),
+                    _buildDetailItem('Status Hidup:', warga['status_hidup'] ?? '-'),
+                    _buildDetailItem('Keluarga:', _getKeluargaName()), // Gunakan method helper
                   ],
                 ),
               ),

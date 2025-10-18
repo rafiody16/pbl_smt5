@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../shared/status_chip.dart';
-import '../shared/action_buttons.dart';
-import '../detail/warga_detail_page.dart';
-import '../../pages/warga_edit_page.dart';
+import '../../shared/status_chip.dart';
+import '../../shared/action_buttons_keluarga.dart';
+import '../../detail/keluarga_detail_page.dart';
 
 class TabelContent extends StatelessWidget {
   final List<Map<String, dynamic>> filteredData;
@@ -39,18 +38,13 @@ class TabelContent extends StatelessWidget {
               label: Text('NO'),
               numeric: true,
             ),
-            DataColumn(label: Text('NAMA')),
-            DataColumn(label: Text('NIK')),
-            DataColumn(label: Text('KELUARGA')),
-            DataColumn(label: Text('JENIS KELAMIN')),
+            DataColumn(label: Text('NAMA KELUARGA')),
+            DataColumn(label: Text('KEPALA KELUARGA')),
+            DataColumn(label: Text('ALAMAT RUMAH')),
+            DataColumn(label: Text('STATUS KEPEMILIKAN')),
             DataColumn(
               label: Center(
-                child: Text('STATUS DOMISILI'),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text('STATUS HIDUP'),
+                child: Text('STATUS'),
               ),
             ),
             DataColumn(
@@ -59,39 +53,45 @@ class TabelContent extends StatelessWidget {
               ),
             ),
           ],
-          rows: filteredData.map((warga) => _buildDataRow(warga, context)).toList(),
+          rows: filteredData.map((keluarga) => _buildDataRow(keluarga, context)).toList(),
         ),
       ),
     );
   }
 
-  DataRow _buildDataRow(Map<String, dynamic> warga, BuildContext context) {
+  DataRow _buildDataRow(Map<String, dynamic> keluarga, BuildContext context) {
     return DataRow(
       cells: [
         DataCell(
           Center(
-            child: Text(warga['no'].toString()),
+            child: Text(keluarga['no'].toString()),
           ),
         ),
-        DataCell(Text(warga['nama'])),
-        DataCell(Text(warga['nik'])),
-        DataCell(Text(warga['keluarga'])),
-        DataCell(Text(warga['jenis_kelamin'])),
+        DataCell(Text(keluarga['nama_keluarga'])),
+        DataCell(Text(keluarga['kepala_keluarga'])),
         DataCell(
-          Center(
-            child: StatusChip(status: warga['status_domisili']),
-          ),
-        ),
-        DataCell(
-          Center(
-            child: StatusChip(status: warga['status_hidup']),
+          Container(
+            width: 200,
+            child: Text(
+              keluarga['alamat'],
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         DataCell(
           Center(
-            child: ActionButtons(
-              onDetail: () => _showDetail(warga, context),
-              onEdit: () => _editData(warga, context),
+            child: Text(keluarga['status_kepemilikan']),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: StatusChip(status: keluarga['status']),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: ActionButtonsKeluarga(
+              onDetail: () => _showDetail(keluarga, context),
             ),
           ),
         ),
@@ -99,20 +99,11 @@ class TabelContent extends StatelessWidget {
     );
   }
 
-  void _showDetail(Map<String, dynamic> warga, BuildContext context) {
+  void _showDetail(Map<String, dynamic> keluarga, BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WargaDetailPage(warga: warga),
-      ),
-    );
-  }
-
-  void _editData(Map<String, dynamic> warga, BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WargaEditPage(warga: warga),
+        builder: (context) => KeluargaDetailPage(keluarga: keluarga),
       ),
     );
   }

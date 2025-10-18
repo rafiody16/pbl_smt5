@@ -1,77 +1,40 @@
 import 'package:flutter/material.dart';
+import '../../sidebar/sidebar.dart';
 import '../components/form/form_warga.dart';
 import '../../../services/toast_service.dart';
-import '../../../data/warga_data.dart';
+import '../../../dashboard/dashboard_page.dart';
 
-class WargaEditPage extends StatefulWidget {
-  final Map<String, dynamic> warga;
-
-  const WargaEditPage({
-    super.key,
-    required this.warga,
-  });
+class WargaTambahPage extends StatefulWidget {
+  const WargaTambahPage({super.key});
 
   @override
-  State<WargaEditPage> createState() => _WargaEditPageState();
+  State<WargaTambahPage> createState() => _WargaTambahPageState();
 }
 
-class _WargaEditPageState extends State<WargaEditPage> {
+class _WargaTambahPageState extends State<WargaTambahPage> {
   final _formKey = GlobalKey<FormState>();
 
-  late String _nama;
-  late String _nik;
-  late String _noTelepon;
-  late String? _keluarga;
-  late String _tempatLahir;
-  late String _tanggalLahir;
-  late String _agama;
-  late String _golonganDarah;
-  late String _peran;
-  late String _pendidikan;
-  late String _pekerjaan;
-  late String _statusHidup;
-  late String _statusPenduduk;
-  late String _jenisKelamin;
-
-  String? _getKeluargaName() {
-    for (var keluarga in WargaData.dataKeluarga) {
-      var anggota = keluarga['anggota'] as List;
-      var found = anggota.cast<Map<String, dynamic>>().firstWhere(
-        (anggota) => anggota['nik'] == widget.warga['nik'],
-        orElse: () => <String, dynamic>{},
-      );
-      if (found.isNotEmpty) {
-        return keluarga['nama_keluarga'] as String;
-      }
-    }
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _nama = widget.warga['nama'] ?? '';
-    _nik = widget.warga['nik'] ?? '';
-    _noTelepon = widget.warga['no_telepon'] ?? '';
-    _keluarga = _getKeluargaName();
-    _tempatLahir = widget.warga['tempat_lahir'] ?? '';
-    _tanggalLahir = widget.warga['tanggal_lahir'] ?? '';
-    _agama = widget.warga['agama'] ?? '';
-    _golonganDarah = widget.warga['golongan_darah'] ?? '';
-    _peran = widget.warga['peran'] ?? 'Kepala Keluarga';
-    _pendidikan = widget.warga['pendidikan'] ?? '';
-    _pekerjaan = widget.warga['pekerjaan'] ?? '';
-    _statusHidup = widget.warga['status_hidup'] ?? 'Hidup';
-    _statusPenduduk = widget.warga['status_domisili'] ?? 'Aktif';
-    _jenisKelamin = widget.warga['jenis_kelamin'] ?? 'Laki-laki';
-  }
+  String _nama = '';
+  String _nik = '';
+  String _noTelepon = '';
+  String _keluarga = '';
+  String _tempatLahir = '';
+  String _tanggalLahir = '';
+  String _agama = '';
+  String _golonganDarah = '';
+  String _peran = 'Kepala Keluarga';
+  String _pendidikan = '';
+  String _pekerjaan = '';
+  String _statusHidup = 'Hidup';
+  String _statusPenduduk = 'Aktif';
+  String _jenisKelamin = 'Laki-laki';
 
   void _saveData() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       
-      // TODO: simpan data ke database atau state management
-      print('Data disimpan:');
+      // TODO: simpan data baru ke database atau state management
+      print('Data warga baru:');
       print('Nama: $_nama');
       print('NIK: $_nik');
       print('No Telepon: $_noTelepon');
@@ -87,12 +50,48 @@ class _WargaEditPageState extends State<WargaEditPage> {
       print('Status Penduduk: $_statusPenduduk');
       print('Jenis Kelamin: $_jenisKelamin');
 
-      ToastService.showSuccess(context, "Data warga berhasil diperbarui");
+      ToastService.showSuccess(context, "Data warga berhasil ditambahkan");
 
       Future.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.of(context).pop();
+        _navigateToDashboard();
       });
     }
+  }
+
+  void _navigateToDashboard() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const DashboardPage(userEmail: 'admin@jawara.com')
+      ),
+      (route) => false,
+    );
+  }
+
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    setState(() {
+      _nama = '';
+      _nik = '';
+      _noTelepon = '';
+      _keluarga = '';
+      _tempatLahir = '';
+      _tanggalLahir = '';
+      _agama = '';
+      _golonganDarah = '';
+      _peran = 'Kepala Keluarga';
+      _pendidikan = '';
+      _pekerjaan = '';
+      _statusHidup = 'Hidup';
+      _statusPenduduk = 'Aktif';
+      _jenisKelamin = 'Laki-laki';
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Form telah direset'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Map<String, dynamic> get _formData {
@@ -117,9 +116,10 @@ class _WargaEditPageState extends State<WargaEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
-          "Edit Warga",
+          "Tambah Warga",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -129,10 +129,10 @@ class _WargaEditPageState extends State<WargaEditPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _navigateToDashboard,
         ),
       ),
-      backgroundColor: Colors.grey[50],
+      drawer: const Sidebar(userEmail: 'admin@jawara.com'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -158,11 +158,11 @@ class _WargaEditPageState extends State<WargaEditPage> {
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.edit, color: Colors.blue, size: 28),
+                          child: const Icon(Icons.person_add, color: Colors.blue, size: 28),
                         ),
                         const SizedBox(width: 16),
                         const Text(
-                          "Edit Warga",
+                          "Tambah Warga Baru",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -202,6 +202,18 @@ class _WargaEditPageState extends State<WargaEditPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                OutlinedButton(
+                  onPressed: _resetForm,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey[700],
+                    side: BorderSide(color: Colors.grey[300]!),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text("Reset"),
+                ),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: _saveData,
@@ -213,7 +225,7 @@ class _WargaEditPageState extends State<WargaEditPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text("Submit"),
+                  child: const Text("Tambah"),
                 ),
               ],
             ),

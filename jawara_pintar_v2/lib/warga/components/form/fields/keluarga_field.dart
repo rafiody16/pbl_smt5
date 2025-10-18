@@ -13,6 +13,12 @@ class KeluargaField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> keluargaList = WargaData.dataKeluarga
+        .map<String>((keluarga) => keluarga['nama_keluarga'] as String)
+        .toList();
+
+    String? selectedValue = value.isNotEmpty ? value : (keluargaList.isNotEmpty ? keluargaList.first : null);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -35,13 +41,13 @@ class KeluargaField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : WargaData.keluargaList.first,
+                value: selectedValue,
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: Icon(Icons.arrow_drop_down, color: Colors.grey),
                 ),
-                items: WargaData.keluargaList.map((String item) {
+                items: keluargaList.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Padding(
@@ -55,7 +61,11 @@ class KeluargaField extends StatelessWidget {
                     ),
                   );
                 }).toList(),
-                onChanged: (value) => onChanged(value!),
+                onChanged: (value) {
+                  if (value != null) {
+                    onChanged(value);
+                  }
+                },
               ),
             ),
           ),

@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
-import '../../../data/warga_data.dart';
-import 'fields/nama_field.dart';
-import 'fields/jenis_kelamin_field.dart';
+import 'fields/nama_keluarga_field.dart';
 import 'fields/status_field.dart';
-import 'fields/keluarga_field.dart';
+import 'fields/rumah_field.dart';
 import 'filter_header.dart';
 import 'filter_buttons.dart';
 
-class FilterWargaDialog extends StatefulWidget {
+class FilterKeluargaDialog extends StatefulWidget {
   final Function(Map<String, String>) onFilterApplied;
   final VoidCallback onFilterReset;
 
-  const FilterWargaDialog({
+  const FilterKeluargaDialog({
     super.key,
     required this.onFilterApplied,
     required this.onFilterReset,
   });
 
   @override
-  State<FilterWargaDialog> createState() => _FilterWargaDialogState();
+  State<FilterKeluargaDialog> createState() => _FilterKeluargaDialogState();
 }
 
-class _FilterWargaDialogState extends State<FilterWargaDialog> {
+class _FilterKeluargaDialogState extends State<FilterKeluargaDialog> {
   final _formKey = GlobalKey<FormState>();
   String _selectedNama = '';
-  String? _selectedJenisKelamin;
   String? _selectedStatus;
-  String? _selectedKeluarga;
+  String? _selectedRumah;
 
   void _applyFilter() {
     if (_formKey.currentState!.validate()) {
@@ -34,9 +31,8 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
       
       final filters = <String, String>{};
       if (_selectedNama.isNotEmpty) filters['nama'] = _selectedNama;
-      if (_selectedJenisKelamin != null) filters['jenis_kelamin'] = _selectedJenisKelamin!;
       if (_selectedStatus != null) filters['status'] = _selectedStatus!;
-      if (_selectedKeluarga != null) filters['keluarga'] = _selectedKeluarga!;
+      if (_selectedRumah != null) filters['rumah'] = _selectedRumah!;
 
       widget.onFilterApplied(filters);
       Navigator.of(context).pop();
@@ -47,9 +43,8 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
     _formKey.currentState!.reset();
     setState(() {
       _selectedNama = '';
-      _selectedJenisKelamin = null;
       _selectedStatus = null;
-      _selectedKeluarga = null;
+      _selectedRumah = null;
     });
     widget.onFilterReset();
   }
@@ -61,7 +56,7 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         padding: const EdgeInsets.all(20),
-        width: 600,
+        width: 400,
         child: Form(
           key: _formKey,
           child: Column(
@@ -88,33 +83,23 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
   Widget _buildFormFields() {
     return Column(
       children: [
-        NamaField(
+        // Field Nama
+        NamaKeluargaField(
           onChanged: (value) => setState(() => _selectedNama = value),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: JenisKelaminField(
-                selectedValue: _selectedJenisKelamin,
-                onChanged: (value) => setState(() => _selectedJenisKelamin = value),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: StatusField(
-                selectedValue: _selectedStatus,
-                onChanged: (value) => setState(() => _selectedStatus = value),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: KeluargaField(
-                selectedValue: _selectedKeluarga,
-                onChanged: (value) => setState(() => _selectedKeluarga = value),
-              ),
-            ),
-          ],
+        
+        // Field Status
+        StatusField(
+          selectedValue: _selectedStatus,
+          onChanged: (value) => setState(() => _selectedStatus = value),
+        ),
+        const SizedBox(height: 16),
+        
+        // Field Rumah
+        RumahField(
+          selectedValue: _selectedRumah,
+          onChanged: (value) => setState(() => _selectedRumah = value),
         ),
       ],
     );
