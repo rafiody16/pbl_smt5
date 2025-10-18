@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../components/form/form_warga.dart';
-import '../../../services/toast_service.dart';
-import '../../../data/warga_data.dart';
+import '../form/form_warga.dart';
+import '../../../../services/toast_service.dart';
+import '../../../../data/warga_data.dart';
 
 class WargaEditPage extends StatefulWidget {
   final Map<String, dynamic> warga;

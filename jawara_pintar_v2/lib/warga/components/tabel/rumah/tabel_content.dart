@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../shared/status_chip.dart';
-import '../../shared/action_buttons_warga.dart';
-import '../../detail/warga_detail_page.dart';
-import '../../edit/warga_edit_page.dart';
-import '../../../../data/warga_data.dart';
+import '../../shared/action_buttons_rumah.dart';
+import '../../detail/rumah_detail_page.dart';
+import '../../edit/rumah_edit_page.dart';
+import '../../delete/rumah_delete_page.dart';
 
-class TabelContent extends StatelessWidget {
+class TabelContentRumah extends StatelessWidget {
   final List<Map<String, dynamic>> filteredData;
   final int currentPage;
   final int itemsPerPage;
+  final VoidCallback? onDataChanged;
 
-  const TabelContent({
+  const TabelContentRumah({
     super.key,
     required this.filteredData,
     this.currentPage = 1,
     this.itemsPerPage = 5,
+    this.onDataChanged,
   });
 
   @override
@@ -24,10 +26,6 @@ class TabelContent extends StatelessWidget {
     }
 
     return Container(
-      constraints: const BoxConstraints(
-        // minHeight: 200,
-        // maxHeight: 400,
-      ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
@@ -48,23 +46,26 @@ class TabelContent extends StatelessWidget {
               label: Text('NO'),
               numeric: true,
             ),
-            DataColumn(label: Text('NAMA')),
-            DataColumn(label: Text('NIK')),
-            DataColumn(label: Text('KELUARGA')),
-            DataColumn(label: Text('JENIS KELAMIN')),
             DataColumn(
-              label: Center(
-                child: Text('STATUS DOMISILI'),
+              label: SizedBox(
+                width: 300,
+                child: Text('ALAMAT'),
               ),
             ),
             DataColumn(
-              label: Center(
-                child: Text('STATUS HIDUP'),
+              label: SizedBox(
+                width: 120,
+                child: Center(
+                  child: Text('STATUS'),
+                ),
               ),
             ),
             DataColumn(
-              label: Center(
-                child: Text('AKSI'),
+              label: SizedBox(
+                width: 100,
+                child: Center(
+                  child: Text('AKSI'),
+                ),
               ),
             ),
           ],
@@ -74,35 +75,44 @@ class TabelContent extends StatelessWidget {
     );
   }
 
-  DataRow _buildDataRow(int index, Map<String, dynamic> warga, BuildContext context) {
+  DataRow _buildDataRow(int index, Map<String, dynamic> rumah, BuildContext context) {
     int nomorUrut = ((currentPage - 1) * itemsPerPage) + index + 1;
 
     return DataRow(
       cells: [
         DataCell(
-          Center(
-            child: Text(nomorUrut.toString()),
-          ),
-        ),
-        DataCell(Text(warga['nama'])),
-        DataCell(Text(warga['nik'])),
-        DataCell(Text(_getKeluargaName(warga))),
-        DataCell(Text(warga['jenis_kelamin'])),
-        DataCell(
-          Center(
-            child: StatusChip(status: warga['status_domisili']),
+          SizedBox(
+            child: Center(
+              child: Text(nomorUrut.toString()),
+            ),
           ),
         ),
         DataCell(
-          Center(
-            child: StatusChip(status: warga['status_hidup']),
+          SizedBox(
+            width: 300,
+            child: Text(
+              rumah['alamat'],
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         DataCell(
-          Center(
-            child: ActionButtons(
-              onDetail: () => _showDetail(warga, context),
-              onEdit: () => _editData(warga, context),
+          SizedBox(
+            width: 120,
+            child: Center(
+              child: StatusChip(status: rumah['status']),
+            ),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: 100,
+            child: Center(
+              child: ActionButtonsRumah(
+                onDetail: () => _showDetail(rumah, context),
+                onEdit: () => _editData(rumah, context),
+                onDelete: () => _deleteData(rumah, context),
+              ),
             ),
           ),
         ),
@@ -110,35 +120,41 @@ class TabelContent extends StatelessWidget {
     );
   }
 
-  String _getKeluargaName(Map<String, dynamic> warga) {
-    for (var keluarga in WargaData.dataKeluarga) {
-      var anggota = keluarga['anggota'] as List;
-      var found = anggota.cast<Map<String, dynamic>>().firstWhere(
-        (anggota) => anggota['nik'] == warga['nik'],
-        orElse: () => <String, dynamic>{},
-      );
-      if (found.isNotEmpty) {
-        return keluarga['nama_keluarga'] as String;
-      }
-    }
-    return '-';
-  }
-
-  void _showDetail(Map<String, dynamic> warga, BuildContext context) {
+  void _showDetail(Map<String, dynamic> rumah, BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WargaDetailPage(warga: warga),
+        builder: (context) => RumahDetailPage(rumah: rumah),
       ),
     );
   }
 
-  void _editData(Map<String, dynamic> warga, BuildContext context) {
+  void _editData(Map<String, dynamic> rumah, BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => WargaEditPage(warga: warga),
+        builder: (context) => RumahEditPage(rumah: rumah),
       ),
+    );
+  }
+
+  void _deleteData(Map<String, dynamic> rumah, BuildContext context) {
+    RumahDelete.showDeleteConfirmationDialog(
+      context: context,
+      alamat: rumah['alamat'],
+      onConfirmDelete: () => _performDelete(rumah, context),
+    );
+  }
+
+  void _performDelete(Map<String, dynamic> rumah, BuildContext context) {
+    RumahDelete.deleteRumah(
+      context: context,
+      rumah: rumah,
+      onSuccess: () {
+        if (onDataChanged != null) {
+          onDataChanged!();
+        }
+      },
     );
   }
 

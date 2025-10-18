@@ -24,6 +24,16 @@ class StatusChip extends StatelessWidget {
         backgroundColor = Colors.grey[200]!;
         textColor = Colors.grey[600]!;
         break;
+
+      case 'tersedia':
+        backgroundColor = const Color(0xFFE8F5E8);
+        textColor = const Color(0xFF2E7D32);
+        break;
+      case 'ditempati':
+        backgroundColor = const Color(0xFFE3F2FD);
+        textColor = const Color(0xFF1565C0);
+        break;
+      
       default:
         backgroundColor = const Color(0xFFFFEBEE);
         textColor = const Color(0xFFC62828);
