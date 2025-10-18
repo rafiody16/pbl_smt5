@@ -81,60 +81,43 @@ class Sidebar extends StatelessWidget {
             _buildSubMenu(context, "Pemasukan Lain - Tambah"),
           ]),
 
-          _buildMenuSection("Pengeluaran", Icons.trending_down, [
-            _buildSubMenu(context, "Daftar"),
-            _buildSubMenu(context, "Tambah"),
-          ]),
-
-          _buildMenuSection("Laporan Keuangan", Icons.receipt_long, [
-            _buildSubMenu(context, "Semua Pemasukan"),
-            _buildSubMenu(context, "Semua Pengeluaran"),
-            _buildSubMenu(context, "Cetak Laporan"),
-          ]),
-          
-          _buildMenuSection("Kegiatan & Broadcast", Icons.campaign, [
-            _buildSubMenu(context, "Kegiatan - Daftar"),
-            _buildSubMenu(context, "Kegiatan - Tambah"),
-            _buildSubMenu(context, "Broadcast - Daftar"),
-            _buildSubMenu(context, "Broadcast - Tambah"),
-          ]),
-
-          _buildMenuSection("Pesan Warga", Icons.message, [
-            _buildSubMenu(context, "Informasi Aspirasi"),
-          ]),
-
-          _buildMenuSection("Penerimaan Warga", Icons.person_add, [
-            _buildSubMenu(context, "Penerimaan Warga"),
-          ]),
-
-          _buildMenuSection("Mutasi Keluarga", Icons.group, [
-            _buildSubMenu(context, "Daftar"),
-            _buildSubMenu(context, "Tambah"),
-          ]),
-
-          _buildMenuSection("Log Aktivitas", Icons.history, [
-            _buildSubMenu(context, "Semua Aktifitas"),
-          ]),
-
-          _buildMenuSection("Manajemen Pengguna", Icons.settings, [
-            _buildSubMenu(context, "Daftar Pengguna"),
-            _buildSubMenu(context, "Tambah Pengguna"),
-          ]),
-
-          _buildMenuSection("Channel Transfer", Icons.swap_horiz, [
-            _buildSubMenu(context, "Daftar Channel"),
-            _buildSubMenu(context, "Tambah Channel"),
-          ]),
-
-          const SizedBox(height: 20),
-
-          const Divider(),
-
-          // Footer
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.person, color: Colors.white),
+          Container(
+            width: double.infinity,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                },
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout,
+                        size: 20,
+                        color: Colors.grey[700],
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "Log out",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             title: const Text("Admin Jawara"),
             subtitle: Text(userEmail),

@@ -4,7 +4,22 @@ class PekerjaanField extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  final List<String> _pekerjaanList = ['-- Pilih Pekerjaan --', 'PNS', 'Swasta', 'Wiraswasta', 'Pelajar/Mahasiswa', 'Lainnya'];
+  final List<String> _pekerjaanList = [
+    '-- Pilih Pekerjaan --', 
+    'PNS', 
+    'Pegawai Swasta',
+    'Wiraswasta', 
+    'Pedagang',
+    'Ibu Rumah Tangga',
+    'Guru',
+    'Dokter',
+    'Pengusaha',
+    'Karyawan',
+    'Konsultan',
+    'Akuntan',
+    'Pelajar/Mahasiswa',
+    'Lainnya'
+  ];
 
   PekerjaanField({
     super.key,
