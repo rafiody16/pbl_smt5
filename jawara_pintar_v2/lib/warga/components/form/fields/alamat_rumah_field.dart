@@ -32,7 +32,7 @@ class AlamatRumahField extends StatelessWidget {
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.grey[50],
-              hintText: "Masukkan alamat rumah",
+              hintText: "Contoh: Jl. Merpati No. 5",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,

@@ -4,8 +4,8 @@ import '../../warga/pages/warga_daftar_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
 import '../../warga/pages/warga_tambah_page.dart';
 import '../../warga/pages/keluarga.dart';
-import '../../warga/pages/rumah_daftar_page.dart'; // Import halaman rumah
-// import '../../rumah/pages/rumah_tambah_page.dart'; // Import halaman tambah rumah
+import '../../warga/pages/rumah_daftar_page.dart';
+import '../../warga/pages/rumah_tambah_page.dart';
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
@@ -44,7 +44,12 @@ class SidebarMenu extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const RumahDaftarPage()),
           );
         }),
-        SubMenu("Rumah - Tambah"),
+        SubMenu("Rumah - Tambah", onTap: (context) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const RumahTambahPage()),
+          );
+        }),
       ],
     ),
     MenuSection(
