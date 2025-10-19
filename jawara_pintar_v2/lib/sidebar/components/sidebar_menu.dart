@@ -6,6 +6,7 @@ import '../../warga/pages/warga_tambah_page.dart';
 import '../../warga/pages/keluarga.dart';
 import '../../warga/pages/rumah_daftar_page.dart';
 import '../../warga/pages/rumah_tambah_page.dart';
+import '../../penerimaanWarga/pages/penerimaan_warga_page.dart';
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
@@ -20,36 +21,53 @@ class SidebarMenu extends StatelessWidget {
       title: "Data Warga & Rumah",
       icon: Icons.people,
       subMenus: [
-        SubMenu("Warga - Daftar", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const WargaDaftarPage()),
-          );
-        }),
-        SubMenu("Warga - Tambah", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const WargaTambahPage()),
-          );
-        }),
-        SubMenu("Keluarga", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const KeluargaDaftarPage()),
-          );
-        }),
-        SubMenu("Rumah - Daftar", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const RumahDaftarPage()),
-          );
-        }),
-        SubMenu("Rumah - Tambah", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const RumahTambahPage()),
-          );
-        }),
+        SubMenu(
+          "Warga - Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const WargaDaftarPage()),
+            );
+          },
+        ),
+        SubMenu(
+          "Warga - Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const WargaTambahPage()),
+            );
+          },
+        ),
+        SubMenu(
+          "Keluarga",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const KeluargaDaftarPage(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Rumah - Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const RumahDaftarPage()),
+            );
+          },
+        ),
+        SubMenu(
+          "Rumah - Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const RumahTambahPage()),
+            );
+          },
+        ),
       ],
     ),
     MenuSection(
@@ -77,12 +95,15 @@ class SidebarMenu extends StatelessWidget {
       title: "Kegiatan & Broadcast",
       icon: Icons.campaign,
       subMenus: [
-        SubMenu("Kegiatan - Daftar", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const KegiatanPage()),
-          );
-        }),
+        SubMenu(
+          "Kegiatan - Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const KegiatanPage()),
+            );
+          },
+        ),
         SubMenu("Kegiatan - Tambah"),
         SubMenu("Broadcast - Daftar"),
         SubMenu("Broadcast - Tambah"),
@@ -96,7 +117,17 @@ class SidebarMenu extends StatelessWidget {
     MenuSection(
       title: "Penerimaan Warga",
       icon: Icons.person_add,
-      subMenus: ["Penerimaan Warga"],
+      subMenus: [
+        SubMenu(
+          "Penerimaan Warga",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder:  (context) => const PenerimaanWargaPage()),
+              );
+          },
+        ),
+      ],
     ),
     MenuSection(
       title: "Mutasi Keluarga",
@@ -112,9 +143,12 @@ class SidebarMenu extends StatelessWidget {
       title: "Manajemen Pengguna",
       icon: Icons.settings,
       subMenus: [
-        SubMenu("Daftar Pengguna", onTap: (context) {
-          Navigator.pushReplacementNamed(context, '/daftarPengguna');
-        }),
+        SubMenu(
+          "Daftar Pengguna",
+          onTap: (context) {
+            Navigator.pushReplacementNamed(context, '/daftarPengguna');
+          },
+        ),
         SubMenu("Tambah Pengguna"),
       ],
     ),
@@ -141,18 +175,11 @@ class SidebarMenu extends StatelessWidget {
       leading: Icon(section.icon, color: Colors.black87),
       title: Text(
         section.title,
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
+        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
       ),
       children: section.subMenus.map((subMenu) {
         if (subMenu is SubMenu) {
-          return _buildSubMenu(
-            context,
-            subMenu.title,
-            onTap: subMenu.onTap,
-          );
+          return _buildSubMenu(context, subMenu.title, onTap: subMenu.onTap);
         } else {
           return _buildSubMenu(context, subMenu.toString());
         }
@@ -160,18 +187,17 @@ class SidebarMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildSubMenu(BuildContext context, String title, {Function(BuildContext)? onTap}) {
+  Widget _buildSubMenu(
+    BuildContext context,
+    String title, {
+    Function(BuildContext)? onTap,
+  }) {
     return ListTile(
       title: Padding(
         padding: const EdgeInsets.only(left: 16.0),
-        child: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-          ),
-        ),
+        child: Text(title, style: GoogleFonts.poppins(fontSize: 13)),
       ),
-      onTap: onTap != null 
+      onTap: onTap != null
           ? () {
               Navigator.pop(context);
               onTap(context);
