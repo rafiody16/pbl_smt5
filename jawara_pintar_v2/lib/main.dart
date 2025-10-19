@@ -9,6 +9,9 @@ import 'dashboard/dashboard_page.dart';
 import 'warga/pages/warga_daftar_page.dart';
 import 'warga/pages/warga_tambah_page.dart';
 import 'warga/pages/keluarga.dart';
+import 'warga/pages/rumah_daftar_page.dart';
+import 'warga/pages/rumah_tambah_page.dart';
+import 'penerimaanWarga/pages/penerimaan_warga_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,6 +50,9 @@ class MyApp extends StatelessWidget {
         '/warga': (context) => const WargaDaftarPage(),
         '/warga/tambah': (context) => const WargaTambahPage(),
         '/keluarga': (context) => const KeluargaDaftarPage(),
+        '/rumah' : (context) => const RumahDaftarPage(),
+        '/eumah/tambah' : (context) => RumahTambahPage(),
+        '/penerimaanWarga' : (context) => PenerimaanWargaPage(),
       },
     );
   }
