@@ -6,6 +6,8 @@ import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart
 import 'package:intl/date_symbol_data_local.dart';
 import 'kegiatan/kegiatan_page.dart';
 import 'kegiatan/kegiatan_tambah_page.dart';
+import 'broadcast/broadcast_daftar_page.dart';
+import 'broadcast/broadcast_tambah_page.dart';
 import 'dashboard/keuangan.dart';
 import 'warga/pages/warga_daftar_page.dart';
 import 'warga/pages/warga_tambah_page.dart';
@@ -51,6 +53,8 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardPage(),
         '/kegiatan': (context) => const KegiatanDaftarPage(),
         '/kegiatan/tambah': (context) => const KegiatanTambahPage(),
+        '/broadcast': (context) => const BroadcastDaftarPage(),
+        '/broadcast/tambah': (context) => const BroadcastTambahPage(),
         '/warga': (context) => const WargaDaftarPage(),
         '/warga/tambah': (context) => const WargaTambahPage(),
         '/keluarga': (context) => const KeluargaDaftarPage(),

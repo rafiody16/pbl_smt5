@@ -7,6 +7,8 @@ import 'package:jawara_pintar_v2/keuangan/pengeluaran.dart';
 import '../../warga/pages/warga_daftar_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
 import '../../kegiatan/kegiatan_tambah_page.dart';
+import '../../broadcast/broadcast_daftar_page.dart';
+import '../../broadcast/broadcast_tambah_page.dart';
 import '../../warga/pages/warga_tambah_page.dart';
 import '../../warga/pages/keluarga.dart';
 import '../../warga/pages/rumah_daftar_page.dart';
@@ -181,8 +183,28 @@ class SidebarMenu extends StatelessWidget {
             );
           },
         ),
-        SubMenu("Broadcast - Daftar"),
-        SubMenu("Broadcast - Tambah"),
+        SubMenu(
+          "Broadcast - Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BroadcastDaftarPage(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Broadcast - Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BroadcastTambahPage(),
+              ),
+            );
+          },
+        ),
       ],
     ),
     MenuSection(

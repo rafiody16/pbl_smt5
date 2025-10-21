@@ -1,42 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../data/kegiatan_data.dart';
+import '../../../data/data_broadcast.dart';
 import 'filter_header.dart';
 import 'filter_button.dart';
 
-class FilterKegiatanDialog extends StatefulWidget {
+class FilterBroadcastDialog extends StatefulWidget {
   final Function(Map<String, String>) onFilterApplied;
   final VoidCallback onFilterReset;
 
-  const FilterKegiatanDialog({
+  const FilterBroadcastDialog({
     super.key,
     required this.onFilterApplied,
     required this.onFilterReset,
   });
 
   @override
-  State<FilterKegiatanDialog> createState() => _FilterKegiatanDialogState();
+  State<FilterBroadcastDialog> createState() => _FilterBroadcastDialog();
 }
 
-class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
+class _FilterBroadcastDialog extends State<FilterBroadcastDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  String _selectedNama = '';
-  String? _selectedKategori;
+  String _selectedJudul = '';
   String? _selectedTanggal;
-  String? _selectedPenanggungJawab;
 
   void _applyFilter() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
       final filters = <String, String>{};
-      if (_selectedNama.isNotEmpty) filters['nama'] = _selectedNama;
-      if (_selectedKategori != null) filters['kategori'] = _selectedKategori!;
-      if (_selectedTanggal != null) filters['tanggal'] = _selectedTanggal!;
-      if (_selectedPenanggungJawab != null) {
-        filters['penanggungJawab'] = _selectedPenanggungJawab!;
-      }
+      if (_selectedJudul.isNotEmpty) filters['judul'] = _selectedJudul;
+      if (_selectedTanggal != null)
+        filters['tanggal_publikasi'] = _selectedTanggal!;
 
       widget.onFilterApplied(filters);
       Navigator.of(context).pop();
@@ -46,10 +41,8 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
   void _resetFilter() {
     _formKey.currentState!.reset();
     setState(() {
-      _selectedNama = '';
-      _selectedKategori = null;
+      _selectedJudul = '';
       _selectedTanggal = null;
-      _selectedPenanggungJawab = null;
     });
     widget.onFilterReset();
   }
@@ -102,31 +95,18 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
       children: [
         TextFormField(
           decoration: const InputDecoration(
-            labelText: 'Nama Kegiatan',
-            hintText: 'Contoh: Donor Darah Bersama PMI',
+            labelText: 'Judul Broadcast',
+            hintText: 'Contoh: Pengumuman',
           ),
-          onChanged: (value) => setState(() => _selectedNama = value),
-        ),
-        const SizedBox(height: 16),
-
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-            labelText: 'Kategori Kegiatan',
-            hintText: '-- Pilih Kategori --',
-          ),
-          value: _selectedKategori,
-          items: KegiatanData.kategoriKegiatan.map((kategori) {
-            return DropdownMenuItem(value: kategori, child: Text(kategori));
-          }).toList(),
-          onChanged: (value) => setState(() => _selectedKategori = value),
+          onChanged: (value) => setState(() => _selectedJudul = value),
         ),
         const SizedBox(height: 16),
 
         TextFormField(
           readOnly: true,
           decoration: InputDecoration(
-            labelText: 'Tanggal Pelaksanaan',
-            hintText: 'Pilih tanggal kegiatan',
+            labelText: 'Tanggal Publikasi',
+            hintText: 'Pilih tanggal publikasi',
             suffixIcon: IconButton(
               icon: const Icon(Icons.calendar_today_outlined),
               onPressed: _selectDate,
@@ -135,15 +115,6 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
           controller: TextEditingController(text: _selectedTanggal ?? ''),
         ),
         const SizedBox(height: 16),
-
-        TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Penanggung Jawab',
-            hintText: 'Contoh: Pak Dedi, Bu Lina...',
-          ),
-          onChanged: (value) =>
-              setState(() => _selectedPenanggungJawab = value),
-        ),
       ],
     );
   }
