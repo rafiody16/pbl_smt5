@@ -44,7 +44,7 @@ class _KegiatanDaftarPage extends State<KegiatanDaftarPage> {
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
-          'Data Warga - Daftar',
+          'Data Kegiatan - Daftar',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: Colors.white,

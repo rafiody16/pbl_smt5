@@ -9,6 +9,7 @@ import '../../kegiatan/kegiatan_page.dart';
 import '../../kegiatan/kegiatan_tambah_page.dart';
 import '../../broadcast/broadcast_daftar_page.dart';
 import '../../broadcast/broadcast_tambah_page.dart';
+import '../../log_aktivitas/log_aktivitas_page.dart';
 import '../../warga/pages/warga_tambah_page.dart';
 import '../../warga/pages/keluarga.dart';
 import '../../warga/pages/rumah_daftar_page.dart';
@@ -237,7 +238,17 @@ class SidebarMenu extends StatelessWidget {
     MenuSection(
       title: "Log Aktivitas",
       icon: Icons.history,
-      subMenus: ["Semua Aktifitas"],
+      subMenus: [
+        SubMenu(
+          "Semua Aktivitas",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LogDaftarPage()),
+            );
+          },
+        ),
+      ],
     ),
     MenuSection(
       title: "Manajemen Pengguna",

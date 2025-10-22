@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../sidebar/sidebar.dart';
-import 'components/tabel_broadcast.dart';
-import 'components/filter/filter_broadcast.dart';
+import 'components/tabel_log.dart';
+import 'components/filter/filter_log.dart';
 
-class BroadcastDaftarPage extends StatefulWidget {
-  const BroadcastDaftarPage({super.key});
+class LogDaftarPage extends StatefulWidget {
+  const LogDaftarPage({super.key});
 
   @override
-  State<BroadcastDaftarPage> createState() => _BroadcastDaftarPage();
+  State<LogDaftarPage> createState() => _LogDaftarPage();
 }
 
-class _BroadcastDaftarPage extends State<BroadcastDaftarPage> {
+class _LogDaftarPage extends State<LogDaftarPage> {
   final Map<String, String> _filters = {};
 
   void _onFilterApplied(Map<String, String> filters) {
@@ -30,7 +30,7 @@ class _BroadcastDaftarPage extends State<BroadcastDaftarPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return FilterBroadcastDialog(
+        return FilterLogDialog(
           onFilterApplied: _onFilterApplied,
           onFilterReset: _onFilterReset,
         );
@@ -44,7 +44,7 @@ class _BroadcastDaftarPage extends State<BroadcastDaftarPage> {
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
-          'Data Broadcast - Daftar',
+          'Data Log Aktivitas - Daftar',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: Colors.white,
@@ -59,7 +59,7 @@ class _BroadcastDaftarPage extends State<BroadcastDaftarPage> {
         ],
       ),
       drawer: const Sidebar(userEmail: 'admin@jawara.com'),
-      body: TabelBroadcast(filters: _filters),
+      body: TabelLog(filters: _filters),
     );
   }
 }
