@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart';
 import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_tambah_pengguna.dart';
+import 'package:jawara_pintar_v2/mutasi_keluarga/halaman_tambah_mutasi.dart';
 import 'package:jawara_pintar_v2/warga/pages/keluarga.dart';
 import 'package:jawara_pintar_v2/dashboard/kependudukan.dart';
 import 'package:jawara_pintar_v2/keuangan/laporan.dart';
@@ -9,7 +10,8 @@ import 'package:jawara_pintar_v2/keuangan/pemasukan.dart';
 import 'package:jawara_pintar_v2/keuangan/pengeluaran.dart';
 import '../../warga/pages/warga_daftar_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
-import '../../Mutasi_Keluarga/halaman_daftar_mutasi.dart';
+import '../../mutasi_keluarga/halaman_daftar_mutasi.dart';
+import '../../mutasi_keluarga/halaman_tambah_mutasi.dart';
 import '../../kegiatan/kegiatan_tambah_page.dart';
 import '../../broadcast/broadcast_daftar_page.dart';
 import '../../broadcast/broadcast_tambah_page.dart';
@@ -246,7 +248,12 @@ class SidebarMenu extends StatelessWidget {
           );
         }),
         
-         "Tambah"],
+        SubMenu("Tambah", onTap: (context) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MutasiTambahScreen()),
+          );
+        }),],
     ),
     MenuSection(
       title: "Log Aktivitas",
