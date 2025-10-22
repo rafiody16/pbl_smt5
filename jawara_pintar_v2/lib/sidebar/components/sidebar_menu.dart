@@ -16,6 +16,13 @@ import '../../warga/pages/rumah_tambah_page.dart';
 import '../../penerimaanWarga/pages/penerimaan_warga_page.dart';
 import '../../dashboard/keuangan.dart';
 import '../../dashboard/kegiatan.dart';
+import '../../pemasukan/kategori_iuran.dart';
+import '../../pemasukan/tagih_iuran.dart';
+import '../../pemasukan/tagihan.dart';
+import '../../pemasukan/pemasukan_lain_daftar.dart';
+import '../../pemasukan/pemasukan_lain_tambah.dart';
+import '../../pengeluaran/daftar.dart';
+import '../../pengeluaran/tambah.dart';
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
@@ -112,17 +119,90 @@ class SidebarMenu extends StatelessWidget {
       title: "Pemasukan",
       icon: Icons.trending_up,
       subMenus: [
-        "Kategori Iuran",
-        "Tagih Iuran",
-        "Tagihan",
-        "Pemasukan Lain - Daftar",
-        "Pemasukan Lain - Tambah",
+        SubMenu(
+          "Kategori Iuran",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const KategoriIuran(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Tagih Iuran",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TagihIuran(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Tagihan",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Tagihan(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Pemasukan Lain - Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PemasukanLainDaftar(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Pemasukan Lain - Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PemasukanLainTambah(),
+              ),
+            );
+          },
+        ),
       ],
     ),
     MenuSection(
       title: "Pengeluaran",
       icon: Icons.trending_down,
-      subMenus: ["Daftar", "Tambah"],
+      subMenus: [
+        SubMenu(
+          "Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Daftar(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Tambah(),
+              ),
+            );
+          },
+        ),
+      ],
     ),
     MenuSection(
       title: "Laporan Keuangan",
