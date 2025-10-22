@@ -4,7 +4,7 @@ class UserData {
   static List<User> users = [
     User(
       id: 1,
-      name: 'bla',
+      name: 'Bryan Furran',
       email: 'y@gmail.com',
       phoneNumber: '089722321412',
       registrationStatus: 'Diterima',
@@ -14,7 +14,7 @@ class UserData {
     ),
     User(
       id: 2,
-      name: 'ijat4',
+      name: 'Ijat Putra Supraman ',
       email: 'ijat4@gmail.com',
       phoneNumber: '081234567890',
       registrationStatus: 'Diterima',
