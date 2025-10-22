@@ -34,6 +34,11 @@ class MutasiDaftarScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back_ios, size: 16),
+              label: const Text('Kembali'),
+            ),
             const SizedBox(height: 10),
             const Text(
               'Daftar Mutasi Keluarga',
