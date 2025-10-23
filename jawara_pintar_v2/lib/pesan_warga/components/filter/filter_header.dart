@@ -28,7 +28,7 @@ class FilterHeader extends StatelessWidget {
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
-              "Filter Log Aktivitas",
+              "Filter Aspirasi",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

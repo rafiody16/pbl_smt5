@@ -37,7 +37,7 @@ class _BroadcastDaftarPage extends State<BroadcastDaftarPage> {
       ),
       builder: (BuildContext context) {
         return FractionallySizedBox(
-          heightFactor: 0.53,
+          heightFactor: 0.7,
           child: FilterBroadcastDialog(
             onFilterApplied: _onFilterApplied,
             onFilterReset: _onFilterReset,

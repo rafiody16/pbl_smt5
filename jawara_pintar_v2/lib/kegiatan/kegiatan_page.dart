@@ -37,7 +37,7 @@ class _KegiatanDaftarPage extends State<KegiatanDaftarPage> {
       ),
       builder: (BuildContext context) {
         return FractionallySizedBox(
-          heightFactor: 0.53,
+          heightFactor: 0.85,
           child: FilterKegiatanDialog(
             onFilterApplied: _onFilterApplied,
             onFilterReset: _onFilterReset,

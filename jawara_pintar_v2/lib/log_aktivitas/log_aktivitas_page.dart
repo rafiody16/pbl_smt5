@@ -37,7 +37,7 @@ class _LogDaftarPage extends State<LogDaftarPage> {
       ),
       builder: (BuildContext context) {
         return FractionallySizedBox(
-          heightFactor: 0.53,
+          heightFactor: 0.9,
           child: FilterLogDialog(
             onFilterApplied: _onFilterApplied,
             onFilterReset: _onFilterReset,

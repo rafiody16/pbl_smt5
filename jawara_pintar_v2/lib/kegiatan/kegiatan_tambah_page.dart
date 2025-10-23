@@ -144,12 +144,16 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
-                          "Tambah Kegiatan Baru",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        const Expanded(
+                          child: Text(
+                            "Tambah Kegiatan",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            overflow:
+                                TextOverflow.ellipsis, // Tambahan opsional
                           ),
                         ),
                       ],

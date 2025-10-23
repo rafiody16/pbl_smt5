@@ -37,7 +37,7 @@ class _AspirasiDaftarPage extends State<AspirasiDaftarPage> {
       ),
       builder: (BuildContext context) {
         return FractionallySizedBox(
-          heightFactor: 0.53,
+          heightFactor: 0.75,
           child: FilterAspirasiDialog(
             onFilterApplied: _onFilterApplied,
             onFilterReset: _onFilterReset,

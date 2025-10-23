@@ -157,8 +157,8 @@ class _BroadcastTambahPageState extends State<BroadcastTambahPage> {
                     Row(
                       children: [
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: 55,
+                          height: 50,
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -170,12 +170,15 @@ class _BroadcastTambahPageState extends State<BroadcastTambahPage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
-                          "Tambah Broadcast Baru",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        const Expanded(
+                          child: Text(
+                            "Tambah Broadcast",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
