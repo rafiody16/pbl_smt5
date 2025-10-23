@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import '../../warga/components/shared/action_buttons_warga.dart';
-import '../../data/log_data.dart';
+import '../../../../data/log_data.dart';
 
-class TabelContent extends StatelessWidget {
+class ListContent extends StatelessWidget {
   final List<Map<String, dynamic>> filteredData;
-  final int currentPage;
-  final int itemsPerPage;
+  final ScrollController scrollController;
+  final int totalLog;
 
-  const TabelContent({
+  const ListContent({
     super.key,
     required this.filteredData,
-    this.currentPage = 1,
-    this.itemsPerPage = 5,
+    required this.scrollController,
+    required this.totalLog,
   });
 
   @override
@@ -20,81 +19,147 @@ class TabelContent extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.resolveWith<Color?>(
-                  (Set<WidgetState> states) => Colors.blueGrey[50],
-                ),
-                headingTextStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                  fontSize: 15,
-                ),
-                dataTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 14,
-                ),
-                columnSpacing: 30,
-                horizontalMargin: 20,
-                headingRowHeight: 55,
-                dataRowHeight: 65,
-                columns: const [
-                  DataColumn(label: Text('NO')),
-                  DataColumn(label: Text('AKTOR')),
-                  DataColumn(label: Text('DESKRIPSI')),
-                  DataColumn(label: Text('TANGGAL')),
-                ],
-                rows: filteredData
-                    .asMap()
-                    .entries
-                    .map(
-                      (entry) => _buildDataRow(entry.key, entry.value, context),
-                    )
-                    .toList(),
-              ),
-            ),
-          ),
-        );
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: filteredData.length,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemBuilder: (context, index) {
+        final log = filteredData[index];
+        return _buildLogCard(log, index + 1, context);
       },
     );
   }
 
-  DataRow _buildDataRow(
-    int index,
+  Widget _buildLogCard(
     Map<String, dynamic> log,
+    int nomorUrut,
     BuildContext context,
   ) {
-    int nomorUrut = ((currentPage - 1) * itemsPerPage) + index + 1;
+    final deskripsi = log['deskripsi']?.toString() ?? '(Tanpa deskripsi)';
+    final aktor = log['aktor']?.toString() ?? '(Tidak ada aktor)';
+    final tanggal = log['tanggal']?.toString() ?? '-';
 
-    return DataRow(
-      cells: [
-        DataCell(Center(child: Text(nomorUrut.toString()))),
-        DataCell(Text(log['aktor'])),
-        DataCell(Text(log['deskripsi'])),
-        DataCell(Text(log['tanggal'])),
-      ],
+    return Dismissible(
+      key: ValueKey(log['id'] ?? nomorUrut),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          deskripsi,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          aktor,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildInfoChip(
+                                tanggal,
+                                Icons.date_range,
+                                Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(String text, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            softWrap: false,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildEmptyState() {
-    return SizedBox(
-      height: 200,
-      child: Center(
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+            Icon(Icons.search_off, size: 80, color: Colors.grey[300]),
             const SizedBox(height: 16),
+            const Text(
+              "Tidak ada data ditemukan",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
             Text(
-              "Tidak ada data yang ditemukan",
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              "Coba ubah filter pencarian Anda",
+              style: TextStyle(color: Colors.grey[500], fontSize: 14),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

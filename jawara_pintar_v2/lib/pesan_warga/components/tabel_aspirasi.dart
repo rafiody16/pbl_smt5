@@ -1,35 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../data/data_aspirasi.dart';
-import 'tabel_header.dart';
 import 'tabel_content.dart';
-import 'tabel_pagination.dart';
+import 'package:intl/intl.dart';
 
-class TabelAspirasi extends StatefulWidget {
+class AspirasiList extends StatefulWidget {
   final Map<String, String> filters;
+  final ScrollController scrollController;
 
-  const TabelAspirasi({super.key, required this.filters});
+  const AspirasiList({
+    super.key,
+    required this.filters,
+    required this.scrollController,
+  });
 
   @override
-  State<TabelAspirasi> createState() => _TabelAspirasiState();
+  State<AspirasiList> createState() => _AspirasiListState();
 }
 
-class _TabelAspirasiState extends State<TabelAspirasi> {
-  int _currentPage = 1;
-  final int _itemsPerPage = 5;
-
-  @override
-  void didUpdateWidget(TabelAspirasi oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.filters != widget.filters) {
-      setState(() {
-        _currentPage = 1;
-      });
-    }
-  }
-
+class _AspirasiListState extends State<AspirasiList> {
   List<Map<String, dynamic>> get _filteredData {
-    List<Map<String, dynamic>> allAspirasi = DataAspirasi.semuaDataAspirasi;
+    List<Map<String, dynamic>> allAspirasi = DataAspirasi.dataAspirasi;
 
     if (widget.filters.isEmpty) return allAspirasi;
 
@@ -71,73 +61,18 @@ class _TabelAspirasiState extends State<TabelAspirasi> {
           return false;
         }
       }
-
       return true;
     }).toList();
-  }
-
-  List<Map<String, dynamic>> get _paginatedData {
-    final startIndex = (_currentPage - 1) * _itemsPerPage;
-    final endIndex = startIndex + _itemsPerPage;
-
-    if (startIndex >= _filteredData.length) return [];
-
-    return _filteredData.sublist(
-      startIndex,
-      endIndex.clamp(0, _filteredData.length),
-    );
-  }
-
-  void _onPageChanged(int page) {
-    setState(() {
-      _currentPage = page;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredData = _filteredData;
-    final paginatedData = _paginatedData;
-    final showPagination = filteredData.length > _itemsPerPage;
 
-    return SizedBox.expand(
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            TabelHeaderAspirasi(totalAspirasi: filteredData.length),
-            const SizedBox(height: 16),
-            Expanded(
-              child: TabelContent(
-                filteredData: paginatedData,
-                currentPage: _currentPage,
-                itemsPerPage: _itemsPerPage,
-              ),
-            ),
-            if (showPagination) ...[
-              const SizedBox(height: 16),
-              TabelPagination(
-                currentPage: _currentPage,
-                totalItems: filteredData.length,
-                itemsPerPage: _itemsPerPage,
-                onPageChanged: _onPageChanged,
-              ),
-            ],
-          ],
-        ),
-      ),
+    return ListContent(
+      filteredData: filteredData,
+      scrollController: widget.scrollController,
+      totalAspirasi: filteredData.length,
     );
   }
 }

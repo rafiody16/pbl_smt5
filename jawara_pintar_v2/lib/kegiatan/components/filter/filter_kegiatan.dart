@@ -26,21 +26,33 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
   String? _selectedTanggal;
   String? _selectedPenanggungJawab;
 
+  int get _selectedCount {
+    int count = 0;
+    if (_selectedNama.isNotEmpty) count++;
+    if (_selectedKategori != null && _selectedKategori!.isNotEmpty) count++;
+    if (_selectedTanggal != null && _selectedTanggal!.isNotEmpty) count++;
+    if (_selectedPenanggungJawab != null &&
+        _selectedPenanggungJawab!.isNotEmpty)
+      count++;
+    return count;
+  }
+
   void _applyFilter() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      final filters = <String, String>{};
-      if (_selectedNama.isNotEmpty) filters['nama'] = _selectedNama;
-      if (_selectedKategori != null) filters['kategori'] = _selectedKategori!;
-      if (_selectedTanggal != null) filters['tanggal'] = _selectedTanggal!;
-      if (_selectedPenanggungJawab != null) {
-        filters['penanggungJawab'] = _selectedPenanggungJawab!;
-      }
-
-      widget.onFilterApplied(filters);
-      Navigator.of(context).pop();
+    final filters = <String, String>{};
+    if (_selectedNama.isNotEmpty) filters['nama'] = _selectedNama;
+    if (_selectedKategori != null && _selectedKategori!.isNotEmpty) {
+      filters['kategori'] = _selectedKategori!;
     }
+    if (_selectedTanggal != null && _selectedTanggal!.isNotEmpty) {
+      filters['tanggal'] = _selectedTanggal!;
+    }
+    if (_selectedPenanggungJawab != null &&
+        _selectedPenanggungJawab!.isNotEmpty) {
+      filters['penanggungJawab'] = _selectedPenanggungJawab!;
+    }
+
+    widget.onFilterApplied(filters);
+    Navigator.of(context).pop();
   }
 
   void _resetFilter() {
@@ -71,26 +83,51 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return FractionallySizedBox(
+      heightFactor: null, // tinggi menyesuaikan isi
       child: Container(
-        padding: const EdgeInsets.all(20),
-        width: 400,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FilterHeader(onClose: () => Navigator.of(context).pop()),
-              const SizedBox(height: 20),
-              const Divider(height: 1),
-              const SizedBox(height: 20),
-              _buildFormFields(),
-              const SizedBox(height: 24),
-              FilterButtons(onReset: _resetFilter, onApply: _applyFilter),
-            ],
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(color: Colors.black26, blurRadius: 10, spreadRadius: 2),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: SafeArea(
+          top: false,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // garis kecil di atas modal
+                Center(
+                  child: Container(
+                    width: 50,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+                FilterHeader(
+                  onClose: () => Navigator.of(context).pop(),
+                  selectedCount: _selectedCount,
+                ),
+                const Divider(height: 24),
+                _buildFormFields(),
+                const SizedBox(height: 16),
+                FilterButtons(
+                  onReset: _resetFilter,
+                  onApply: _applyFilter,
+                  selectedCount: _selectedCount,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -100,6 +137,7 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
   Widget _buildFormFields() {
     return Column(
       children: [
+        // Nama kegiatan
         TextFormField(
           decoration: const InputDecoration(
             labelText: 'Nama Kegiatan',
@@ -109,6 +147,7 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
         ),
         const SizedBox(height: 16),
 
+        // Kategori kegiatan
         DropdownButtonFormField<String>(
           decoration: const InputDecoration(
             labelText: 'Kategori Kegiatan',
@@ -122,6 +161,7 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
         ),
         const SizedBox(height: 16),
 
+        // Tanggal pelaksanaan
         TextFormField(
           readOnly: true,
           decoration: InputDecoration(
@@ -136,6 +176,7 @@ class _FilterKegiatanDialogState extends State<FilterKegiatanDialog> {
         ),
         const SizedBox(height: 16),
 
+        // Penanggung jawab
         TextFormField(
           decoration: const InputDecoration(
             labelText: 'Penanggung Jawab',

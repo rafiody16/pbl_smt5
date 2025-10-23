@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../data/data_aspirasi.dart';
 import 'filter_header.dart';
 import 'filter_button.dart';
@@ -15,14 +14,22 @@ class FilterAspirasiDialog extends StatefulWidget {
   });
 
   @override
-  State<FilterAspirasiDialog> createState() => _FilterAspirasiDialog();
+  State<FilterAspirasiDialog> createState() => _FilterAspirasiDialogState();
 }
 
-class _FilterAspirasiDialog extends State<FilterAspirasiDialog> {
+class _FilterAspirasiDialogState extends State<FilterAspirasiDialog> {
   final _formKey = GlobalKey<FormState>();
 
   String _selectedJudul = '';
   String? _selectedStatus;
+
+  // Hitung berapa filter yang aktif
+  int get _selectedCount {
+    int count = 0;
+    if (_selectedJudul.isNotEmpty) count++;
+    if (_selectedStatus != null && _selectedStatus!.isNotEmpty) count++;
+    return count;
+  }
 
   void _applyFilter() {
     if (_formKey.currentState!.validate()) {
@@ -30,7 +37,9 @@ class _FilterAspirasiDialog extends State<FilterAspirasiDialog> {
 
       final filters = <String, String>{};
       if (_selectedJudul.isNotEmpty) filters['judul'] = _selectedJudul;
-      if (_selectedStatus != null) filters['status'] = _selectedStatus!;
+      if (_selectedStatus != null && _selectedStatus!.isNotEmpty) {
+        filters['status'] = _selectedStatus!;
+      }
 
       widget.onFilterApplied(filters);
       Navigator.of(context).pop();
@@ -60,13 +69,23 @@ class _FilterAspirasiDialog extends State<FilterAspirasiDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FilterHeader(onClose: () => Navigator.of(context).pop()),
+              // 🟦 Header dengan selectedCount
+              FilterHeader(
+                onClose: () => Navigator.of(context).pop(),
+                selectedCount: _selectedCount,
+              ),
               const SizedBox(height: 20),
               const Divider(height: 1),
               const SizedBox(height: 20),
               _buildFormFields(),
               const SizedBox(height: 24),
-              FilterButtons(onReset: _resetFilter, onApply: _applyFilter),
+
+              // 🟦 Buttons dengan selectedCount juga
+              FilterButtons(
+                onReset: _resetFilter,
+                onApply: _applyFilter,
+                selectedCount: _selectedCount,
+              ),
             ],
           ),
         ),
@@ -79,8 +98,8 @@ class _FilterAspirasiDialog extends State<FilterAspirasiDialog> {
       children: [
         TextFormField(
           decoration: const InputDecoration(
-            labelText: 'Judul Broadcast',
-            hintText: 'Contoh: Pengumuman',
+            labelText: 'Judul Aspirasi',
+            hintText: 'Contoh: Perbaikan Jalan',
           ),
           onChanged: (value) => setState(() => _selectedJudul = value),
         ),
@@ -92,12 +111,11 @@ class _FilterAspirasiDialog extends State<FilterAspirasiDialog> {
             hintText: '-- Pilih Status --',
           ),
           value: _selectedStatus,
-          items: DataAspirasi.StatusAspirasi.map((aspirasi) {
-            return DropdownMenuItem(value: aspirasi, child: Text(aspirasi));
+          items: DataAspirasi.StatusAspirasi.map((status) {
+            return DropdownMenuItem(value: status, child: Text(status));
           }).toList(),
           onChanged: (value) => setState(() => _selectedStatus = value),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }

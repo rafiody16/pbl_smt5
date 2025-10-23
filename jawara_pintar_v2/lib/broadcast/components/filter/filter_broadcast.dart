@@ -15,27 +15,31 @@ class FilterBroadcastDialog extends StatefulWidget {
   });
 
   @override
-  State<FilterBroadcastDialog> createState() => _FilterBroadcastDialog();
+  State<FilterBroadcastDialog> createState() => _FilterBroadcastDialogState();
 }
 
-class _FilterBroadcastDialog extends State<FilterBroadcastDialog> {
+class _FilterBroadcastDialogState extends State<FilterBroadcastDialog> {
   final _formKey = GlobalKey<FormState>();
 
   String _selectedJudul = '';
   String? _selectedTanggal;
 
+  int get _selectedCount {
+    int count = 0;
+    if (_selectedJudul.isNotEmpty) count++;
+    if (_selectedTanggal != null && _selectedTanggal!.isNotEmpty) count++;
+    return count;
+  }
+
   void _applyFilter() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      final filters = <String, String>{};
-      if (_selectedJudul.isNotEmpty) filters['judul'] = _selectedJudul;
-      if (_selectedTanggal != null)
-        filters['tanggal_publikasi'] = _selectedTanggal!;
-
-      widget.onFilterApplied(filters);
-      Navigator.of(context).pop();
+    final filters = <String, String>{};
+    if (_selectedJudul.isNotEmpty) filters['judul'] = _selectedJudul;
+    if (_selectedTanggal != null && _selectedTanggal!.isNotEmpty) {
+      filters['tanggal_publikasi'] = _selectedTanggal!;
     }
+
+    widget.onFilterApplied(filters);
+    Navigator.of(context).pop();
   }
 
   void _resetFilter() {
@@ -64,26 +68,50 @@ class _FilterBroadcastDialog extends State<FilterBroadcastDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return FractionallySizedBox(
+      heightFactor: null, // tinggi menyesuaikan isi
       child: Container(
-        padding: const EdgeInsets.all(20),
-        width: 400,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FilterHeader(onClose: () => Navigator.of(context).pop()),
-              const SizedBox(height: 20),
-              const Divider(height: 1),
-              const SizedBox(height: 20),
-              _buildFormFields(),
-              const SizedBox(height: 24),
-              FilterButtons(onReset: _resetFilter, onApply: _applyFilter),
-            ],
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(color: Colors.black26, blurRadius: 10, spreadRadius: 2),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: SafeArea(
+          top: false,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // tinggi ikut isi (mini)
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 50,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+                FilterHeader(
+                  onClose: () => Navigator.of(context).pop(),
+                  selectedCount: _selectedCount,
+                ),
+                const Divider(height: 24),
+                _buildFormFields(),
+                const SizedBox(height: 16),
+                FilterButtons(
+                  onReset: _resetFilter,
+                  onApply: _applyFilter,
+                  selectedCount: _selectedCount,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -101,7 +129,6 @@ class _FilterBroadcastDialog extends State<FilterBroadcastDialog> {
           onChanged: (value) => setState(() => _selectedJudul = value),
         ),
         const SizedBox(height: 16),
-
         TextFormField(
           readOnly: true,
           decoration: InputDecoration(
@@ -114,7 +141,6 @@ class _FilterBroadcastDialog extends State<FilterBroadcastDialog> {
           ),
           controller: TextEditingController(text: _selectedTanggal ?? ''),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }

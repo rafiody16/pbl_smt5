@@ -19,7 +19,7 @@ class TabelPagination extends StatefulWidget {
 }
 
 class _TabelPaginationState extends State<TabelPagination> {
-  late int _currentPage;
+  late int _currentPage = 1;
 
   @override
   void initState() {
