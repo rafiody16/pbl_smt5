@@ -11,7 +11,7 @@ class MutasiListTable extends StatelessWidget {
     required this.onDetailTap,
   });
 
-  // Helper untuk membuat status chip
+  // Widget kecil untuk status chip
   Widget _buildStatusChip(String jenisMutasi) {
     Color chipColor;
     Color textColor;
@@ -30,84 +30,97 @@ class MutasiListTable extends StatelessWidget {
         style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
       ),
       backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      visualDensity: VisualDensity.compact,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      elevation: 3,
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tombol Filter
-            ElevatedButton.icon(
-              onPressed: () {
-                // Logika filter
-              },
-              icon: const Icon(Icons.filter_list_alt, size: 18),
-              label: const Text("Filter"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
+            // Tombol Filter di bagian atas
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // TODO: Tambahkan logika filter
+                },
+                icon: const Icon(Icons.filter_list, size: 18),
+                label: const Text("Filter"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Daftar data mutasi (tanpa tabel horizontal)
+            ...mutasiList.asMap().entries.map((entry) {
+              int index = entry.key;
+              Mutasi mutasi = entry.value;
+
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Tabel Data
-            SizedBox(
-              width: double.infinity,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingRowColor:
-                      MaterialStateProperty.all(Colors.grey[50]),
-                  columns: const [
-                    DataColumn(label: Text('NO')),
-                    DataColumn(label: Text('TANGGAL')),
-                    DataColumn(label: Text('KELUARGA')),
-                    DataColumn(label: Text('JENIS MUTASI')),
-                    DataColumn(label: Text('AKSI')),
-                  ],
-                  rows: mutasiList.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    Mutasi mutasi = entry.value;
-                    return DataRow(cells: [
-                      DataCell(Text((index + 1).toString())),
-                      DataCell(Text(mutasi.tanggal)),
-                      DataCell(Text(mutasi.namaKeluarga)),
-                      DataCell(_buildStatusChip(mutasi.jenisMutasi)),
-                      DataCell(
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'detail') {
-                              onDetailTap(mutasi);
-                            }
-                          },
-                          itemBuilder: (BuildContext context) => [
-                            const PopupMenuItem<String>(
-                              value: 'detail',
-                              child: Text('Detail'),
-                            ),
-                          ],
-                          icon: const Icon(Icons.more_horiz),
-                        ),
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+                child: ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.deepPurple[100],
+                    child: Text(
+                      (index + 1).toString(),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  title: Text(
+                    mutasi.namaKeluarga,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mutasi.tanggal,
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.black54),
                       ),
-                    ]);
-                  }).toList(),
+                      const SizedBox(height: 4),
+                      _buildStatusChip(mutasi.jenisMutasi),
+                    ],
+                  ),
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'detail') onDetailTap(mutasi);
+                    },
+                    itemBuilder: (BuildContext context) => const [
+                      PopupMenuItem<String>(
+                        value: 'detail',
+                        child: Text('Detail'),
+                      ),
+                    ],
+                    icon: const Icon(Icons.more_vert),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
+              );
+            }),
 
-            // Kontrol Paginasi (Mockup)
+            const SizedBox(height: 16),
+
+            // Paginasi (mockup)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -117,10 +130,10 @@ class MutasiListTable extends StatelessWidget {
                 ),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.deepPurple,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
                     '1',

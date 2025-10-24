@@ -53,6 +53,7 @@ class _UserListScreenState extends State<UserListScreen> {
                     const SizedBox(height: 20),
 
                     // Card tabel di sisi kiri
+                    // Ganti bagian Card tabel di sisi kiri dengan:
                     Card(
                       elevation: 3,
                       shape: RoundedRectangleBorder(
@@ -60,29 +61,16 @@ class _UserListScreenState extends State<UserListScreen> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 600),
-                            child: UserTable(users: _users),
-                          ),
-                        ),
+                        child: UserTable(users: _users), // langsung tampil dalam 1 layar
                       ),
                     ),
+
                   ],
                 ),
               ),
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // aksi tambah pengguna nanti diisi
-        },
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
       ),
     );
   }

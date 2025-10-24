@@ -31,6 +31,8 @@ import '../../pemasukan/pemasukan_lain_daftar.dart';
 import '../../pemasukan/pemasukan_lain_tambah.dart';
 import '../../pengeluaran/daftar.dart';
 import '../../pengeluaran/tambah.dart';
+import '../../chanel_tranfer/halaman_daftar_chanel.dart';
+import '../../chanel_tranfer/halaman_tambah_chanel.dart';
 
 
 class SidebarMenu extends StatelessWidget {
@@ -384,7 +386,20 @@ class SidebarMenu extends StatelessWidget {
     MenuSection(
       title: "Channel Transfer",
       icon: Icons.swap_horiz,
-      subMenus: ["Daftar Channel", "Tambah Channel"],
+      subMenus: [
+    SubMenu("Daftar Channel", onTap: (context) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HalamanDaftarChanel()),
+      );
+    }),
+    SubMenu("Tambah Channel", onTap: (context) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ChanelTambahScreen()),
+      );
+    }),
+  ],
     ),
   ];
 

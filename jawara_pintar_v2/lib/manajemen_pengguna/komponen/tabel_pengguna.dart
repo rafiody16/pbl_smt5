@@ -1,5 +1,3 @@
-// lib/halaman/manajemen_pengguna/komponen/tabel_pengguna.dart
-
 import 'package:flutter/material.dart';
 import '../../../model/pengguna.dart';
 import '../halaman_detail_pengguna.dart';
@@ -12,93 +10,79 @@ class UserTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal, // agar tabel bisa di-scroll
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 600), // menjaga proporsi
-            child: DataTable(
-              columnSpacing: 20,
-              headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-              columns: const [
-                DataColumn(label: Text('NO')),
-                DataColumn(label: Text('NAMA')),
-                DataColumn(label: Text('EMAIL')),
-                DataColumn(label: Text('STATUS')),
-                DataColumn(label: Text('AKSI')),
+    return Column(
+      children: users.map((user) {
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.deepPurple[200],
+              child: Text(
+                user.id.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+            title: Text(
+              user.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(user.email,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    user.registrationStatus,
+                    style: TextStyle(
+                      color: Colors.green[800],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ],
-              rows: users.map((user) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(user.id.toString())),
-                    DataCell(Text(
-                      user.name,
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                    DataCell(SizedBox(
-                      width: 180, // batasi lebar agar email tidak meluber
-                      child: Text(
-                        user.email,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    )),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.green[100],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          user.registrationStatus,
-                          style: TextStyle(
-                            color: Colors.green[800],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
+            ),
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'detail') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailScreen(user: user),
                     ),
-                    DataCell(
-                      PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'detail') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    UserDetailScreen(user: user),
-                              ),
-                            );
-                          }
-                          if (value == 'edit') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UserEditScreen(user: user),
-                              ),
-                            );
-                          }
-                        },
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(
-                              value: 'detail', child: Text('Detail')),
-                          PopupMenuItem(value: 'edit', child: Text('Edit')),
-                        ],
-                        icon: const Icon(Icons.more_horiz),
-                      ),
+                  );
+                }
+                if (value == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserEditScreen(user: user),
                     ),
-                  ],
-                );
-              }).toList(),
+                  );
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(value: 'detail', child: Text('Detail')),
+                PopupMenuItem(value: 'edit', child: Text('Edit')),
+              ],
+              icon: const Icon(Icons.more_vert),
             ),
           ),
-        ),
-      ),
+        );
+      }).toList(),
     );
   }
 }
