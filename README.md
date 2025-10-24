@@ -47,4 +47,12 @@
 ### Pesan Warga
 <img src="img/aspirasi.gif" alt="Pesan Warga" width="20%">
 
+### Manajemen Pengguna
+<img src="img/daftar_pengguna.gif" alt="Pesan Warga" width="20%">
+<img src="img/tambah_pengguna.gif" alt="Pesan Warga" width="20%">
 
+### Mutasi Warga
+<img src="img/mutasi_keluarga.gif" alt="Pesan Warga" width="20%">
+
+### Chanel Transfer
+<img src="img/chanel_transfer.gif" alt="Pesan Warga" width="20%">
