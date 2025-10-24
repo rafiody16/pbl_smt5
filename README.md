@@ -14,6 +14,24 @@
 
 ## Tampilan
 
+### Login & Register
+<img src="img/login.gif" alt="Manajemen Kegiatan" width="20%">
+
+### Logout
+<img src="img/logout.gif" alt="Manajemen Kegiatan" width="20%">
+
+### Data Warga & Rumah
+<img src="img/warga.gif" alt="Manajemen Kegiatan" width="20%">
+
+<img src="img/rumah.gif" alt="Manajemen Kegiatan" width="20%">
+
+### Keluarga
+<img src="img/keluarga.gif" alt="Manajemen Kegiatan" width="20%">
+
+### Penerimaan Warga
+<img src="img/penerimaan_warga.gif" alt="Manajemen Kegiatan" width="20%">
+
+
 ### Manajemen Kegiatan
 <img src="img/kegiatan.gif" alt="Manajemen Kegiatan" width="20%">
 
