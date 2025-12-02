@@ -4,6 +4,7 @@ import '../data/login_data.dart';
 import '../dashboard/keuangan.dart';
 import 'email_field.dart';
 import 'password_field.dart';
+import '../services/auth_service.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -22,13 +23,31 @@ class _LoginFormState extends State<LoginForm> {
   void _login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
       setState(() {
         _isLoading = true;
       });
 
       // proses login
-      await Future.delayed(const Duration(milliseconds: 500));
+      try {
+        // Panggil Supabase Auth
+        await AuthService().login(_email, _password);
+
+        ToastService.showSuccess(context, "Login berhasil!");
+
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      } catch (e) {
+        // Tampilkan pesan error dari Supabase
+        ToastService.showError(
+          context,
+          e.toString().replaceAll('Exception: ', ''),
+        );
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+      /*await Future.delayed(const Duration(milliseconds: 500));
 
       if (LoginData.validateCredentials(_email, _password)) {
         ToastService.showSuccess(context, "Login berhasil!");
@@ -49,7 +68,7 @@ class _LoginFormState extends State<LoginForm> {
         setState(() {
           _isLoading = false;
         });
-      }
+      }*/
     }
   }
 
@@ -57,12 +76,12 @@ class _LoginFormState extends State<LoginForm> {
     if (value == null || value.isEmpty) {
       return 'Email harus diisi';
     }
-    
+
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Format email tidak valid';
     }
-    
+
     return null;
   }
 
@@ -70,11 +89,11 @@ class _LoginFormState extends State<LoginForm> {
     if (value == null || value.isEmpty) {
       return 'Password harus diisi';
     }
-    
+
     if (value.length < 6) {
       return 'Password minimal 6 karakter';
     }
-    
+
     return null;
   }
 
@@ -94,10 +113,7 @@ class _LoginFormState extends State<LoginForm> {
             const Center(
               child: Text(
                 "Masuk ke akun anda",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 20),
@@ -140,14 +156,14 @@ class _LoginFormState extends State<LoginForm> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text(
                         "Login",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
               ),
             ),

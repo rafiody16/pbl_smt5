@@ -6,9 +6,9 @@ import 'components/sidebar_menu.dart';
 import 'components/sidebar_footer.dart';
 
 class Sidebar extends StatefulWidget {
-  final String userEmail;
+  final String? userEmail;
 
-  const Sidebar({super.key, required this.userEmail});
+  const Sidebar({super.key, this.userEmail});
 
   @override
   State<Sidebar> createState() => _SidebarState();
@@ -26,15 +26,13 @@ class _SidebarState extends State<Sidebar> {
           Column(
             children: [
               const SidebarHeader(),
-              
+
               // menu items
-              Expanded(
-                child: SidebarMenu(),
-              ),
+              Expanded(child: SidebarMenu()),
 
               // footer
               SidebarFooter(
-                userEmail: widget.userEmail,
+                userEmail: widget.userEmail ?? 'Guest',
                 isExpanded: _isExpanded,
                 onTap: () {
                   setState(() {
@@ -96,7 +94,7 @@ class _SidebarState extends State<Sidebar> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        widget.userEmail,
+                        widget.userEmail ?? 'Guest',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -131,11 +129,7 @@ class _SidebarState extends State<Sidebar> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.logout,
-                        size: 20,
-                        color: Colors.grey[700],
-                      ),
+                      Icon(Icons.logout, size: 20, color: Colors.grey[700]),
                       const SizedBox(width: 12),
                       Text(
                         "Log out",
@@ -163,7 +157,12 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-   Widget _buildSubMenu(BuildContext context, String title, {VoidCallback? onTap, bool isActive = false}) {
+  Widget _buildSubMenu(
+    BuildContext context,
+    String title, {
+    VoidCallback? onTap,
+    bool isActive = false,
+  }) {
     return ListTile(
       title: Padding(
         padding: const EdgeInsets.only(left: 16.0),
