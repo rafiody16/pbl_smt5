@@ -33,7 +33,8 @@ import '../../pengeluaran/daftar.dart';
 import '../../pengeluaran/tambah.dart';
 import '../../chanel_tranfer/halaman_daftar_chanel.dart';
 import '../../chanel_tranfer/halaman_tambah_chanel.dart';
-
+import '../../views/warga/pages/warga_list_page.dart';
+import '../../views/warga/pages/warga_form_page.dart';
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
@@ -82,7 +83,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const WargaDaftarPage()),
+              MaterialPageRoute(builder: (context) => const WargaListPage()),
             );
           },
         ),
@@ -91,7 +92,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const WargaTambahPage()),
+              MaterialPageRoute(builder: (context) => const WargaFormPage()),
             );
           },
         ),
@@ -135,9 +136,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const KategoriIuran(),
-              ),
+              MaterialPageRoute(builder: (context) => const KategoriIuran()),
             );
           },
         ),
@@ -146,9 +145,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const TagihIuran(),
-              ),
+              MaterialPageRoute(builder: (context) => const TagihIuran()),
             );
           },
         ),
@@ -157,9 +154,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Tagihan(),
-              ),
+              MaterialPageRoute(builder: (context) => const Tagihan()),
             );
           },
         ),
@@ -196,9 +191,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Daftar(),
-              ),
+              MaterialPageRoute(builder: (context) => const Daftar()),
             );
           },
         ),
@@ -207,9 +200,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Tambah(),
-              ),
+              MaterialPageRoute(builder: (context) => const Tambah()),
             );
           },
         ),
@@ -336,19 +327,30 @@ class SidebarMenu extends StatelessWidget {
       title: "Mutasi Keluarga",
       icon: Icons.group,
       subMenus: [
-        SubMenu("Daftar", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MutasiDaftarScreen()),
-          );
-        }),
-        
-        SubMenu("Tambah", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MutasiTambahScreen()),
-          );
-        }),],
+        SubMenu(
+          "Daftar",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MutasiDaftarScreen(),
+              ),
+            );
+          },
+        ),
+
+        SubMenu(
+          "Tambah",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MutasiTambahScreen(),
+              ),
+            );
+          },
+        ),
+      ],
     ),
     MenuSection(
       title: "Log Aktivitas",
@@ -369,37 +371,53 @@ class SidebarMenu extends StatelessWidget {
       title: "Manajemen Pengguna",
       icon: Icons.settings,
       subMenus: [
-        SubMenu("Daftar - pengguna", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const UserListScreen()),
-          );
-        }),
-        SubMenu("Tambah - pengguna", onTap: (context) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const UserAddScreen()),
-          );
-        })
+        SubMenu(
+          "Daftar - pengguna",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const UserListScreen()),
+            );
+          },
+        ),
+        SubMenu(
+          "Tambah - pengguna",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const UserAddScreen()),
+            );
+          },
+        ),
       ],
     ),
     MenuSection(
       title: "Channel Transfer",
       icon: Icons.swap_horiz,
       subMenus: [
-    SubMenu("Daftar Channel", onTap: (context) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HalamanDaftarChanel()),
-      );
-    }),
-    SubMenu("Tambah Channel", onTap: (context) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ChanelTambahScreen()),
-      );
-    }),
-  ],
+        SubMenu(
+          "Daftar Channel",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HalamanDaftarChanel(),
+              ),
+            );
+          },
+        ),
+        SubMenu(
+          "Tambah Channel",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChanelTambahScreen(),
+              ),
+            );
+          },
+        ),
+      ],
     ),
   ];
 

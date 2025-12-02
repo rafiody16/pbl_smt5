@@ -97,7 +97,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
         child: Column(
           children: [
             if (_filters.isNotEmpty) _buildActiveFilters(),
-            
+
             // Content
             Expanded(
               child: WargaList(
@@ -148,7 +148,11 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
                   color: Colors.blue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.filter_alt, size: 16, color: Colors.blue),
+                child: const Icon(
+                  Icons.filter_alt,
+                  size: 16,
+                  color: Colors.blue,
+                ),
               ),
               const SizedBox(width: 8),
               const Text(
@@ -163,7 +167,10 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
               GestureDetector(
                 onTap: _clearAllFilters,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -197,7 +204,11 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
                   style: const TextStyle(fontSize: 12),
                 ),
                 backgroundColor: Colors.blue.withOpacity(0.1),
-                deleteIcon: Icon(Icons.close, size: 14, color: Colors.blue[400]),
+                deleteIcon: Icon(
+                  Icons.close,
+                  size: 14,
+                  color: Colors.blue[400],
+                ),
                 onDeleted: () {
                   setState(() {
                     _filters.remove(entry.key);
