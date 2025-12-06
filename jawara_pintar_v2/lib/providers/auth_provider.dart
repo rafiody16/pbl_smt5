@@ -1,0 +1,142 @@
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/auth_service.dart';
+
+class AuthProvider with ChangeNotifier {
+  final AuthService _authService = AuthService();
+
+  User? _currentUser;
+  String? _userRole;
+  Map<String, dynamic>? _wargaData;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // Getters
+  User? get currentUser => _currentUser;
+  String? get userRole => _userRole;
+  Map<String, dynamic>? get wargaData => _wargaData;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get isLoggedIn => _currentUser != null;
+  bool get isAdmin => _userRole == 'admin';
+  bool get isBendahara => _userRole == 'bendahara';
+  bool get isSekretaris => _userRole == 'sekretaris';
+  bool get isKetuaRT => _userRole == 'ketua_rt';
+  bool get isKetuaRW => _userRole == 'ketua_rw';
+
+  AuthProvider() {
+    _initialize();
+  }
+
+  // Initialize auth state
+  void _initialize() {
+    _currentUser = _authService.currentUser;
+    if (_currentUser != null) {
+      _loadUserData();
+    }
+
+    // Listen to auth state changes
+    _authService.authStateChanges.listen((event) {
+      _currentUser = event.session?.user;
+      if (_currentUser != null) {
+        _loadUserData();
+      } else {
+        _userRole = null;
+        _wargaData = null;
+      }
+      notifyListeners();
+    });
+  }
+
+  // Load user role and warga data
+  Future<void> _loadUserData() async {
+    if (_currentUser == null) return;
+
+    try {
+      _userRole = await _authService.getUserRole();
+      _wargaData = await _authService.getWargaByUserId(_currentUser!.id);
+      notifyListeners();
+    } catch (e) {
+      print('Error loading user data: $e');
+    }
+  }
+
+  // Login
+  Future<bool> login(String email, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _authService.login(email, password);
+      _currentUser = response.user;
+      await _loadUserData();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Logout
+  Future<void> logout() async {
+    try {
+      await _authService.logout();
+      _currentUser = null;
+      _userRole = null;
+      _wargaData = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+    }
+  }
+
+  // Sign up (self registration)
+  Future<bool> signUp({
+    required String email,
+    required String password,
+    required String nik,
+    required String namaLengkap,
+    Map<String, dynamic>? additionalData,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authService.signUp(
+        email: email,
+        password: password,
+        nik: nik,
+        namaLengkap: namaLengkap,
+        additionalData: additionalData,
+      );
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Refresh user data
+  Future<void> refreshUserData() async {
+    if (_currentUser != null) {
+      await _loadUserData();
+    }
+  }
+
+  // Check if user has permission
+  bool hasPermission(List<String> allowedRoles) {
+    if (_userRole == null) return false;
+    return allowedRoles.contains(_userRole);
+  }
+}

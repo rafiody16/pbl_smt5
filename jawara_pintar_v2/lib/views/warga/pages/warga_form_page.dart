@@ -22,6 +22,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
   final _noTeleponController = TextEditingController();
   final _tempatLahirController = TextEditingController();
   final _pekerjaanController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   DateTime? _tanggalLahir;
   String? _jenisKelamin;
@@ -33,6 +34,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
   String? _peran;
   int? _keluargaId;
   String _role = 'warga';
+  bool _createAccount = false; // Checkbox untuk create account
 
   Warga? _existingWarga;
 
@@ -76,6 +78,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
     _noTeleponController.dispose();
     _tempatLahirController.dispose();
     _pekerjaanController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -97,6 +100,19 @@ class _WargaFormPageState extends State<WargaFormPage> {
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
+    }
+
+    // Validasi email jika create account
+    if (_createAccount && !widget.isEdit) {
+      if (_emailController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email harus diisi untuk membuat akun'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
 
     _formKey.currentState!.save();
@@ -133,7 +149,16 @@ class _WargaFormPageState extends State<WargaFormPage> {
     if (widget.isEdit && _existingWarga != null) {
       success = await provider.updateWarga(_existingWarga!.nik, warga);
     } else {
-      success = await provider.tambahWarga(warga);
+      // Jika create account dicentang, gunakan tambahWargaWithAccount
+      if (_createAccount) {
+        success = await provider.tambahWargaWithAccount(
+          warga: warga,
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+      } else {
+        success = await provider.tambahWarga(warga);
+      }
     }
 
     if (mounted) {
@@ -143,6 +168,8 @@ class _WargaFormPageState extends State<WargaFormPage> {
             content: Text(
               widget.isEdit
                   ? 'Data warga berhasil diupdate'
+                  : _createAccount
+                  ? 'Data warga dan akun berhasil dibuat'
                   : 'Data warga berhasil ditambahkan',
             ),
             backgroundColor: Colors.green,
@@ -231,6 +258,50 @@ class _WargaFormPageState extends State<WargaFormPage> {
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
+            // Checkbox: Buat Akun untuk Warga
+            if (!widget.isEdit)
+              CheckboxListTile(
+                title: const Text(
+                  'Buatkan Akun Login',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: const Text(
+                  'Aktifkan untuk membuat akun login untuk warga ini',
+                  style: TextStyle(fontSize: 12),
+                ),
+                value: _createAccount,
+                onChanged: (value) {
+                  setState(() {
+                    _createAccount = value ?? false;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+            if (_createAccount && !widget.isEdit) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password *',
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                  helperText: 'Password untuk login warga (minimal 6 karakter)',
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (_createAccount) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password harus diisi';
+                    }
+                    if (value.length < 6) {
+                      return 'Password minimal 6 karakter';
+                    }
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
             // Jenis Kelamin
             DropdownButtonFormField<String>(
               value: _jenisKelamin,

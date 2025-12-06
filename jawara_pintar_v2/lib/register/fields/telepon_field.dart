@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class TeleponField extends StatelessWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? initialValue;
 
   const TeleponField({
     super.key,
     this.onSaved,
     this.validator,
+    this.initialValue,
   });
 
   String? _defaultValidator(String? value) {
@@ -33,10 +35,11 @@ class TeleponField extends StatelessWidget {
       children: [
         const Align(
           alignment: Alignment.centerLeft,
-          child: Text("No Telepon"),
+          child: Text("Nomor Telepon"),
         ),
         const SizedBox(height: 8),
         TextFormField(
+          initialValue: initialValue,
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
             hintText: "08xxxxxxxxx",
@@ -56,10 +59,7 @@ class TeleponField extends StatelessWidget {
               horizontal: 16,
               vertical: 12,
             ),
-            errorStyle: const TextStyle(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
           ),
           onSaved: onSaved,
           validator: validator ?? _defaultValidator,

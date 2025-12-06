@@ -157,6 +157,34 @@ class WargaProvider with ChangeNotifier {
     }
   }
 
+  // Add new warga with account creation
+  Future<bool> tambahWargaWithAccount({
+    required Warga warga,
+    required String email,
+    required String password,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _wargaService.tambahWargaWithAccount(
+        wargaData: warga.toMap(),
+        email: email,
+        password: password,
+      );
+      await loadWarga(); // Reload to get fresh data
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Update existing warga
   Future<bool> updateWarga(String nik, Warga warga) async {
     _isLoading = true;

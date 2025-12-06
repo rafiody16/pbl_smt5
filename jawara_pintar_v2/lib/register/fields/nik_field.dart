@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 class NikField extends StatelessWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? initialValue;
 
-  const NikField({
-    super.key,
-    this.onSaved,
-    this.validator,
-  });
+  const NikField({super.key, this.onSaved, this.validator, this.initialValue});
 
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -28,12 +25,10 @@ class NikField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text("NIK"),
-        ),
+        const Align(alignment: Alignment.centerLeft, child: Text("NIK")),
         const SizedBox(height: 8),
         TextFormField(
+          initialValue: initialValue,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: "Masukkan NIK sesuai KTP",
@@ -53,10 +48,7 @@ class NikField extends StatelessWidget {
               horizontal: 16,
               vertical: 12,
             ),
-            errorStyle: const TextStyle(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
           ),
           onSaved: onSaved,
           validator: validator ?? _defaultValidator,

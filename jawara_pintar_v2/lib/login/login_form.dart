@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/toast_service.dart';
-import '../data/login_data.dart';
-import '../dashboard/keuangan.dart';
 import 'email_field.dart';
 import 'password_field.dart';
-import '../services/auth_service.dart';
+import '../providers/auth_provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -18,34 +17,25 @@ class _LoginFormState extends State<LoginForm> {
   String _email = '';
   String _password = '';
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      setState(() {
-        _isLoading = true;
-      });
+      final authProvider = context.read<AuthProvider>();
 
-      // proses login
-      try {
-        // Panggil Supabase Auth
-        await AuthService().login(_email, _password);
+      final success = await authProvider.login(_email, _password);
 
-        ToastService.showSuccess(context, "Login berhasil!");
-
-        if (mounted) {
+      if (mounted) {
+        if (success) {
+          ToastService.showSuccess(context, "Login berhasil!");
           Navigator.pushReplacementNamed(context, '/dashboard');
+        } else {
+          ToastService.showError(
+            context,
+            authProvider.errorMessage ?? 'Login gagal',
+          );
         }
-      } catch (e) {
-        // Tampilkan pesan error dari Supabase
-        ToastService.showError(
-          context,
-          e.toString().replaceAll('Exception: ', ''),
-        );
-      } finally {
-        if (mounted) setState(() => _isLoading = false);
       }
       /*await Future.delayed(const Duration(milliseconds: 500));
 
@@ -138,34 +128,38 @@ class _LoginFormState extends State<LoginForm> {
             ),
             const SizedBox(height: 24),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : const Text(
-                        "Login",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: authProvider.isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-              ),
+                    ),
+                    child: authProvider.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                );
+              },
             ),
           ],
         ),
