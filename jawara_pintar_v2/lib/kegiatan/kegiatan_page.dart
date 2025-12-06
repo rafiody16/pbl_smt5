@@ -165,6 +165,7 @@ class _KegiatanDaftarPage extends State<KegiatanDaftarPage> {
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
+                overflow: TextOverflow.ellipsis,
               )),
               const Spacer(),
               GestureDetector(
