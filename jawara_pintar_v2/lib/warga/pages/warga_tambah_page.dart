@@ -161,7 +161,9 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
                           child: const Icon(Icons.person_add, color: Colors.blue, size: 28),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
+                        // const Text(
+                        const Expanded( 
+                        child: Text(
                           "Tambah Warga Baru",
                           style: TextStyle(
                             fontSize: 20,
@@ -169,7 +171,7 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
                             color: Colors.black87,
                           ),
                         ),
-                      ],
+                    )],
                     ),
                     const SizedBox(height: 24),
                     const Divider(height: 1, color: Colors.grey),
