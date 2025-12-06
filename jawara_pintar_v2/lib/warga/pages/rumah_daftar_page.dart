@@ -141,6 +141,7 @@ class _RumahDaftarPageState extends State<RumahDaftarPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
