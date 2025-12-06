@@ -66,9 +66,9 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
         elevation: 1,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Container(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
