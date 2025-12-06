@@ -101,7 +101,82 @@ class _RumahTambahPageState extends State<RumahTambahPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+//                     Row(
+//                       children: [
+//                         Container(
+//                           width: 48,
+//                           height: 48,
+//                           decoration: BoxDecoration(
+//                             color: Colors.blue.withOpacity(0.1),
+//                             borderRadius: BorderRadius.circular(8),
+//                           ),
+//                           child: const Icon(Icons.add_home_work, color: Colors.blue, size: 28),
+//                         ),
+//                         const SizedBox(width: 16),
+//                         const Text(
+//                           "Tambah Rumah Baru",
+//                           style: TextStyle(
+//                             fontSize: 20,
+//                             fontWeight: FontWeight.bold,
+//                             color: Colors.black87,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 24),
+//                     const Divider(height: 1, color: Colors.grey),
+//                     const SizedBox(height: 24),
+
+//                     FormRumah(
+//                       initialData: _formData,
+//                       formKey: _formKey,
+//                       onAlamatChanged: (value) => _alamat = value,
+//                       onStatusChanged: (value) => setState(() => _status = value),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+
+//             const SizedBox(height: 24),
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.end,
+//               children: [
+//                 OutlinedButton(
+//                   onPressed: _resetForm,
+//                   style: OutlinedButton.styleFrom(
+//                     foregroundColor: Colors.grey[700],
+//                     side: BorderSide(color: Colors.grey[300]!),
+//                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                   ),
+//                   child: const Text("Reset"),
+//                 ),
+//                 const SizedBox(width: 12),
+//                 ElevatedButton(
+//                   onPressed: _saveData,
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: Colors.blue,
+//                     foregroundColor: Colors.white,
+//                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                   ),
+//                   child: const Text("Submit"),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+Row(
                       children: [
                         Container(
                           width: 48,
@@ -110,15 +185,22 @@ class _RumahTambahPageState extends State<RumahTambahPage> {
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.add_home_work, color: Colors.blue, size: 28),
+                          child: const Icon(Icons.add_home_work,
+                              color: Colors.blue, size: 28),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
-                          "Tambah Rumah Baru",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        // Gunakan Expanded agar teks tidak overflow ke kanan
+                        const Expanded( 
+                          child: Text(
+                            "Tambah Rumah Baru",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            // Opsional: Batasi baris atau biarkan wrap
+                            maxLines: 2, 
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -131,7 +213,8 @@ class _RumahTambahPageState extends State<RumahTambahPage> {
                       initialData: _formData,
                       formKey: _formKey,
                       onAlamatChanged: (value) => _alamat = value,
-                      onStatusChanged: (value) => setState(() => _status = value),
+                      onStatusChanged: (value) =>
+                          setState(() => _status = value),
                     ),
                   ],
                 ),
@@ -139,37 +222,50 @@ class _RumahTambahPageState extends State<RumahTambahPage> {
             ),
 
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton(
-                  onPressed: _resetForm,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey[700],
-                    side: BorderSide(color: Colors.grey[300]!),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+            
+            // --- PERBAIKAN 2: Tombol Aksi ---
+            // Menggunakan Wrap lebih aman daripada Row untuk tombol
+            // Jika layar sempit, tombol Reset akan naik di atas Submit
+            Container(
+              alignment: Alignment.centerRight, // Rata kanan
+              child: Wrap(
+                spacing: 12, // Jarak horizontal antar tombol
+                runSpacing: 12, // Jarak vertikal jika tombol turun ke bawah
+                alignment: WrapAlignment.end,
+                children: [
+                  OutlinedButton(
+                    onPressed: _resetForm,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey[700],
+                      side: BorderSide(color: Colors.grey[300]!),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: const Text("Reset"),
                   ),
-                  child: const Text("Reset"),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _saveData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  ElevatedButton(
+                    onPressed: _saveData,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: const Text("Submit"),
                   ),
-                  child: const Text("Submit"),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+            // Tambahan padding bawah agar tombol tidak mepet layar bawah 
+            // saat di-scroll mentok
+            const SizedBox(height: 20), 
+         ],
         ),
       ),
     );
