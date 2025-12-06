@@ -139,6 +139,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
