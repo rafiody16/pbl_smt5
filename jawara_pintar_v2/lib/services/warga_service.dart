@@ -32,12 +32,45 @@ class WargaService {
     }
   }
 
-  // Menambah warga baru
+  // Menambah warga baru (dengan optional user account creation)
   Future<void> tambahWarga(Map<String, dynamic> data) async {
     try {
       await _supabase.from('warga').insert(data);
     } catch (e) {
       throw Exception('Gagal menambah warga: $e');
+    }
+  }
+
+  // Tambah warga dengan account Supabase Auth
+  Future<void> tambahWargaWithAccount({
+    required Map<String, dynamic> wargaData,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      // 1. Create auth user
+      final authResponse = await _supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'nik': wargaData['nik'],
+          'nama_lengkap': wargaData['nama_lengkap'],
+          'role': wargaData['role'] ?? 'warga',
+        },
+      );
+
+      if (authResponse.user == null) {
+        throw Exception('Gagal membuat akun auth');
+      }
+
+      // 2. Update warga data dengan user_id
+      wargaData['user_id'] = authResponse.user!.id;
+      wargaData['email'] = email;
+
+      // 3. Insert ke tabel warga
+      await _supabase.from('warga').insert(wargaData);
+    } catch (e) {
+      throw Exception('Gagal menambah warga dengan akun: $e');
     }
   }
 

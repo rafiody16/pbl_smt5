@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class NamaLengkapField extends StatelessWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? initialValue;
 
   const NamaLengkapField({
     super.key,
     this.onSaved,
     this.validator,
+    this.initialValue,
   });
 
   String? _defaultValidator(String? value) {
@@ -31,6 +33,8 @@ class NamaLengkapField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          initialValue: initialValue,
+          keyboardType: TextInputType.name,
           decoration: InputDecoration(
             hintText: "Masukkan nama lengkap",
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -49,10 +53,7 @@ class NamaLengkapField extends StatelessWidget {
               horizontal: 16,
               vertical: 12,
             ),
-            errorStyle: const TextStyle(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
           ),
           onSaved: onSaved,
           validator: validator ?? _defaultValidator,

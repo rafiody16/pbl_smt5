@@ -20,6 +20,7 @@ import 'warga/pages/rumah_tambah_page.dart';
 import 'penerimaanWarga/pages/penerimaan_warga_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'providers/warga_provider.dart';
+import 'providers/auth_provider.dart';
 import 'views/warga/pages/warga_list_page.dart';
 import 'views/warga/pages/warga_form_page.dart';
 import 'views/warga/pages/warga_detail_page.dart';
@@ -41,7 +42,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => WargaProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => WargaProvider()),
+      ],
       child: MaterialApp(
         title: 'Jawara Pintar',
         debugShowCheckedModeBanner: false,
@@ -58,9 +62,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
-        home: const DashboardPage(),
-
-        // home: const LoginPage(),
+        // home: const DashboardPage(),
+        home: const LoginPage(),
         routes: {
           '/login': (context) => const LoginPage(),
           '/register': (context) => const RegisterPage(),
