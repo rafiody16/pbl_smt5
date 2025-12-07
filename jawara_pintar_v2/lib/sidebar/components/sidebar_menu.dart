@@ -191,7 +191,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Daftar()),
+              MaterialPageRoute(builder: (context) => const PengeluaranDaftarPage()),
             );
           },
         ),
@@ -200,7 +200,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Tambah()),
+              MaterialPageRoute(builder: (context) => const PengeluaranTambahPage()),
             );
           },
         ),
