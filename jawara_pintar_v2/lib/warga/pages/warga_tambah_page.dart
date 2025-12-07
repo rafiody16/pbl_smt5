@@ -161,7 +161,9 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
                           child: const Icon(Icons.person_add, color: Colors.blue, size: 28),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
+                        // const Text(
+                        const Expanded( 
+                        child: Text(
                           "Tambah Warga Baru",
                           style: TextStyle(
                             fontSize: 20,
@@ -169,7 +171,7 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
                             color: Colors.black87,
                           ),
                         ),
-                      ],
+                    )],
                     ),
                     const SizedBox(height: 24),
                     const Divider(height: 1, color: Colors.grey),
@@ -199,36 +201,81 @@ class _WargaTambahPageState extends State<WargaTambahPage> {
             ),
 
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton(
-                  onPressed: _resetForm,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey[700],
-                    side: BorderSide(color: Colors.grey[300]!),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.end,
+//               children: [
+//                 OutlinedButton(
+//                   onPressed: _resetForm,
+//                   style: OutlinedButton.styleFrom(
+//                     foregroundColor: Colors.grey[700],
+//                     side: BorderSide(color: Colors.grey[300]!),
+//                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                   ),
+//                   child: const Text("Reset"),
+//                 ),
+//                 const SizedBox(width: 12),
+//                 ElevatedButton(
+//                   onPressed: _saveData,
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: Colors.blue,
+//                     foregroundColor: Colors.white,
+//                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                   ),
+//                   child: const Text("Tambah"),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+Container(
+              alignment: Alignment.centerRight,
+              child: Wrap(
+                spacing: 12, // Jarak horizontal
+                runSpacing: 12, // Jarak vertikal jika turun baris
+                alignment: WrapAlignment.end,
+                children: [
+                  OutlinedButton(
+                    onPressed: _resetForm,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey[700],
+                      side: BorderSide(color: Colors.grey[300]!),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: const Text("Reset"),
                   ),
-                  child: const Text("Reset"),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _saveData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  ElevatedButton(
+                    onPressed: _saveData,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: const Text("Tambah"),
                   ),
-                  child: const Text("Tambah"),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),

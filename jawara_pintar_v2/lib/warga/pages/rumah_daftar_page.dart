@@ -141,6 +141,7 @@ class _RumahDaftarPageState extends State<RumahDaftarPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -153,14 +154,16 @@ class _RumahDaftarPageState extends State<RumahDaftarPage> {
                 child: const Icon(Icons.filter_alt, size: 16, color: Colors.blue),
               ),
               const SizedBox(width: 8),
-              const Text(
+              // const Text(
+              const Flexible(
+                child: Text(
                 "Filter Aktif",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
-              ),
+              )),
               const Spacer(),
               GestureDetector(
                 onTap: _clearAllFilters,
@@ -189,29 +192,70 @@ class _RumahDaftarPageState extends State<RumahDaftarPage> {
             ],
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _filters.entries.map((entry) {
-              return Chip(
-                label: Text(
-                  "${entry.key}: ${entry.value}",
-                  style: const TextStyle(fontSize: 12),
-                ),
-                backgroundColor: Colors.blue.withOpacity(0.1),
-                deleteIcon: Icon(Icons.close, size: 14, color: Colors.blue[400]),
-                onDeleted: () {
-                  setState(() {
-                    _filters.remove(entry.key);
-                  });
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.blue.withOpacity(0.3)),
-                ),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-              );
-            }).toList(),
+          // Wrap(
+          //   spacing: 8,
+          //   runSpacing: 8,
+          //   children: _filters.entries.map((entry) {
+          //     return Chip(
+          //       label: Text(
+          //         "${entry.key}: ${entry.value}",
+          //         style: const TextStyle(fontSize: 12),
+          //       ),
+          //       backgroundColor: Colors.blue.withOpacity(0.1),
+          //       deleteIcon: Icon(Icons.close, size: 14, color: Colors.blue[400]),
+          //       onDeleted: () {
+          //         setState(() {
+          //           _filters.remove(entry.key);
+          //         });
+          //       },
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(16),
+          //         side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+          //       ),
+          //       labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+          //     );
+          //   }).toList(),
+
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.2, // Maks 20% layar
+            ),
+            child: SingleChildScrollView(
+              // Tambahkan scroll jika filternya banyak
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _filters.entries.map((entry) {
+                  return Chip(
+                    // KUNCI PERBAIKAN: Batasi lebar teks di dalam chip
+                    label: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.6, // Maks 60% layar
+                      ),
+                      child: Text(
+                        "${entry.key}: ${entry.value}",
+                        style: const TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis, // Potong teks dgn ...
+                        maxLines: 1,
+                      ),
+                    ),
+                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    deleteIcon:
+                        Icon(Icons.close, size: 14, color: Colors.blue[400]),
+                    onDeleted: () {
+                      setState(() {
+                        _filters.remove(entry.key);
+                      });
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  );
+                }).toList(),
+         ),
+            ),
           ),
         ],
       ),

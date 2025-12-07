@@ -139,6 +139,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -155,14 +156,16 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
+              // const Text(
+              const Flexible(
+                child: Text(
                 "Filter Aktif",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
-              ),
+              )),
               const Spacer(),
               GestureDetector(
                 onTap: _clearAllFilters,
