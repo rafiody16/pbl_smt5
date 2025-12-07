@@ -7,7 +7,6 @@ class PemasukanLainTambah extends StatefulWidget {
   @override
   State<PemasukanLainTambah> createState() => _PemasukanLainTambahState();
 }
-
 class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   final _formKey = GlobalKey<FormState>();
   String? kategori;
