@@ -97,7 +97,7 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
         child: Column(
           children: [
             if (_filters.isNotEmpty) _buildActiveFilters(),
-            
+
             // Content
             Expanded(
               child: WargaList(
@@ -149,7 +149,11 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
                   color: Colors.blue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.filter_alt, size: 16, color: Colors.blue),
+                child: const Icon(
+                  Icons.filter_alt,
+                  size: 16,
+                  color: Colors.blue,
+                ),
               ),
               const SizedBox(width: 8),
               // const Text(
@@ -166,7 +170,10 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
               GestureDetector(
                 onTap: _clearAllFilters,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -190,75 +197,33 @@ class _WargaDaftarPageState extends State<WargaDaftarPage> {
             ],
           ),
           const SizedBox(height: 12),
-//           Wrap(
-//             spacing: 8,
-//             runSpacing: 8,
-//             children: _filters.entries.map((entry) {
-//               return Chip(
-//                 label: Text(
-//                   "${entry.key}: ${entry.value}",
-//                   style: const TextStyle(fontSize: 12),
-//                 ),
-//                 backgroundColor: Colors.blue.withOpacity(0.1),
-//                 deleteIcon: Icon(Icons.close, size: 14, color: Colors.blue[400]),
-//                 onDeleted: () {
-//                   setState(() {
-//                     _filters.remove(entry.key);
-//                   });
-//                 },
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(16),
-//                   side: BorderSide(color: Colors.blue.withOpacity(0.3)),
-//                 ),
-//                 labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-//               );
-//             }).toList(),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.2, // Maks 20%
-            ),
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _filters.entries.map((entry) {
-                  return Chip(
-                    // PERBAIKAN 3: Batasi lebar teks di dalam Chip
-                    label: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.6,
-                      ),
-                      child: Text(
-                        "${entry.key}: ${entry.value}",
-                        style: const TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                    backgroundColor: Colors.blue.withOpacity(0.1),
-                    deleteIcon:
-                        Icon(Icons.close, size: 14, color: Colors.blue[400]),
-                    onDeleted: () {
-                      setState(() {
-                        _filters.remove(entry.key);
-                      });
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: Colors.blue.withOpacity(0.3)),
-                    ),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  );
-                }).toList(),
-              ),
-            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _filters.entries.map((entry) {
+              return Chip(
+                label: Text(
+                  "${entry.key}: ${entry.value}",
+                  style: const TextStyle(fontSize: 12),
+                ),
+                backgroundColor: Colors.blue.withOpacity(0.1),
+                deleteIcon: Icon(
+                  Icons.close,
+                  size: 14,
+                  color: Colors.blue[400],
+                ),
+                onDeleted: () {
+                  setState(() {
+                    _filters.remove(entry.key);
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+                ),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+              );
+            }).toList(),
           ),
         ],
       ),

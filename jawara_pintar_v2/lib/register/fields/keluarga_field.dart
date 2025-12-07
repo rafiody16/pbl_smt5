@@ -1,88 +1,71 @@
 import 'package:flutter/material.dart';
-import '../../services/rumah_service.dart';
+import '../../services/keluarga_service.dart';
 
-class RumahField extends StatefulWidget {
-  final void Function(int?, String?)? onSelected; // id, alamat
-  final FormFieldValidator<int>? validator;
-  final int? initialValue;
+class KeluargaField extends StatefulWidget {
+  final void Function(int?)? onSaved;
+  final String? Function(int?)? validator;
+  final int? value;
 
-  const RumahField({
-    super.key,
-    this.onSelected,
-    this.validator,
-    this.initialValue,
-  });
+  const KeluargaField({super.key, this.onSaved, this.validator, this.value});
 
   @override
-  State<RumahField> createState() => _RumahFieldState();
+  State<KeluargaField> createState() => _KeluargaFieldState();
 }
 
-class _RumahFieldState extends State<RumahField> {
-  final _service = RumahService();
-  int? _selectedRumahId;
-
-  String? _defaultValidator(int? value) {
-    // opsional, karena ada validasi di form level
-    return null;
-  }
+class _KeluargaFieldState extends State<KeluargaField> {
+  final _service = KeluargaService();
+  int? _selectedId;
 
   @override
   void initState() {
     super.initState();
-    _selectedRumahId = widget.initialValue;
+    _selectedId = widget.value;
   }
 
-  // reset state
   void resetState() {
     setState(() {
-      _selectedRumahId = null;
+      _selectedId = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _service.getRumah(),
+      future: _service.getKeluarga(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingDropdown(label: 'Alamat Rumah');
+          return const _LoadingDropdown(label: 'Keluarga');
         }
         if (snapshot.hasError) {
           return _ErrorDropdown(
-            label: 'Alamat Rumah',
+            label: 'Keluarga',
             message: '${snapshot.error}',
           );
         }
-
         final data = snapshot.data ?? [];
         final items = data
             .map(
               (row) => DropdownMenuItem<int>(
                 value: row['id'] as int,
-                child: Text(row['alamat']?.toString() ?? 'Tanpa alamat'),
+                child: Text(row['nama_keluarga']?.toString() ?? 'Tanpa nama'),
               ),
             )
             .toList();
 
         return DropdownButtonFormField<int>(
-          value: _selectedRumahId,
+          value: _selectedId,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Pilih Alamat Rumah',
+            labelText: 'Keluarga',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          hint: const Text('Pilih alamat rumah'),
+          hint: const Text('Pilih keluarga'),
           items: items,
           onChanged: (val) {
-            setState(() => _selectedRumahId = val);
-            if (val != null) {
-              final row = data.firstWhere((e) => e['id'] == val);
-              widget.onSelected?.call(val, row['alamat']?.toString());
-            } else {
-              widget.onSelected?.call(null, null);
-            }
+            setState(() => _selectedId = val);
           },
-          validator: widget.validator ?? _defaultValidator,
+          onSaved: widget.onSaved,
+          validator: widget.validator,
         );
       },
     );

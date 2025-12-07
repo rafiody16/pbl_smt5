@@ -4,11 +4,13 @@ import '../../data/register_data.dart';
 class JenisKelaminField extends StatefulWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? value;
 
   const JenisKelaminField({
     super.key,
     this.onSaved,
     this.validator,
+    this.value,
   });
 
   @override
@@ -23,6 +25,12 @@ class _JenisKelaminFieldState extends State<JenisKelaminField> {
       return 'Jenis kelamin harus dipilih';
     }
     return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedJenisKelamin = widget.value;
   }
 
   // reset state
@@ -82,10 +90,7 @@ class _JenisKelaminFieldState extends State<JenisKelaminField> {
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                errorStyle: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                ),
+                errorStyle: TextStyle(color: Colors.red, fontSize: 12),
               ),
             ),
           ),

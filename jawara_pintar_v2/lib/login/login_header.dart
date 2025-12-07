@@ -9,6 +9,7 @@ class LoginHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 40,
@@ -27,20 +28,20 @@ class LoginHeader extends StatelessWidget {
             Text(
               "Jawara Pintar",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 24),
-        
+
         Text(
           "Selamat Datang",
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
         const SizedBox(height: 8),
         const Text(

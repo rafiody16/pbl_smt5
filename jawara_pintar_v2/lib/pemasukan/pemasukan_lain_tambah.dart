@@ -154,22 +154,35 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   final TextEditingController nominalController = TextEditingController();
   DateTime? tanggal;
 
+  // Simulasi file bukti (bisa dikembangkan jadi File/Uint8List)
+  String? _buktiPath; 
+
   @override
   Widget build(BuildContext context) {
     const String currentUserEmail = "user@example.com";
+
+    // Formatter untuk nominal (opsional untuk ditampilkan lebih baik)
+    String formatNominal() {
+      final nominal = nominalController.text;
+      if (nominal.isEmpty) return '';
+      final number = int.tryParse(nominal) ?? 0;
+      return 'Rp ${number.toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (match) => '${match[1]}.',
+      )}';
+    }
 
     return Scaffold(
       drawer: const Sidebar(userEmail: currentUserEmail),
       backgroundColor: const Color(0xfff0f4f7),
       appBar: AppBar(
-        title: const Text('Buat Pemasukan Non Iuran Baru'),
-        // Tambahkan ini agar judul panjang tidak overflow di HP kecil
-        bottom: PreferredSize(
-            preferredSize: Size.zero, child: Container(color: Colors.grey[200])),
+        title: const Text('Buat Pemasukan Non-Iuran Baru'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 1,
       ),
-      // PERBAIKAN 1: Bungkus body dengan SingleChildScrollView agar bisa discroll saat keyboard muncul
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Card(
@@ -178,24 +191,36 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(20),
-              // PERBAIKAN 2: Ganti ListView dengan Column agar tidak konflik scroll
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              padding: const EdgeInsets.all(20.0),
+              child: ListView(
                 children: [
-                  const Text('Nama Pemasukan', style: TextStyle(fontWeight: FontWeight.bold)),
+                  // === 1. Nama Pemasukan ===
+                  const Text(
+                    'Nama Pemasukan',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: namaController,
-                    decoration: const InputDecoration(
-                      hintText: 'Masukkan nama pemasukan',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    decoration: InputDecoration(
+                      hintText: 'Contoh: Donasi Bencana',
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nama pemasukan harus diisi';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
-                  
-                  const Text('Tanggal Pemasukan', style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // === 2. Tanggal Pemasukan ===
+                  const Text(
+                    'Tanggal Pemasukan',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     readOnly: true,
@@ -203,23 +228,34 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                       final picked = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
+                        firstDate: DateTime(2000),
                         lastDate: DateTime(2100),
                       );
-                      if (picked != null) setState(() => tanggal = picked);
+                      if (picked != null) {
+                        setState(() => tanggal = picked);
+                      }
                     },
                     decoration: InputDecoration(
-                      hintText: tanggal == null
-                          ? '-- Pilih Tanggal --'
-                          : '${tanggal!.day}/${tanggal!.month}/${tanggal!.year}',
-                      suffixIcon: const Icon(Icons.calendar_today),
+                      hintText: 'dd/mm/yyyy',
+                      labelText: tanggal == null ? null : '${tanggal!.day}/${tanggal!.month}/${tanggal!.year}',
+                      suffixIcon: const Icon(Icons.calendar_today, size: 20),
                       border: const OutlineInputBorder(),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
+                    validator: (value) {
+                      if (tanggal == null) {
+                        return 'Tanggal harus dipilih';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
-                  
-                  const Text('Kategori Pemasukan', style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // === 3. Kategori Pemasukan ===
+                  const Text(
+                    'Kategori Pemasukan',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: kategori,
@@ -229,68 +265,162 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                       DropdownMenuItem(value: 'sumbangan', child: Text('Sumbangan')),
                       DropdownMenuItem(value: 'lainnya', child: Text('Lainnya')),
                     ],
-                    onChanged: (val) => setState(() => kategori = val),
+                    onChanged: (String? val) {
+                      setState(() => kategori = val);
+                    },
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Pilih kategori';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
-                  
-                  const Text('Nominal', style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // === 4. Nominal ===
+                  const Text(
+                    'Nominal',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: nominalController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'Masukkan nominal pemasukan',
-                      border: OutlineInputBorder(),
-                      prefixText: 'Rp ',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    decoration: InputDecoration(
+                      hintText: 'Masukkan nominal',
+                      labelText: formatNominal().isNotEmpty ? formatNominal() : null,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nominal harus diisi';
+                      }
+                      final number = double.tryParse(value);
+                      if (number == null || number <= 0) {
+                        return 'Masukkan nominal valid';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
-                  
-                  const Text('Bukti Pemasukan', style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // === 5. Bukti Pemasukan (clickable) ===
+                  const Text(
+                    'Bukti Pemasukan',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
                   const SizedBox(height: 8),
-                  Container(
-                    height: 100,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.cloud_upload_outlined, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text('Upload bukti (.png/.jpg)', style: TextStyle(color: Colors.grey)),
-                      ],
+                  GestureDetector(
+                    onTap: () {
+                      // Simulasi upload
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Upload Bukti"),
+                          content: const Text("Fitur upload belum terhubung. Pilih dari galeri?"),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Batal")),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _buktiPath = "bukti_pemasukan_${DateTime.now().millisecondsSinceEpoch}.jpg";
+                                });
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Bukti berhasil diunggah")),
+                                );
+                              },
+                              child: const Text("Pilih"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      alignment: Alignment.center,
+                      child: _buktiPath == null
+                          ? const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.upload_file, size: 32, color: Colors.grey),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Klik untuk upload bukti\n(png/jpg/pdf)',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.green, size: 32),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Terkirim: $_buktiPath',
+                                  style: const TextStyle(fontSize: 12),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  
-                  // PERBAIKAN 3: Gunakan Wrap pengganti Row agar aman di layar kecil
-                  Wrap(
-                    spacing: 12, // Jarak horizontal antar tombol
-                    runSpacing: 12, // Jarak vertikal jika tombol turun ke bawah
-                    alignment: WrapAlignment.end, // Rata kanan
+                  const SizedBox(height: 16),
+
+                  // === 6. Tombol Aksi ===
+                  Row(
                     children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          namaController.clear();
-                          nominalController.clear();
-                          setState(() {
-                            kategori = null;
-                            tanggal = null;
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6A5AE0),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Simulasi submit
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Pemasukan '${namaController.text}' berhasil disimpan"),
+                                ),
+                              );
+                              Navigator.pop(context); // Kembali ke daftar
+                            }
+                          },
+                          child: const Text('Simpan'),
                         ),
-                        child: const Text('Reset'),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            _formKey.currentState?.reset();
+                            setState(() {
+                              namaController.clear();
+                              nominalController.clear();
+                              kategori = null;
+                              tanggal = null;
+                              _buktiPath = null;
+                            });
+                          },
+                          child: const Text('Reset'),
+                        ),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/toast_service.dart';
-import '../data/login_data.dart';
-import '../dashboard/keuangan.dart';
 import 'email_field.dart';
 import 'password_field.dart';
+import '../providers/auth_provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -17,18 +17,27 @@ class _LoginFormState extends State<LoginForm> {
   String _email = '';
   String _password = '';
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
-      setState(() {
-        _isLoading = true;
-      });
 
-      // proses login
-      await Future.delayed(const Duration(milliseconds: 500));
+      final authProvider = context.read<AuthProvider>();
+
+      final success = await authProvider.login(_email, _password);
+
+      if (mounted) {
+        if (success) {
+          ToastService.showSuccess(context, "Login berhasil!");
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } else {
+          ToastService.showError(
+            context,
+            authProvider.errorMessage ?? 'Login gagal',
+          );
+        }
+      }
+      /*await Future.delayed(const Duration(milliseconds: 500));
 
       if (LoginData.validateCredentials(_email, _password)) {
         ToastService.showSuccess(context, "Login berhasil!");
@@ -49,7 +58,7 @@ class _LoginFormState extends State<LoginForm> {
         setState(() {
           _isLoading = false;
         });
-      }
+      }*/
     }
   }
 
@@ -57,12 +66,12 @@ class _LoginFormState extends State<LoginForm> {
     if (value == null || value.isEmpty) {
       return 'Email harus diisi';
     }
-    
+
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Format email tidak valid';
     }
-    
+
     return null;
   }
 
@@ -70,11 +79,11 @@ class _LoginFormState extends State<LoginForm> {
     if (value == null || value.isEmpty) {
       return 'Password harus diisi';
     }
-    
+
     if (value.length < 6) {
       return 'Password minimal 6 karakter';
     }
-    
+
     return null;
   }
 
@@ -94,10 +103,7 @@ class _LoginFormState extends State<LoginForm> {
             const Center(
               child: Text(
                 "Masuk ke akun anda",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 20),
@@ -122,34 +128,38 @@ class _LoginFormState extends State<LoginForm> {
             ),
             const SizedBox(height: 24),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: authProvider.isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-              ),
+                    ),
+                    child: authProvider.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                );
+              },
             ),
           ],
         ),

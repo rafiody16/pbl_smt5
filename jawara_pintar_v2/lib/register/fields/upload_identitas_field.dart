@@ -4,11 +4,13 @@ import 'package:image_picker/image_picker.dart';
 class UploadIdentitasField extends StatefulWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? initialValue;
 
   const UploadIdentitasField({
     super.key,
     this.onSaved,
     this.validator,
+    this.initialValue,
   });
 
   @override
@@ -25,6 +27,12 @@ class _UploadIdentitasFieldState extends State<UploadIdentitasField> {
   //   }
   //   return null;
   // }
+
+  @override
+  void initState() {
+    super.initState();
+    _imagePath = widget.initialValue;
+  }
 
   // reset state
   void resetState() {
@@ -111,7 +119,11 @@ class _UploadIdentitasFieldState extends State<UploadIdentitasField> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white, size: 16),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                             onPressed: () {
                               setState(() {
                                 _imagePath = null;
@@ -134,10 +146,7 @@ class _UploadIdentitasFieldState extends State<UploadIdentitasField> {
                       SizedBox(height: 8),
                       Text(
                         "Upload foto KK/KTP (.png/jpg)",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -148,10 +157,7 @@ class _UploadIdentitasFieldState extends State<UploadIdentitasField> {
           alignment: Alignment.centerRight,
           child: Text(
             "Powered by PQINA",
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
       ],

@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class AlamatRumahField extends StatelessWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final TextEditingController? controller;
+  final bool readOnly;
 
   const AlamatRumahField({
     super.key,
     this.onSaved,
     this.validator,
+    this.controller,
+    this.readOnly = false,
   });
 
   String? _defaultValidator(String? value) {
@@ -35,6 +39,8 @@ class AlamatRumahField extends StatelessWidget {
         const SizedBox(height: 8),
         TextFormField(
           maxLength: 100,
+          controller: controller,
+          readOnly: readOnly,
           decoration: InputDecoration(
             hintText: "Blok 5A / No.10",
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -53,10 +59,7 @@ class AlamatRumahField extends StatelessWidget {
               horizontal: 16,
               vertical: 12,
             ),
-            errorStyle: const TextStyle(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
             counterText: '',
           ),
           onSaved: onSaved,

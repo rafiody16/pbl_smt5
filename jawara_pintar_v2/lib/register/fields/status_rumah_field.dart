@@ -4,12 +4,9 @@ import '../../data/register_data.dart';
 class StatusRumahField extends StatefulWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
+  final String? value;
 
-  const StatusRumahField({
-    super.key,
-    this.onSaved,
-    this.validator,
-  });
+  const StatusRumahField({super.key, this.onSaved, this.validator, this.value});
 
   @override
   State<StatusRumahField> createState() => _StatusRumahFieldState();
@@ -17,6 +14,12 @@ class StatusRumahField extends StatefulWidget {
 
 class _StatusRumahFieldState extends State<StatusRumahField> {
   String? _selectedStatusRumah;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStatusRumah = widget.value;
+  }
 
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -82,10 +85,7 @@ class _StatusRumahFieldState extends State<StatusRumahField> {
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                errorStyle: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                ),
+                errorStyle: TextStyle(color: Colors.red, fontSize: 12),
               ),
             ),
           ),
