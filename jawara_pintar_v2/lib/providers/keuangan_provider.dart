@@ -100,6 +100,22 @@ class KeuanganProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> tambahKategori(String nama, double nominal) async {
+    try {
+      await _supabase.from('kategori_keuangan').insert({
+        'nama_kategori': nama,
+        'jenis': 'Pemasukan', // Default jenis
+        'tipe_iuran': 'rutin', // Penanda ini adalah iuran
+        'nominal_default': nominal,
+      });
+      await initData(); // Refresh data
+      return true;
+    } catch (e) {
+      debugPrint("Gagal tambah kategori: $e");
+      return false;
+    }
+  }
+
   // === 4. HELPER: Ambil Nama Kategori by ID ===
   // Berguna untuk menampilkan nama kategori di List (bukan ID-nya)
   String getNamaKategori(int id) {

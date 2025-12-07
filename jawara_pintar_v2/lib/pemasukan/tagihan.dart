@@ -1,80 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
+import '../providers/keuangan_provider.dart';
+import '../models/keuangan_models.dart';
+import 'tagih_iuran.dart'; // Untuk tombol "Buat Tagihan"
 
-class Tagihan extends StatefulWidget {
-  const Tagihan({super.key});
+class TagihanPage extends StatefulWidget {
+  const TagihanPage({super.key});
 
   @override
-  State<Tagihan> createState() => _TagihanState();
+  State<TagihanPage> createState() => _TagihanPageState();
 }
 
-class _TagihanState extends State<Tagihan> {
-  // Data dummy
-  final List<Map<String, dynamic>> _allTagihan = [
-    {
-      'no': 1,
-      'keluarga': 'Keluarga Habibie Ed Dien',
-      'status': 'Aktif',
-      'iuran': 'Mingguan',
-      'kode': 'IR175458A501',
-      'nominal': 10000,
-      'periode': DateTime(2025, 10, 8),
-      'statusTagihan': 'Belum Dibayar',
-    },
-    {
-      'no': 2,
-      'keluarga': 'Keluarga Mara Nunez',
-      'status': 'Aktif',
-      'iuran': 'Agustusan',
-      'kode': 'IR224406BC02',
-      'nominal': 15000,
-      'periode': DateTime(2025, 10, 10),
-      'statusTagihan': 'Belum Dibayar',
-    },
-    {
-      'no': 3,
-      'keluarga': 'Keluarga Sitorus',
-      'status': 'Aktif',
-      'iuran': 'Bulanan',
-      'kode': 'IR334407AB03',
-      'nominal': 25000,
-      'periode': DateTime(2025, 9, 1),
-      'statusTagihan': 'Dibayar',
-    },
-  ];
-
+class _TagihanPageState extends State<TagihanPage> {
   // === Filter & Search ===
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedIuran; // null = semua jenis
-  List<Map<String, dynamic>> _filteredTagihan = [];
+  String? _selectedKategoriNama; // Filter berdasarkan nama kategori
+
+  // Pagination State
   int _currentPage = 1;
   static const int _itemsPerPage = 5;
 
   // === Formatter ===
-  // Pakai locale aman untuk Web, simbol diset "Rp "
   final NumberFormat currency = NumberFormat.currency(
-    locale: 'en_US',
+    locale: 'id_ID',
     symbol: 'Rp ',
     decimalDigits: 0,
   );
 
-  // Tanpa locale 'id_ID' agar tidak perlu inisialisasi locale di Web
-  final DateFormat dateFormatter = DateFormat('d MMM yyyy');
-
-  // === Dropdown Options ===
-  final List<String> _iuranOptions = [
-    'Mingguan',
-    'Bulanan',
-    'Agustusan',
-    'Khusus',
-    'Tahunan',
-  ];
+  final DateFormat dateFormatter = DateFormat('d MMM yyyy', 'id_ID');
 
   @override
   void initState() {
     super.initState();
-    _filteredTagihan = List.from(_allTagihan);
+    // Load data saat halaman dibuka
+    Future.microtask(
+      () => Provider.of<KeuanganProvider>(context, listen: false).initData(),
+    );
   }
 
   @override
@@ -83,43 +46,9 @@ class _TagihanState extends State<Tagihan> {
     super.dispose();
   }
 
-  void _applyFilters() {
-    setState(() {
-      final search = _searchController.text.toLowerCase();
-
-      _filteredTagihan = _allTagihan.where((tagihan) {
-        // Filter nama keluarga
-        if (search.isNotEmpty &&
-            !tagihan['keluarga'].toString().toLowerCase().contains(search)) {
-          return false;
-        }
-
-        // Filter jenis iuran (jika dipilih)
-        if (_selectedIuran != null &&
-            _selectedIuran!.isNotEmpty &&
-            tagihan['iuran'] != _selectedIuran) {
-          return false;
-        }
-
-        return true;
-      }).toList();
-
-      _currentPage = 1; // reset halaman saat filter berubah
-    });
-  }
-
-  List<Map<String, dynamic>> _getPaginatedData() {
-    final startIndex = (_currentPage - 1) * _itemsPerPage;
-    final endIndex = (startIndex + _itemsPerPage).clamp(
-      startIndex,
-      _filteredTagihan.length,
-    );
-    return _filteredTagihan.sublist(startIndex, endIndex);
-  }
-
   @override
   Widget build(BuildContext context) {
-    const String currentUserEmail = "user@example.com";
+    const String currentUserEmail = "admin@jawara.com";
 
     return Scaffold(
       drawer: const Sidebar(userEmail: currentUserEmail),
@@ -127,121 +56,197 @@ class _TagihanState extends State<Tagihan> {
       appBar: AppBar(
         title: const Text('Daftar Tagihan'),
         backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
         elevation: 1,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        actions: [
+          // Tombol Refresh Manual
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => Provider.of<KeuanganProvider>(
+              context,
+              listen: false,
+            ).initData(),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                // Baris atas: search + filter + PDF
-                Row(
+        ],
+      ),
+      body: Consumer<KeuanganProvider>(
+        builder: (context, provider, child) {
+          // 1. Ambil Data Mentah (Pemasukan)
+          // Asumsi: Tagihan adalah semua data di tabel pemasukan
+          // (Bisa difilter status 'Belum Lunas' saja jika mau, tapi di sini kita tampilkan semua history)
+          List<PemasukanModel> filteredList = provider.listPemasukan;
+
+          // 2. Terapkan Search (Client Side)
+          if (_searchController.text.isNotEmpty) {
+            final searchLower = _searchController.text.toLowerCase();
+            filteredList = filteredList.where((item) {
+              return item.judul.toLowerCase().contains(searchLower);
+            }).toList();
+          }
+
+          // 3. Terapkan Filter Kategori (Client Side)
+          if (_selectedKategoriNama != null) {
+            filteredList = filteredList.where((item) {
+              final namaKat = provider.getNamaKategori(item.kategoriId);
+              return namaKat == _selectedKategoriNama;
+            }).toList();
+          }
+
+          // 4. Pagination Logic
+          final int totalItems = filteredList.length;
+          final int totalPages = (totalItems / _itemsPerPage).ceil();
+
+          // Reset page jika out of range karena filter
+          if (_currentPage > totalPages && totalPages > 0) {
+            _currentPage = 1;
+          }
+
+          final int startIndex = (_currentPage - 1) * _itemsPerPage;
+          final int endIndex = (startIndex + _itemsPerPage).clamp(
+            0,
+            totalItems,
+          );
+
+          // Data yang akan dirender di halaman ini
+          final paginatedData = filteredList.sublist(startIndex, endIndex);
+
+          // === UI UTAMA ===
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: "Cari nama keluarga...",
-                          prefixIcon: const Icon(Icons.search, size: 20),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    // --- HEADER: SEARCH & FILTER ---
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: "Cari nama / judul...",
+                              prefixIcon: const Icon(Icons.search, size: 20),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
+                              ),
+                            ),
+                            onChanged: (val) =>
+                                setState(() {}), // Rebuild saat ketik
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 14,
-                          ),
                         ),
-                        onSubmitted: (_) => _applyFilters(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () => _showFilterDialog(context),
-                      icon: const Icon(Icons.filter_alt, size: 18),
-                      label: const Text("Filter"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Fitur cetak PDF sedang dikembangkan",
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => _showFilterDialog(context, provider),
+                          icon: const Icon(Icons.filter_alt, size: 18),
+                          label: const Text("Filter"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6A5AE0),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.picture_as_pdf, size: 18),
-                      label: const Text("PDF"),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Daftar card
-                _filteredTagihan.isEmpty
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
-                          child: Text(
-                            "Data tagihan tidak ditemukan.",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                        const SizedBox(width: 8),
+                        // Tombol Tambah Tagihan Baru
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (c) => const TagihIuranPage(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text("Buat"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-                      )
-                    : Expanded(
-                        child: ListView(
-                          children: _getPaginatedData()
-                              .map(_buildTagihanCard)
-                              .toList(),
-                        ),
-                      ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
 
-                // Pagination
-                if (_filteredTagihan.length > _itemsPerPage) ...[
-                  const SizedBox(height: 16),
-                  _buildPagination(),
-                ],
-              ],
+                    // --- CONTENT: LIST TAGIHAN ---
+                    provider.isLoading
+                        ? const Expanded(
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : paginatedData.isEmpty
+                        ? const Expanded(
+                            child: Center(
+                              child: Text(
+                                "Data tagihan tidak ditemukan.",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                              itemCount: paginatedData.length,
+                              itemBuilder: (context, index) {
+                                final item = paginatedData[index];
+                                final namaKategori = provider.getNamaKategori(
+                                  item.kategoriId,
+                                );
+                                return _buildTagihanCard(item, namaKategori);
+                              },
+                            ),
+                          ),
+
+                    // --- FOOTER: PAGINATION ---
+                    if (totalItems > _itemsPerPage) ...[
+                      const SizedBox(height: 16),
+                      _buildPagination(totalPages),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildTagihanCard(Map<String, dynamic> tagihan) {
-    // Warna berdasarkan status tagihan
-    final bool isPaid = tagihan['statusTagihan'] == 'Dibayar';
+  Widget _buildTagihanCard(PemasukanModel tagihan, String namaKategori) {
+    // Logic Status
+    // Normalisasi string (biar aman kalau database beda case)
+    final statusRaw = tagihan.statusBayar?.toLowerCase() ?? 'belum lunas';
+    final bool isPaid = statusRaw == 'lunas' || statusRaw == 'dibayar';
 
     Color borderColor = isPaid
         ? const Color(0xFF28A745)
         : const Color(0xFFF76C6C);
-    Color statusColor = isPaid ? Colors.green : Colors.orange;
-    String statusText = tagihan['statusTagihan'];
+    Color statusColor = isPaid ? Colors.green : Colors.redAccent;
+    String statusText = isPaid ? "LUNAS" : "BELUM LUNAS";
+
+    // Generate Fake Code biar keren: TRX-000001
+    String kodeTransaksi = "TRX-${tagihan.id.toString().padLeft(6, '0')}";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -262,18 +267,17 @@ class _TagihanState extends State<Tagihan> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Baris atas: nama keluarga + status + aksi
+            // Baris atas: Kategori + Judul + Status
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Kiri: jenis iuran + nama keluarga
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        tagihan['iuran'],
+                        namaKategori.toUpperCase(),
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 12,
@@ -283,48 +287,60 @@ class _TagihanState extends State<Tagihan> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        tagihan['keluarga'],
+                        tagihan.judul,
                         style: const TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-                // Kanan: status tagihan + tombol aksi
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.circle, color: statusColor, size: 10),
-                        const SizedBox(width: 6),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, color: statusColor, size: 8),
+                          const SizedBox(width: 6),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
+                    // Tombol Aksi (Misal: Bayar / Edit)
                     IconButton(
                       icon: const Icon(Icons.more_horiz),
                       onPressed: () {
-                        // Aksi tambahan: detail, konfirmasi, dsb.
+                        // TODO: Tambahkan fitur update status jadi lunas di sini
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Aksi untuk ${tagihan['keluarga']}"),
+                          const SnackBar(
+                            content: Text("Fitur update status segera hadir"),
                           ),
                         );
                       },
                       padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                       splashRadius: 20,
                     ),
                   ],
@@ -335,7 +351,7 @@ class _TagihanState extends State<Tagihan> {
             const Divider(height: 1, color: Color(0xFFEEEEEE)),
             const SizedBox(height: 16),
 
-            // Baris bawah: kode, nominal, periode
+            // Baris bawah: Kode, Nominal, Periode
             Row(
               children: [
                 // Kode
@@ -353,7 +369,7 @@ class _TagihanState extends State<Tagihan> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        tagihan['kode'],
+                        kodeTransaksi,
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black87,
@@ -377,7 +393,7 @@ class _TagihanState extends State<Tagihan> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        currency.format(tagihan['nominal']),
+                        currency.format(tagihan.nominal),
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -393,7 +409,7 @@ class _TagihanState extends State<Tagihan> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "PERIODE",
+                        "TANGGAL",
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 11,
@@ -402,7 +418,7 @@ class _TagihanState extends State<Tagihan> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        dateFormatter.format(tagihan['periode'] as DateTime),
+                        dateFormatter.format(tagihan.tanggalTransaksi),
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black87,
@@ -419,8 +435,9 @@ class _TagihanState extends State<Tagihan> {
     );
   }
 
-  Widget _buildPagination() {
-    final totalPages = (_filteredTagihan.length / _itemsPerPage).ceil();
+  Widget _buildPagination(int totalPages) {
+    if (totalPages <= 1) return const SizedBox.shrink();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -438,7 +455,7 @@ class _TagihanState extends State<Tagihan> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            _currentPage.toString(),
+            "$_currentPage / $totalPages",
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -456,7 +473,13 @@ class _TagihanState extends State<Tagihan> {
     );
   }
 
-  void _showFilterDialog(BuildContext context) {
+  void _showFilterDialog(BuildContext context, KeuanganProvider provider) {
+    // Ambil list unik nama kategori untuk dropdown
+    final List<String> kategoriOptions = provider.listKategori
+        .map((e) => e.namaKategori)
+        .toSet() // Hapus duplikat
+        .toList();
+
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -472,7 +495,6 @@ class _TagihanState extends State<Tagihan> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header dialog
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -492,26 +514,19 @@ class _TagihanState extends State<Tagihan> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Jenis Iuran
                   const Text(
                     "Jenis Iuran",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _selectedIuran,
+                    value: _selectedKategoriNama,
                     hint: const Text("-- Semua Jenis --"),
-                    items: _iuranOptions
-                        .map(
-                          (e) => DropdownMenuItem<String>(
-                            value: e,
-                            child: Text(e),
-                          ),
-                        )
+                    items: kategoriOptions
+                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                         .toList(),
-                    onChanged: (value) {
-                      setDialogState(() => _selectedIuran = value);
-                    },
+                    onChanged: (value) =>
+                        setDialogState(() => _selectedKategoriNama = value),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -524,27 +539,29 @@ class _TagihanState extends State<Tagihan> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Tombol aksi
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         onPressed: () {
-                          setDialogState(() {
-                            _selectedIuran = null;
-                          });
-                          _applyFilters();
+                          setDialogState(() => _selectedKategoriNama = null);
+                          setState(
+                            () => _selectedKategoriNama = null,
+                          ); // Update parent state juga
+                          Navigator.pop(ctx);
                         },
                         child: const Text("Reset"),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: () {
-                          _applyFilters();
+                          // Trigget parent rebuild dengan setState di parent widget
+                          setState(() {});
                           Navigator.pop(ctx);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF6A5AE0),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 16,
@@ -553,10 +570,7 @@ class _TagihanState extends State<Tagihan> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          "Terapkan",
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        child: const Text("Terapkan"),
                       ),
                     ],
                   ),

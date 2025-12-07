@@ -136,7 +136,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const KategoriIuran()),
+              MaterialPageRoute(builder: (context) => const KategoriIuranPage()),
             );
           },
         ),
@@ -145,7 +145,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TagihIuran()),
+              MaterialPageRoute(builder: (context) => const TagihIuranPage()),
             );
           },
         ),
@@ -154,7 +154,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Tagihan()),
+              MaterialPageRoute(builder: (context) => const TagihanPage()),
             );
           },
         ),

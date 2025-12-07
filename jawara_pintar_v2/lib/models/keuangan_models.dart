@@ -4,12 +4,14 @@
 class KategoriModel {
   final int id;
   final String namaKategori;
-  final String jenis; // 'pemasukan' atau 'pengeluaran'
+  final String jenis;
+  final double nominalDefault; // Tambahan baru
 
   KategoriModel({
     required this.id,
     required this.namaKategori,
     required this.jenis,
+    this.nominalDefault = 0,
   });
 
   factory KategoriModel.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,8 @@ class KategoriModel {
       id: json['id'],
       namaKategori: json['nama_kategori'] ?? 'Tanpa Nama',
       jenis: json['jenis'] ?? '-',
+      // Pastikan di database kolomnya 'nominal_default'
+      nominalDefault: (json['nominal_default'] as num?)?.toDouble() ?? 0,
     );
   }
 }
@@ -120,4 +124,6 @@ class PengeluaranModel {
       'bukti_foto': buktiFoto,
     };
   }
+
+
 }
