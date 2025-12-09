@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../data/warga_data.dart';
 
 class StatusHidupField extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  final List<String> _statusHidupList = ['Hidup', 'Meninggal'];
-
-  StatusHidupField({
+  const StatusHidupField({
     super.key,
     required this.value,
     required this.onChanged,
@@ -36,22 +35,22 @@ class StatusHidupField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : _statusHidupList.first,
+                value: WargaData.statusHidupList.contains(value)
+                    ? value
+                    : WargaData.statusHidupList.first,
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: Icon(Icons.arrow_drop_down, color: Colors.grey),
                 ),
-                items: _statusHidupList.map((String item) {
+                items: WargaData.statusHidupList.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );

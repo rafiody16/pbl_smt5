@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../data/warga_data.dart';
 
 class GolonganDarahField extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  final List<String> _golonganDarahList = ['-- Pilih Gol Darah --', 'A', 'B', 'AB', 'O'];
-
-  GolonganDarahField({
+  const GolonganDarahField({
     super.key,
     required this.value,
     required this.onChanged,
@@ -36,22 +35,31 @@ class GolonganDarahField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : _golonganDarahList.first,
+                value:
+                    WargaData.golonganDarahList.contains(value) &&
+                        value.isNotEmpty
+                    ? value
+                    : null,
+                hint: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '-- Pilih Gol Darah --',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: Icon(Icons.arrow_drop_down, color: Colors.grey),
                 ),
-                items: _golonganDarahList.map((String item) {
+                items: WargaData.golonganDarahList.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: TextStyle(
-                          color: item.startsWith('--') ? Colors.grey : Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );

@@ -35,7 +35,9 @@ class JenisKelaminField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : WargaData.jenisKelaminList.first,
+                value: WargaData.jenisKelaminList.contains(value)
+                    ? value
+                    : WargaData.jenisKelaminList.first,
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
@@ -48,9 +50,7 @@ class JenisKelaminField extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );

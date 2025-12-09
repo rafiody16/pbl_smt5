@@ -4,11 +4,10 @@ class PekerjaanField extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  final List<String> _pekerjaanList = [
-    '-- Pilih Pekerjaan --', 
-    'PNS', 
+  static const List<String> _pekerjaanList = [
+    'PNS',
     'Pegawai Swasta',
-    'Wiraswasta', 
+    'Wiraswasta',
     'Pedagang',
     'Ibu Rumah Tangga',
     'Guru',
@@ -18,10 +17,10 @@ class PekerjaanField extends StatelessWidget {
     'Konsultan',
     'Akuntan',
     'Pelajar/Mahasiswa',
-    'Lainnya'
+    'Lainnya',
   ];
 
-  PekerjaanField({
+  const PekerjaanField({
     super.key,
     required this.value,
     required this.onChanged,
@@ -51,7 +50,16 @@ class PekerjaanField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : _pekerjaanList.first,
+                value: _pekerjaanList.contains(value) && value.isNotEmpty
+                    ? value
+                    : null,
+                hint: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '-- Pilih Pekerjaan --',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
@@ -64,9 +72,7 @@ class PekerjaanField extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: TextStyle(
-                          color: item.startsWith('--') ? Colors.grey : Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );
