@@ -68,7 +68,7 @@ class WargaService {
       wargaData['email'] = email;
 
       // 3. Insert ke tabel warga
-      await _supabase.from('warga').insert(wargaData);
+      await _supabase.from('warga').upsert(wargaData);
     } catch (e) {
       throw Exception('Gagal menambah warga dengan akun: $e');
     }

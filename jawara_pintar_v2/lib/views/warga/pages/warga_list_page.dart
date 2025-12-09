@@ -15,11 +15,11 @@ class WargaListPage extends StatefulWidget {
 
 class _WargaListPageState extends State<WargaListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    // Load data when page opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<WargaProvider>();
       provider.loadWarga();
@@ -30,6 +30,7 @@ class _WargaListPageState extends State<WargaListPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -45,6 +46,7 @@ class _WargaListPageState extends State<WargaListPage> {
     }
   }
 
+  // ... (Kode _confirmDelete tetap sama) ...
   void _confirmDelete(BuildContext context, String nik, String nama) {
     showDialog(
       context: context,
@@ -86,20 +88,38 @@ class _WargaListPageState extends State<WargaListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(
+        0xFFF8FAFF,
+      ), // Warna background sesuai desain lama
       appBar: AppBar(
-        title: const Text('Data Warga'),
+        title: const Text(
+          'Data Warga',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
           Consumer<WargaProvider>(
             builder: (context, provider, _) {
               if (provider.filters.isNotEmpty) {
-                return IconButton(
-                  icon: const Badge(child: Icon(Icons.filter_list)),
-                  onPressed: _showFilterDialog,
-                  tooltip: 'Filter',
+                return Badge(
+                  backgroundColor: Colors.red,
+                  label: Text(provider.filters.length.toString()),
+                  offset: const Offset(-8, 8),
+                  child: IconButton(
+                    icon: const Icon(Icons.filter_alt_rounded),
+                    onPressed: _showFilterDialog,
+                    tooltip: 'Filter',
+                  ),
                 );
               }
               return IconButton(
-                icon: const Icon(Icons.filter_list),
+                icon: const Icon(Icons.filter_alt_outlined),
                 onPressed: _showFilterDialog,
                 tooltip: 'Filter',
               );
@@ -110,17 +130,29 @@ class _WargaListPageState extends State<WargaListPage> {
       drawer: const Sidebar(),
       body: Column(
         children: [
-          // Search Bar
+          // Filter Aktif (Ditampilkan seperti Chips di atas list)
+          Consumer<WargaProvider>(
+            builder: (context, provider, _) {
+              if (provider.filters.isEmpty) return const SizedBox.shrink();
+              return _buildActiveFilters(provider);
+            },
+          ),
+
+          // Search Bar (Optional: Jika ingin persis seperti desain lama yg tidak ada search bar, hapus bagian ini.
+          // Tapi search bar sangat berguna, jadi saya sarankan tetap ada dengan style minimalis).
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Cari warga...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Cari nama warga...',
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear, color: Colors.grey),
                         onPressed: () {
                           _searchController.clear();
                           context.read<WargaProvider>().loadWarga();
@@ -129,9 +161,18 @@ class _WargaListPageState extends State<WargaListPage> {
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                ),
               ),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
@@ -142,59 +183,17 @@ class _WargaListPageState extends State<WargaListPage> {
               },
             ),
           ),
-          // Active Filters
-          Consumer<WargaProvider>(
-            builder: (context, provider, _) {
-              if (provider.filters.isEmpty) {
-                return const SizedBox.shrink();
-              }
 
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ...provider.filters.entries.map((entry) {
-                      if (entry.value.isEmpty) return const SizedBox.shrink();
-
-                      return Chip(
-                        label: Text('${entry.key}: ${entry.value}'),
-                        onDeleted: () {
-                          final newFilters = Map<String, String>.from(
-                            provider.filters,
-                          );
-                          newFilters.remove(entry.key);
-                          provider.applyFilters(newFilters);
-                        },
-                      );
-                    }).toList(),
-                    if (provider.filters.isNotEmpty)
-                      ActionChip(
-                        label: const Text('Hapus Semua'),
-                        onPressed: () => provider.clearFilters(),
-                        avatar: const Icon(Icons.clear, size: 16),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-          // Content
+          // Content List
           Expanded(
             child: Consumer<WargaProvider>(
               builder: (context, provider, _) {
-                // Loading state
                 if (provider.isLoading) {
                   return const common_widgets.LoadingWidget(
                     message: 'Memuat data warga...',
                   );
                 }
 
-                // Error state
                 if (provider.errorMessage != null) {
                   return common_widgets.ErrorWidget(
                     message: provider.errorMessage!,
@@ -206,30 +205,31 @@ class _WargaListPageState extends State<WargaListPage> {
                   );
                 }
 
-                // Empty state
                 final wargaList = provider.filteredWargaList;
                 if (wargaList.isEmpty) {
                   return common_widgets.EmptyStateWidget(
                     message: provider.filters.isNotEmpty
-                        ? 'Tidak ada warga yang sesuai dengan filter'
+                        ? 'Tidak ada warga yang sesuai filter'
                         : 'Belum ada data warga',
-                    icon: Icons.people_outline,
+                    icon: Icons.search_off,
                     actionLabel: 'Tambah Warga',
-                    onActionPressed: () {
-                      Navigator.pushNamed(context, '/warga/add');
-                    },
+                    onActionPressed: () =>
+                        Navigator.pushNamed(context, '/warga/add'),
                   );
                 }
 
-                // List of warga
                 return RefreshIndicator(
                   onRefresh: () async {
                     await provider.loadWarga();
                     await provider.loadKeluarga();
                   },
                   child: ListView.builder(
+                    controller: _scrollController,
                     itemCount: wargaList.length,
-                    padding: const EdgeInsets.only(bottom: 80),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemBuilder: (context, index) {
                       final warga = wargaList[index];
                       final keluargaName = provider.getKeluargaName(
@@ -269,8 +269,81 @@ class _WargaListPageState extends State<WargaListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/warga/add');
         },
+        backgroundColor: Colors.blue, // Sesuaikan warna FAB
+        foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Tambah Warga'),
+        label: const Text('Tambah'),
+      ),
+    );
+  }
+
+  // Widget helper untuk menampilkan filter aktif (mirip dengan filter_chips.dart design)
+  Widget _buildActiveFilters(WargaProvider provider) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.filter_list, size: 14, color: Colors.blue),
+              const SizedBox(width: 8),
+              const Text(
+                "Filter Aktif",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => provider.clearFilters(),
+                child: Text(
+                  "Hapus Semua",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.red[400],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: provider.filters.entries.map((entry) {
+              if (entry.value.isEmpty) return const SizedBox.shrink();
+              return Chip(
+                label: Text(
+                  '${entry.key}: ${entry.value}',
+                  style: const TextStyle(fontSize: 10),
+                ),
+                backgroundColor: Colors.blue.withOpacity(0.1),
+                deleteIcon: const Icon(
+                  Icons.close,
+                  size: 12,
+                  color: Colors.blue,
+                ),
+                onDeleted: () {
+                  final newFilters = Map<String, String>.from(provider.filters);
+                  newFilters.remove(entry.key);
+                  provider.applyFilters(newFilters);
+                },
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
