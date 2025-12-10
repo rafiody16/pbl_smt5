@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart';
 import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_tambah_pengguna.dart';
 import 'package:jawara_pintar_v2/mutasi_keluarga/halaman_tambah_mutasi.dart';
+import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_form.dart';
+import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_page.dart';
+import 'package:jawara_pintar_v2/views/rumah/rumah_stream_page.dart';
 import 'package:jawara_pintar_v2/warga/pages/keluarga.dart';
 import 'package:jawara_pintar_v2/dashboard/kependudukan.dart';
 import 'package:jawara_pintar_v2/keuangan/laporan.dart';
@@ -102,7 +105,7 @@ class SidebarMenu extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const KeluargaDaftarPage(),
+                builder: (context) => const KeluargaStreamPage(),
               ),
             );
           },
@@ -112,16 +115,7 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const RumahDaftarPage()),
-            );
-          },
-        ),
-        SubMenu(
-          "Rumah - Tambah",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const RumahTambahPage()),
+              MaterialPageRoute(builder: (context) => const RumahStreamPage()),
             );
           },
         ),
@@ -136,7 +130,9 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const KategoriIuranPage()),
+              MaterialPageRoute(
+                builder: (context) => const KategoriIuranPage(),
+              ),
             );
           },
         ),
@@ -191,7 +187,9 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const PengeluaranDaftarPage()),
+              MaterialPageRoute(
+                builder: (context) => const PengeluaranDaftarPage(),
+              ),
             );
           },
         ),
@@ -200,7 +198,9 @@ class SidebarMenu extends StatelessWidget {
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const PengeluaranTambahPage()),
+              MaterialPageRoute(
+                builder: (context) => const PengeluaranTambahPage(),
+              ),
             );
           },
         ),
@@ -306,23 +306,23 @@ class SidebarMenu extends StatelessWidget {
         ),
       ],
     ),
-    MenuSection(
-      title: "Penerimaan Warga",
-      icon: Icons.person_add,
-      subMenus: [
-        SubMenu(
-          "Penerimaan Warga",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PenerimaanWargaPage(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+    // MenuSection(
+    //   title: "Penerimaan Warga",
+    //   icon: Icons.person_add,
+    //   subMenus: [
+    //     SubMenu(
+    //       "Penerimaan Warga",
+    //       onTap: (context) {
+    //         Navigator.pushReplacement(
+    //           context,
+    //           MaterialPageRoute(
+    //             builder: (context) => const PenerimaanWargaPage(),
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   ],
+    // ),
     MenuSection(
       title: "Mutasi Keluarga",
       icon: Icons.group,
@@ -362,30 +362,6 @@ class SidebarMenu extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const LogDaftarPage()),
-            );
-          },
-        ),
-      ],
-    ),
-    MenuSection(
-      title: "Manajemen Pengguna",
-      icon: Icons.settings,
-      subMenus: [
-        SubMenu(
-          "Daftar - pengguna",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const UserListScreen()),
-            );
-          },
-        ),
-        SubMenu(
-          "Tambah - pengguna",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const UserAddScreen()),
             );
           },
         ),
