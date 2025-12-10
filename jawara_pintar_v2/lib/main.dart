@@ -9,6 +9,9 @@ import 'providers/auth_provider.dart';
 import 'providers/warga_provider.dart';
 import 'providers/keuangan_provider.dart'; // PENTING: Tambahkan ini
 
+// === IMPORT SERVICES ===
+import 'services/preferences_service.dart';
+
 // === IMPORT HALAMAN ===
 import 'login/login_page.dart';
 import 'register/register_page.dart';
@@ -29,6 +32,9 @@ import 'views/warga/pages/warga_detail_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi PreferencesService (HARUS PERTAMA)
+  await PreferencesService().init();
 
   // Inisialisasi Supabase
   await Supabase.initialize(

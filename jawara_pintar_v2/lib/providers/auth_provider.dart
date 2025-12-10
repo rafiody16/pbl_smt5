@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
+import '../services/preferences_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  final PreferencesService _prefs = PreferencesService();
 
   User? _currentUser;
   String? _userRole;
@@ -33,6 +35,9 @@ class AuthProvider with ChangeNotifier {
     _currentUser = _authService.currentUser;
     if (_currentUser != null) {
       _loadUserData();
+    } else {
+      // Coba restore dari cached data
+      _restoreFromCache();
     }
 
     // Listen to auth state changes
@@ -43,9 +48,21 @@ class AuthProvider with ChangeNotifier {
       } else {
         _userRole = null;
         _wargaData = null;
+        _prefs.clearAuthData();
       }
       notifyListeners();
     });
+  }
+
+  // Restore user data dari cache
+  void _restoreFromCache() {
+    _userRole = _prefs.getUserRole();
+    _wargaData = _prefs.getUserData();
+
+    if (_userRole != null && _wargaData != null) {
+      print('Auth data restored from cache');
+      notifyListeners();
+    }
   }
 
   // Load user role and warga data
@@ -55,6 +72,19 @@ class AuthProvider with ChangeNotifier {
     try {
       _userRole = await _authService.getUserRole();
       _wargaData = await _authService.getWargaByUserId(_currentUser!.id);
+
+      // Simpan ke cache
+      if (_userRole != null) {
+        await _prefs.setUserId(_currentUser!.id);
+        await _prefs.setUserEmail(_currentUser!.email ?? '');
+        await _prefs.setUserRole(_userRole!);
+        if (_wargaData != null && _wargaData!.containsKey('nama_lengkap')) {
+          await _prefs.setUserName(_wargaData!['nama_lengkap']);
+        }
+        await _prefs.setUserData(_wargaData ?? {});
+        await _prefs.setLastLoginTime(DateTime.now());
+      }
+
       notifyListeners();
     } catch (e) {
       print('Error loading user data: $e');
@@ -89,6 +119,10 @@ class AuthProvider with ChangeNotifier {
       _currentUser = null;
       _userRole = null;
       _wargaData = null;
+
+      // Hapus dari cache
+      await _prefs.clearAuthData();
+
       notifyListeners();
     } catch (e) {
       _errorMessage = e.toString();
