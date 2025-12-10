@@ -112,7 +112,7 @@ class SidebarMenu extends StatelessWidget {
           },
         ),
         SubMenu(
-          "Rumah - Daftar",
+          "Rumah",
           onTap: (context) {
             Navigator.pushReplacement(
               context,
