@@ -39,6 +39,7 @@ import '../../chanel_tranfer/halaman_daftar_chanel.dart';
 import '../../chanel_tranfer/halaman_tambah_chanel.dart';
 import '../../views/warga/pages/warga_list_page.dart';
 import '../../views/warga/pages/warga_form_page.dart';
+import '../../marketplace/pages/marketplace_list.dart';
 
 class SidebarMenu extends StatelessWidget {
   SidebarMenu({super.key});
@@ -313,12 +314,14 @@ class SidebarMenu extends StatelessWidget {
       subMenus: [
         SubMenu(
           "Marketplace",
-          // onTap: (context) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const MarketplacePage()),
-          //   );
-          // },
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MarketplaceListPage(),
+              ),
+            );
+          },
         ),
         SubMenu(
           "Produk",

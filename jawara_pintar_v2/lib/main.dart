@@ -22,6 +22,8 @@ import 'log_aktivitas/log_aktivitas_page.dart';
 import 'pesan_warga/pesan_warga_page.dart';
 import 'dashboard/keuangan.dart';
 import 'penerimaanWarga/pages/penerimaan_warga_page.dart';
+import 'marketplace/pages/marketplace_list.dart';
+import 'marketplace/pages/produk_form_page.dart';
 
 // Import Warga (New Structure)
 import 'views/warga/pages/warga_list_page.dart';
@@ -97,6 +99,9 @@ class MyApp extends StatelessWidget {
           '/warga/add': (context) => const WargaFormPage(),
           '/warga/edit': (context) => const WargaFormPage(isEdit: true),
           '/warga/detail': (context) => const WargaDetailPage(),
+
+          '/marketplace/list': (context) => const MarketplaceListPage(),
+          '/produk/add': (context) => const ProdukFormPage(),
 
           // Routes Lainnya
           '/penerimaanWarga': (context) => PenerimaanWargaPage(),
