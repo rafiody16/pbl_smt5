@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/warga.dart';
-import '../../../models/keluarga.dart';
-import 'package:intl/intl.dart';
+// Pastikan import StatusChip dari folder komponen lama Anda agar style-nya sama
+import '../../../warga/components/shared/status_chip.dart';
 
 class WargaCard extends StatelessWidget {
   final Warga warga;
@@ -21,132 +21,143 @@ class WargaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              // Avatar
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.blue.shade100,
-                backgroundImage: warga.fotoUrl != null
-                    ? NetworkImage(warga.fotoUrl!)
-                    : null,
-                child: warga.fotoUrl == null
-                    ? Text(
-                        warga.namaLengkap.substring(0, 1).toUpperCase(),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        warga.namaLengkap,
                         style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Colors.black87,
                         ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 16),
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      warga.namaLengkap,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'NIK: ${warga.nik}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.family_restroom,
-                          size: 16,
-                          color: Colors.grey[600],
+                      const SizedBox(height: 2),
+                      Text(
+                        warga.nik,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            keluargaName ?? 'Belum ada keluarga',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (warga.pekerjaan != null) ...[
-                      const SizedBox(height: 4),
+                      ),
+                      const SizedBox(height: 6),
+
                       Row(
                         children: [
-                          Icon(Icons.work, size: 16, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(
-                            warga.pekerjaan!,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
+                          Expanded(
+                            child: _buildInfoChip(
+                              keluargaName ?? '-',
+                              Icons.group,
+                              Colors.blue,
                             ),
+                          ),
+                          const SizedBox(width: 8),
+
+                          _buildInfoChip(
+                            warga.jenisKelamin ?? '-',
+                            Icons.person,
+                            Colors.grey,
                           ),
                         ],
                       ),
-                    ],
-                  ],
-                ),
-              ),
-              // Actions
-              if (onEdit != null || onDelete != null)
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    if (value == 'edit' && onEdit != null) {
-                      onEdit!();
-                    } else if (value == 'delete' && onDelete != null) {
-                      onDelete!();
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    if (onEdit != null)
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
+                      const SizedBox(height: 6),
+
+                      Row(
+                        children: [
+                          StatusChip(
+                            status: warga.statusDomisili,
+                            compact: true,
+                          ),
+                          const SizedBox(width: 6),
+                          StatusChip(status: warga.statusHidup, compact: true),
+                        ],
                       ),
-                    if (onDelete != null)
+                    ],
+                  ),
+                ),
+
+                // Jika ada aksi edit/delete, tampilkan popup menu
+                if (onEdit != null || onDelete != null)
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons
+                          .chevron_right, // Menggunakan chevron agar mirip desain asli, atau more_vert jika ingin aksi
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                    onSelected: (value) {
+                      if (value == 'edit' && onEdit != null) onEdit!();
+                      if (value == 'delete' && onDelete != null) onDelete!();
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
                       const PopupMenuItem(
                         value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, color: Colors.red, size: 20),
-                            SizedBox(width: 8),
-                            Text('Hapus', style: TextStyle(color: Colors.red)),
-                          ],
+                        child: Text(
+                          'Hapus',
+                          style: TextStyle(color: Colors.red),
                         ),
                       ),
-                  ],
-                ),
-            ],
+                    ],
+                  )
+                else
+                  Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(String text, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Flexible(
+            // Gunakan Flexible agar text tidak overflow
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              softWrap: false,
+            ),
+          ),
+        ],
       ),
     );
   }

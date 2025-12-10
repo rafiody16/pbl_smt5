@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../data/warga_data.dart';
 
 class AgamaField extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  final List<String> _agamaList = ['-- Pilih Agama --', 'Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
-
-  AgamaField({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
+  const AgamaField({super.key, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +31,29 @@ class AgamaField extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: value.isNotEmpty ? value : _agamaList.first,
+                value: WargaData.agamaList.contains(value) && value.isNotEmpty
+                    ? value
+                    : null,
+                hint: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '-- Pilih Agama --',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: Icon(Icons.arrow_drop_down, color: Colors.grey),
                 ),
-                items: _agamaList.map((String item) {
+                items: WargaData.agamaList.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: TextStyle(
-                          color: item.startsWith('--') ? Colors.grey : Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );

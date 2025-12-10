@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../providers/warga_provider.dart';
 import '../../../models/warga.dart';
 import '../../../sidebar/sidebar.dart';
-import 'package:intl/intl.dart';
+import '../../../services/toast_service.dart';
+import '../../../register/fields/nama_lengkap_field.dart';
+import '../../../register/fields/nik_field.dart';
+import '../../../register/fields/email_field.dart';
+import '../../../register/fields/telepon_field.dart';
+import '../../../register/fields/password_field.dart';
+import '../../../register/fields/jenis_kelamin_field.dart';
+import '../../../register/fields/keluarga_field.dart';
+import '../../../register/fields/peran_field.dart';
+import '../../../register/fields/pendidikan_field.dart';
+import '../../../register/fields/pekerjaan_field.dart';
+import '../../../register/fields/upload_identitas_field.dart';
+import '../../../register/fields/tempat_lahir_field.dart';
+import '../../../register/fields/tanggal_lahir_field.dart';
+import '../../../register/fields/agama_field.dart';
+import '../../../register/fields/golongan_darah_field.dart';
+import '../../../register/fields/alamat_rumah_field.dart';
+import '../../../register/fields/rumah_field.dart';
+import '../../../register/fields/status_rumah_field.dart';
+import '../../../warga/components/form/fields/status_hidup_field.dart';
 
 class WargaFormPage extends StatefulWidget {
   final bool isEdit;
@@ -15,33 +35,44 @@ class WargaFormPage extends StatefulWidget {
 }
 
 class _WargaFormPageState extends State<WargaFormPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nikController = TextEditingController();
-  final _namaController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _noTeleponController = TextEditingController();
-  final _tempatLahirController = TextEditingController();
-  final _pekerjaanController = TextEditingController();
-  final _passwordController = TextEditingController();
+  // Global Keys untuk validasi per step
+  final List<GlobalKey<FormState>> _formKeys = [
+    GlobalKey<FormState>(), // Step 1: Pribadi Utama
+    GlobalKey<FormState>(), // Step 2: Detail
+    GlobalKey<FormState>(), // Step 3: Keluarga & Status
+    GlobalKey<FormState>(), // Step 4: Akun (Optional)
+  ];
 
-  DateTime? _tanggalLahir;
-  String? _jenisKelamin;
-  String? _agama;
-  String? _golonganDarah;
-  String? _pendidikanTerakhir;
-  String? _statusDomisili = 'Tetap';
-  String? _statusHidup = 'Hidup';
-  String? _peran;
-  int? _keluargaId;
-  String _role = 'warga';
-  bool _createAccount = false; // Checkbox untuk create account
-
+  int _currentStep = 0;
   Warga? _existingWarga;
+
+  // Data State
+  final Map<String, dynamic> _formData = {};
+
+  // Controller khusus untuk logic tambahan (misal password)
+  String? _password;
+  bool _createAccount = false;
+
+  // Keys dan Controllers untuk Step 3
+  final GlobalKey<State> _rumahKey = GlobalKey<State>();
+  final GlobalKey<State> _statusRumahKey = GlobalKey<State>();
+  late TextEditingController _alamatController;
+
+  @override
+  void initState() {
+    super.initState();
+    _alamatController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _alamatController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     if (widget.isEdit) {
       final warga = ModalRoute.of(context)?.settings.arguments as Warga?;
       if (warga != null && _existingWarga == null) {
@@ -52,448 +83,489 @@ class _WargaFormPageState extends State<WargaFormPage> {
   }
 
   void _populateForm(Warga warga) {
-    _nikController.text = warga.nik;
-    _namaController.text = warga.namaLengkap;
-    _emailController.text = warga.email ?? '';
-    _noTeleponController.text = warga.noTelepon ?? '';
-    _tempatLahirController.text = warga.tempatLahir ?? '';
-    _pekerjaanController.text = warga.pekerjaan ?? '';
-    _tanggalLahir = warga.tanggalLahir;
-    _jenisKelamin = warga.jenisKelamin;
-    _agama = warga.agama;
-    _golonganDarah = warga.golonganDarah;
-    _pendidikanTerakhir = warga.pendidikanTerakhir;
-    _statusDomisili = warga.statusDomisili;
-    _statusHidup = warga.statusHidup;
-    _peran = warga.peran;
-    _keluargaId = warga.keluargaId;
-    _role = warga.role;
+    setState(() {
+      _formData['nik'] = warga.nik;
+      _formData['namaLengkap'] = warga.namaLengkap;
+      _formData['email'] = warga.email;
+      _formData['telepon'] = warga.noTelepon;
+      _formData['jenisKelamin'] = warga.jenisKelamin;
+      _formData['fotoIdentitas'] = warga.fotoUrl; // URL foto lama
+
+      _formData['tempatLahir'] = warga.tempatLahir;
+      _formData['tanggalLahir'] = warga.tanggalLahir != null
+          ? DateFormat('yyyy-MM-dd').format(warga.tanggalLahir!)
+          : null;
+      _formData['agama'] = warga.agama;
+      _formData['golonganDarah'] = warga.golonganDarah;
+      _formData['pendidikanTerakhir'] = warga.pendidikanTerakhir;
+      _formData['pekerjaan'] = warga.pekerjaan;
+
+      _formData['keluargaId'] = warga.keluargaId; // Pastikan ini int
+      _formData['peran'] = warga.peran;
+      _formData['statusDomisili'] = warga.statusDomisili;
+      _formData['statusHidup'] = warga.statusHidup;
+    });
   }
 
-  @override
-  void dispose() {
-    _nikController.dispose();
-    _namaController.dispose();
-    _emailController.dispose();
-    _noTeleponController.dispose();
-    _tempatLahirController.dispose();
-    _pekerjaanController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  // --- Logic Navigasi Step ---
+
+  bool _validateCurrentStep() {
+    return _formKeys[_currentStep].currentState?.validate() ?? false;
   }
 
-  Future<void> _selectDate() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _tanggalLahir ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
+  void _saveCurrentStep() {
+    _formKeys[_currentStep].currentState?.save();
+  }
 
-    if (date != null) {
-      setState(() {
-        _tanggalLahir = date;
-      });
+  void _nextStep() {
+    if (_validateCurrentStep()) {
+      _saveCurrentStep();
+      if (_currentStep < 3) {
+        setState(() => _currentStep++);
+      } else {
+        _submitForm();
+      }
     }
   }
 
-  Future<void> _saveForm() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
     }
+  }
 
-    // Validasi email jika create account
+  // --- Logic Submit ---
+
+  Future<void> _submitForm() async {
+    // Validasi tambahan untuk step terakhir (Akun)
     if (_createAccount && !widget.isEdit) {
-      if (_emailController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email harus diisi untuk membuat akun'),
-            backgroundColor: Colors.red,
-          ),
+      if ((_formData['email'] == null || _formData['email'].isEmpty) ||
+          (_password == null || _password!.isEmpty)) {
+        ToastService.showError(
+          context,
+          "Email dan Password wajib diisi untuk membuat akun",
         );
         return;
       }
     }
 
-    _formKey.currentState!.save();
-
-    final warga = Warga(
-      nik: _nikController.text,
-      namaLengkap: _namaController.text,
-      email: _emailController.text.isEmpty ? null : _emailController.text,
-      noTelepon: _noTeleponController.text.isEmpty
-          ? null
-          : _noTeleponController.text,
-      jenisKelamin: _jenisKelamin,
-      tempatLahir: _tempatLahirController.text.isEmpty
-          ? null
-          : _tempatLahirController.text,
-      tanggalLahir: _tanggalLahir,
-      agama: _agama,
-      golonganDarah: _golonganDarah,
-      pendidikanTerakhir: _pendidikanTerakhir,
-      pekerjaan: _pekerjaanController.text.isEmpty
-          ? null
-          : _pekerjaanController.text,
-      peran: _peran,
-      statusDomisili: _statusDomisili ?? 'Tetap',
-      statusHidup: _statusHidup ?? 'Hidup',
-      keluargaId: _keluargaId,
-      role: _role,
-      createdAt: _existingWarga?.createdAt ?? DateTime.now(),
+    // Tampilkan Loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    final provider = context.read<WargaProvider>();
-    bool success;
+    try {
+      final provider = context.read<WargaProvider>();
 
-    if (widget.isEdit && _existingWarga != null) {
-      success = await provider.updateWarga(_existingWarga!.nik, warga);
-    } else {
-      // Jika create account dicentang, gunakan tambahWargaWithAccount
-      if (_createAccount) {
-        success = await provider.tambahWargaWithAccount(
-          warga: warga,
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+      // Construct Object Warga
+      final wargaObj = Warga(
+        nik: _formData['nik'],
+        namaLengkap: _formData['namaLengkap'],
+        email: _formData['email'],
+        noTelepon: _formData['telepon'],
+        jenisKelamin: _formData['jenisKelamin'],
+        tempatLahir: _formData['tempatLahir'],
+        tanggalLahir: _formData['tanggalLahir'] != null
+            ? DateTime.parse(_formData['tanggalLahir'])
+            : null,
+        agama: _formData['agama'],
+        golonganDarah: _formData['golonganDarah'],
+        pendidikanTerakhir: _formData['pendidikanTerakhir'],
+        pekerjaan: _formData['pekerjaan'],
+        peran: _formData['peran'],
+        statusDomisili: _formData['statusDomisili'] ?? 'Tetap',
+        statusHidup: _formData['statusHidup'] ?? 'Hidup',
+        keluargaId: _formData['keluargaId'], // Dropdown mengembalikan int?
+        fotoUrl: _formData['fotoIdentitas'],
+        role: 'warga',
+        createdAt: _existingWarga?.createdAt ?? DateTime.now(),
+      );
+
+      bool success;
+      if (widget.isEdit && _existingWarga != null) {
+        success = await provider.updateWarga(_existingWarga!.nik, wargaObj);
       } else {
-        success = await provider.tambahWarga(warga);
+        if (_createAccount) {
+          success = await provider.tambahWargaWithAccount(
+            warga: wargaObj,
+            email: _formData['email'],
+            password: _password!,
+          );
+        } else {
+          success = await provider.tambahWarga(wargaObj);
+        }
       }
-    }
 
-    if (mounted) {
+      Navigator.pop(context); // Tutup loading dialog
+
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.isEdit
-                  ? 'Data warga berhasil diupdate'
-                  : _createAccount
-                  ? 'Data warga dan akun berhasil dibuat'
-                  : 'Data warga berhasil ditambahkan',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        ToastService.showSuccess(
+          context,
+          widget.isEdit
+              ? "Data warga berhasil diperbarui"
+              : "Warga berhasil ditambahkan",
         );
-        Navigator.pop(context);
+        Navigator.pop(context); // Kembali ke list
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(provider.errorMessage ?? 'Terjadi kesalahan'),
-            backgroundColor: Colors.red,
-          ),
+        ToastService.showError(
+          context,
+          provider.errorMessage ?? "Gagal menyimpan data",
         );
       }
+    } catch (e) {
+      Navigator.pop(context); // Tutup loading dialog
+      ToastService.showError(context, "Terjadi kesalahan: $e");
     }
+  }
+
+  // --- UI Components ---
+
+  String _getStepTitle() {
+    switch (_currentStep) {
+      case 0:
+        return "Identitas Utama";
+      case 1:
+        return "Detail Pribadi";
+      case 2:
+        return "Keluarga & Alamat";
+      case 3:
+        return widget.isEdit ? "Konfirmasi" : "Akun Login";
+      default:
+        return "";
+    }
+  }
+
+  Widget _buildStepIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(4, (index) {
+        final isActive = index == _currentStep;
+        final isCompleted = index < _currentStep;
+        return Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isActive
+                    ? Colors.blue
+                    : (isCompleted ? Colors.green : Colors.grey.shade300),
+              ),
+              child: Center(
+                child: isCompleted
+                    ? const Icon(Icons.check, color: Colors.white, size: 18)
+                    : Text(
+                        '${index + 1}',
+                        style: TextStyle(
+                          color: isActive ? Colors.white : Colors.grey.shade600,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+            if (index < 3)
+              Container(
+                width: 40,
+                height: 2,
+                color: isCompleted ? Colors.green : Colors.grey.shade300,
+              ),
+          ],
+        );
+      }),
+    );
+  }
+
+  // --- Form Steps ---
+
+  Widget _buildStep1() {
+    return Form(
+      key: _formKeys[0],
+      child: Column(
+        children: [
+          NikField(
+            initialValue: _formData['nik'],
+            onSaved: (val) => _formData['nik'] = val,
+          ),
+          const SizedBox(height: 16),
+          NamaLengkapField(
+            initialValue: _formData['namaLengkap'],
+            onSaved: (val) => _formData['namaLengkap'] = val,
+          ),
+          const SizedBox(height: 16),
+          JenisKelaminField(
+            value: _formData['jenisKelamin'],
+            onSaved: (val) => _formData['jenisKelamin'] = val,
+          ),
+          const SizedBox(height: 16),
+          TeleponField(
+            initialValue: _formData['telepon'],
+            onSaved: (val) => _formData['telepon'] = val,
+          ),
+          const SizedBox(height: 16),
+          UploadIdentitasField(
+            initialValue: _formData['fotoIdentitas'],
+            onSaved: (val) => _formData['fotoIdentitas'] = val,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2() {
+    return Form(
+      key: _formKeys[1],
+      child: Column(
+        children: [
+          TempatLahirField(
+            initialValue: _formData['tempatLahir'],
+            onSaved: (val) => _formData['tempatLahir'] = val,
+          ),
+          const SizedBox(height: 16),
+          TanggalLahirField(
+            initialValue: _formData['tanggalLahir'],
+            onSaved: (val) => _formData['tanggalLahir'] = val,
+          ),
+          const SizedBox(height: 16),
+          AgamaField(
+            value: _formData['agama'],
+            onSaved: (val) => _formData['agama'] = val,
+          ),
+          const SizedBox(height: 16),
+          GolonganDarahField(
+            value: _formData['golonganDarah'],
+            onSaved: (val) => _formData['golonganDarah'] = val,
+          ),
+          const SizedBox(height: 16),
+          PendidikanField(
+            value: _formData['pendidikanTerakhir'],
+            onSaved: (val) => _formData['pendidikanTerakhir'] = val,
+          ),
+          const SizedBox(height: 16),
+          PekerjaanField(
+            initialValue: _formData['pekerjaan'],
+            onSaved: (val) => _formData['pekerjaan'] = val,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep3() {
+    return Form(
+      key: _formKeys[2],
+      child: Column(
+        children: [
+          KeluargaField(
+            value: _formData['keluargaId'],
+            onSaved: (val) => _formData['keluargaId'] = val,
+          ),
+          const SizedBox(height: 16),
+          PeranField(
+            value: _formData['peran'],
+            onSaved: (val) => _formData['peran'] = val,
+          ),
+          const SizedBox(height: 16),
+          RumahField(
+            key: _rumahKey,
+            initialValue: _formData['rumahId'],
+            onSelected: (id, alamat) {
+              _formData['rumahId'] = id;
+              _formData['alamatRumah'] = alamat;
+              if (alamat != null) {
+                _alamatController.text = alamat;
+              } else {
+                _alamatController.clear();
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          AlamatRumahField(
+            controller: _alamatController,
+            readOnly: _formData['rumahId'] != null,
+            onSaved: (value) => _formData['alamatRumah'] = value,
+          ),
+          const SizedBox(height: 16),
+          StatusRumahField(
+            key: _statusRumahKey,
+            value: _formData['statusRumah'],
+            onSaved: (value) => _formData['statusRumah'] = value,
+          ),
+          const SizedBox(height: 16),
+          StatusHidupField(
+            value: _formData['statusHidup'] ?? 'Hidup',
+            onChanged: (val) => _formData['statusHidup'] = val,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep4() {
+    if (widget.isEdit) {
+      // PERBAIKAN: Bungkus dengan Form agar _formKeys[3] terdeteksi
+      return Form(
+        key: _formKeys[3],
+        child: const Center(
+          child: Column(
+            children: [
+              Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+              SizedBox(height: 16),
+              Text("Data siap diperbarui.", style: TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Kode untuk mode Tambah Baru (Create Account) biarkan tetap seperti semula
+    return Form(
+      key: _formKeys[3],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text("Buatkan Akun Login?"),
+            subtitle: const Text(
+              "Warga dapat login menggunakan Email & Password ini.",
+            ),
+            value: _createAccount,
+            onChanged: (val) {
+              setState(() => _createAccount = val ?? false);
+            },
+          ),
+          if (_createAccount) ...[
+            const Divider(),
+            const SizedBox(height: 16),
+            EmailField(
+              initialValue: _formData['email'],
+              onSaved: (val) => _formData['email'] = val,
+            ),
+            const SizedBox(height: 16),
+            PasswordField(onSaved: (val) => _password = val),
+            const SizedBox(height: 8),
+            const Text(
+              "* Password minimal 6 karakter",
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+          if (!_createAccount)
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Center(
+                child: Text(
+                  "Klik Simpan untuk menambahkan data warga tanpa akun login.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
-        title: Text(widget.isEdit ? 'Edit Warga' : 'Tambah Warga'),
+        title: Text(
+          widget.isEdit ? 'Edit Data Warga' : 'Tambah Warga Baru',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       drawer: const Sidebar(),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // NIK
-            TextFormField(
-              controller: _nikController,
-              decoration: const InputDecoration(
-                labelText: 'NIK *',
-                prefixIcon: Icon(Icons.badge),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              enabled: !widget.isEdit,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'NIK harus diisi';
-                }
-                if (value.length != 16) {
-                  return 'NIK harus 16 digit';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            // Nama
-            TextFormField(
-              controller: _namaController,
-              decoration: const InputDecoration(
-                labelText: 'Nama Lengkap *',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Nama harus diisi';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            // Email
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            // No Telepon
-            TextFormField(
-              controller: _noTeleponController,
-              decoration: const InputDecoration(
-                labelText: 'No Telepon',
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
-            // Checkbox: Buat Akun untuk Warga
-            if (!widget.isEdit)
-              CheckboxListTile(
-                title: const Text(
-                  'Buatkan Akun Login',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
                 ),
-                subtitle: const Text(
-                  'Aktifkan untuk membuat akun login untuk warga ini',
-                  style: TextStyle(fontSize: 12),
-                ),
-                value: _createAccount,
-                onChanged: (value) {
-                  setState(() {
-                    _createAccount = value ?? false;
-                  });
-                },
-                contentPadding: EdgeInsets.zero,
-              ),
-            if (_createAccount && !widget.isEdit) ...[
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password *',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                  helperText: 'Password untuk login warga (minimal 6 karakter)',
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (_createAccount) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password harus diisi';
-                    }
-                    if (value.length < 6) {
-                      return 'Password minimal 6 karakter';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-            // Jenis Kelamin
-            DropdownButtonFormField<String>(
-              value: _jenisKelamin,
-              decoration: const InputDecoration(
-                labelText: 'Jenis Kelamin',
-                prefixIcon: Icon(Icons.wc),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Laki-laki', child: Text('Laki-laki')),
-                DropdownMenuItem(value: 'Perempuan', child: Text('Perempuan')),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _jenisKelamin = value;
-                });
-              },
             ),
-            const SizedBox(height: 16),
-            // Tempat Lahir
-            TextFormField(
-              controller: _tempatLahirController,
-              decoration: const InputDecoration(
-                labelText: 'Tempat Lahir',
-                prefixIcon: Icon(Icons.location_city),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Tanggal Lahir
-            InkWell(
-              onTap: _selectDate,
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Tanggal Lahir',
-                  prefixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(),
-                ),
-                child: Text(
-                  _tanggalLahir != null
-                      ? DateFormat(
-                          'dd MMMM yyyy',
-                          'id_ID',
-                        ).format(_tanggalLahir!)
-                      : 'Pilih tanggal',
-                  style: TextStyle(
-                    color: _tanggalLahir != null ? Colors.black : Colors.grey,
+            child: Column(
+              children: [
+                _buildStepIndicator(),
+                const SizedBox(height: 24),
+
+                Text(
+                  _getStepTitle(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Agama
-            DropdownButtonFormField<String>(
-              value: _agama,
-              decoration: const InputDecoration(
-                labelText: 'Agama',
-                prefixIcon: Icon(Icons.church),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Islam', child: Text('Islam')),
-                DropdownMenuItem(value: 'Kristen', child: Text('Kristen')),
-                DropdownMenuItem(value: 'Katolik', child: Text('Katolik')),
-                DropdownMenuItem(value: 'Hindu', child: Text('Hindu')),
-                DropdownMenuItem(value: 'Buddha', child: Text('Buddha')),
-                DropdownMenuItem(value: 'Konghucu', child: Text('Konghucu')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _agama = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            // Golongan Darah
-            DropdownButtonFormField<String>(
-              value: _golonganDarah,
-              decoration: const InputDecoration(
-                labelText: 'Golongan Darah',
-                prefixIcon: Icon(Icons.bloodtype),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'A', child: Text('A')),
-                DropdownMenuItem(value: 'B', child: Text('B')),
-                DropdownMenuItem(value: 'AB', child: Text('AB')),
-                DropdownMenuItem(value: 'O', child: Text('O')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _golonganDarah = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            // Pendidikan
-            DropdownButtonFormField<String>(
-              value: _pendidikanTerakhir,
-              decoration: const InputDecoration(
-                labelText: 'Pendidikan Terakhir',
-                prefixIcon: Icon(Icons.school),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'SD', child: Text('SD')),
-                DropdownMenuItem(value: 'SMP', child: Text('SMP')),
-                DropdownMenuItem(value: 'SMA', child: Text('SMA')),
-                DropdownMenuItem(value: 'D1', child: Text('D1')),
-                DropdownMenuItem(value: 'D2', child: Text('D2')),
-                DropdownMenuItem(value: 'D3', child: Text('D3')),
-                DropdownMenuItem(value: 'S1', child: Text('S1')),
-                DropdownMenuItem(value: 'S2', child: Text('S2')),
-                DropdownMenuItem(value: 'S3', child: Text('S3')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _pendidikanTerakhir = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            // Pekerjaan
-            TextFormField(
-              controller: _pekerjaanController,
-              decoration: const InputDecoration(
-                labelText: 'Pekerjaan',
-                prefixIcon: Icon(Icons.work),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Status Domisili
-            DropdownButtonFormField<String>(
-              value: _statusDomisili,
-              decoration: const InputDecoration(
-                labelText: 'Status Domisili',
-                prefixIcon: Icon(Icons.home),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Tetap', child: Text('Tetap')),
-                DropdownMenuItem(value: 'Kontrak', child: Text('Kontrak')),
-                DropdownMenuItem(value: 'Sementara', child: Text('Sementara')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _statusDomisili = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            // Status Hidup
-            DropdownButtonFormField<String>(
-              value: _statusHidup,
-              decoration: const InputDecoration(
-                labelText: 'Status Hidup',
-                prefixIcon: Icon(Icons.health_and_safety),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Hidup', child: Text('Hidup')),
-                DropdownMenuItem(value: 'Meninggal', child: Text('Meninggal')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _statusHidup = value;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-            // Submit Button
-            Consumer<WargaProvider>(
-              builder: (context, provider, _) {
-                return ElevatedButton(
-                  onPressed: provider.isLoading ? null : _saveForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: provider.isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          widget.isEdit ? 'Update Data' : 'Simpan Data',
-                          style: const TextStyle(fontSize: 16),
+                const SizedBox(height: 24),
+
+                // Render Content based on step
+                if (_currentStep == 0) _buildStep1(),
+                if (_currentStep == 1) _buildStep2(),
+                if (_currentStep == 2) _buildStep3(),
+                if (_currentStep == 3) _buildStep4(),
+
+                const SizedBox(height: 32),
+
+                // Navigation Buttons
+                Row(
+                  children: [
+                    if (_currentStep > 0)
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _previousStep,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text("Kembali"),
                         ),
-                );
-              },
+                      ),
+                    if (_currentStep > 0) const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _nextStep,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          _currentStep < 3 ? "Lanjut" : "Simpan Data",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

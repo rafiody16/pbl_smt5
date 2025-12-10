@@ -17,7 +17,10 @@ class KeluargaField extends StatelessWidget {
         .map<String>((keluarga) => keluarga['nama_keluarga'] as String)
         .toList();
 
-    String? selectedValue = value.isNotEmpty ? value : (keluargaList.isNotEmpty ? keluargaList.first : null);
+    // Validasi: value harus ada dalam list atau null
+    String? selectedValue = (value.isNotEmpty && keluargaList.contains(value))
+        ? value
+        : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -42,6 +45,13 @@ class KeluargaField extends StatelessWidget {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: selectedValue,
+                hint: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Pilih keluarga',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
                 isExpanded: true,
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 16),
@@ -54,9 +64,7 @@ class KeluargaField extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         item,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                        ),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ),
                   );
