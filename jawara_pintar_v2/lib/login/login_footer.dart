@@ -19,10 +19,7 @@ class LoginFooter extends StatelessWidget {
             },
             child: const Text(
               "Daftar",
-              style: TextStyle(
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
             ),
           ),
         ],
