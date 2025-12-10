@@ -207,7 +207,8 @@ class _WargaFormPageState extends State<WargaFormPage> {
               ? "Data warga berhasil diperbarui"
               : "Warga berhasil ditambahkan",
         );
-        Navigator.pop(context); // Kembali ke list
+        // Gunakan pushReplacementNamed untuk navigate ke list dengan aman
+        Navigator.pushReplacementNamed(context, '/warga/list');
       } else {
         ToastService.showError(
           context,
@@ -484,7 +485,10 @@ class _WargaFormPageState extends State<WargaFormPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            // Gunakan pushReplacementNamed untuk kembali ke list dengan aman
+            Navigator.pushReplacementNamed(context, '/warga/list');
+          },
         ),
       ),
       drawer: const Sidebar(),
