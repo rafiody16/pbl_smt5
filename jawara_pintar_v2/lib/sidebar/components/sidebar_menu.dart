@@ -13,6 +13,7 @@ import 'package:jawara_pintar_v2/keuangan/pemasukan.dart';
 import 'package:jawara_pintar_v2/keuangan/pengeluaran.dart';
 import '../../warga/pages/warga_daftar_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
+import '../../marketplace/pages/produk_form_page.dart';
 import '../../mutasi_keluarga/halaman_daftar_mutasi.dart';
 import '../../mutasi_keluarga/halaman_tambah_mutasi.dart';
 import '../../kegiatan/kegiatan_tambah_page.dart';
@@ -301,6 +302,39 @@ class SidebarMenu extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => const AspirasiDaftarPage(),
               ),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
+      title: "Marketplace",
+      icon: Icons.storefront,
+      subMenus: [
+        SubMenu(
+          "Marketplace",
+          // onTap: (context) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => const MarketplacePage()),
+          //   );
+          // },
+        ),
+        SubMenu(
+          "Produk",
+          // onTap: (context) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => const ProdukListPage()),
+          //   );
+          // },
+        ),
+        SubMenu(
+          "Tambah Produk",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ProdukFormPage()),
             );
           },
         ),

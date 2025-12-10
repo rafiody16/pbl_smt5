@@ -7,7 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // === IMPORT PROVIDERS ===
 import 'providers/auth_provider.dart';
 import 'providers/warga_provider.dart';
-import 'providers/keuangan_provider.dart'; // PENTING: Tambahkan ini
+import 'providers/keuangan_provider.dart';
+import 'providers/produk_provider.dart'; // PENTING: Tambahkan ini
 
 // === IMPORT HALAMAN ===
 import 'login/login_page.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => WargaProvider()),
+        ChangeNotifierProvider(create: (_) => ProdukProvider()),
 
         // PENTING: Provider Keuangan ditambahkan disini agar bisa diakses seluruh aplikasi
         // '..initData()' digunakan agar data langsung diambil saat aplikasi dibuka
