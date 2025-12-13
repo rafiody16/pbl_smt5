@@ -42,7 +42,54 @@ import '../../views/warga/pages/warga_form_page.dart';
 import '../../marketplace/pages/marketplace_list.dart';
 
 class SidebarMenu extends StatelessWidget {
-  SidebarMenu({super.key});
+  final String? userRole;
+  SidebarMenu({super.key, this.userRole});
+
+  bool _hasAccess(List<String> allowedRoles) {
+    if (userRole == null) return false;
+    return allowedRoles.contains(userRole);
+  }
+
+  // Role access untuk setiap menu section
+  final Map<String, List<String>> sectionAccess = {
+    'Dashboard': [
+      'admin',
+      'bendahara',
+      'sekretaris',
+      'ketua_rt',
+      'ketua_rw',
+      'warga',
+    ],
+    'Data Warga & Rumah': [
+      'admin',
+      'sekretaris',
+      'ketua_rt',
+      'ketua_rw',
+      'warga',
+    ],
+    'Pemasukan': ['bendahara', 'admin'],
+    'Pengeluaran': ['bendahara', 'admin'],
+    'Laporan Keuangan': ['bendahara', 'admin', 'ketua_rt', 'ketua_rw'],
+    'Kegiatan & Broadcast': [
+      'admin',
+      'sekretaris',
+      'ketua_rt',
+      'ketua_rw',
+      'warga',
+    ],
+    'Pesan Warga': ['admin', 'ketua_rt', 'ketua_rw', 'warga'],
+    'Marketplace': [
+      'warga',
+      'admin',
+      'sekretaris',
+      'ketua_rt',
+      'ketua_rw',
+      'bendahara',
+    ],
+    'Mutasi Keluarga': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
+    'Log Aktivitas': ['admin'],
+    'Channel Transfer': ['bendahara', 'admin'],
+  };
 
   final List<MenuSection> menuSections = [
     MenuSection(
@@ -92,15 +139,15 @@ class SidebarMenu extends StatelessWidget {
             );
           },
         ),
-        SubMenu(
-          "Warga - Tambah",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const WargaFormPage()),
-            );
-          },
-        ),
+        // SubMenu(
+        //   "Warga - Tambah",
+        //   onTap: (context) {
+        //     Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => const WargaFormPage()),
+        //     );
+        //   },
+        // ),
         SubMenu(
           "Keluarga",
           onTap: (context) {
@@ -343,23 +390,6 @@ class SidebarMenu extends StatelessWidget {
         ),
       ],
     ),
-    // MenuSection(
-    //   title: "Penerimaan Warga",
-    //   icon: Icons.person_add,
-    //   subMenus: [
-    //     SubMenu(
-    //       "Penerimaan Warga",
-    //       onTap: (context) {
-    //         Navigator.pushReplacement(
-    //           context,
-    //           MaterialPageRoute(
-    //             builder: (context) => const PenerimaanWargaPage(),
-    //           ),
-    //         );
-    //       },
-    //     ),
-    //   ],
-    // ),
     MenuSection(
       title: "Mutasi Keluarga",
       icon: Icons.group,
@@ -439,26 +469,52 @@ class SidebarMenu extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        for (var section in menuSections) _buildMenuSection(context, section),
+        for (var section in menuSections)
+          if (_hasAccess(sectionAccess[section.title] ?? []))
+            _buildMenuSection(context, section),
         const SizedBox(height: 20),
       ],
     );
   }
 
   Widget _buildMenuSection(BuildContext context, MenuSection section) {
+    // Definisikan access control per submenu jika perlu
+    final subMenuAccess = {
+      'Warga - Tambah': ['admin', 'sekretaris'],
+      'Kategori Iuran': ['bendahara', 'admin'],
+      'Tagih Iuran': ['bendahara', 'admin'],
+      'Daftar': ['bendahara', 'admin'], // untuk pengeluaran
+      'Tambah': ['bendahara', 'admin'], // untuk pengeluaran
+    };
+
     return ExpansionTile(
       leading: Icon(section.icon, color: Colors.black87),
       title: Text(
         section.title,
         style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
       ),
-      children: section.subMenus.map((subMenu) {
-        if (subMenu is SubMenu) {
-          return _buildSubMenu(context, subMenu.title, onTap: subMenu.onTap);
-        } else {
-          return _buildSubMenu(context, subMenu.toString());
-        }
-      }).toList(),
+      children: section.subMenus
+          .where((subMenu) {
+            if (subMenu is SubMenu) {
+              // Return true jika user punya akses atau tidak ada restriction
+              return _hasAccess(
+                subMenuAccess[subMenu.title] ?? [userRole ?? ''],
+              );
+            }
+            return true;
+          })
+          .map((subMenu) {
+            if (subMenu is SubMenu) {
+              return _buildSubMenu(
+                context,
+                subMenu.title,
+                onTap: subMenu.onTap,
+              );
+            } else {
+              return _buildSubMenu(context, subMenu.toString());
+            }
+          })
+          .toList(),
     );
   }
 

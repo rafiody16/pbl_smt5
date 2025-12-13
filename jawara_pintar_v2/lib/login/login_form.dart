@@ -37,28 +37,6 @@ class _LoginFormState extends State<LoginForm> {
           );
         }
       }
-      /*await Future.delayed(const Duration(milliseconds: 500));
-
-      if (LoginData.validateCredentials(_email, _password)) {
-        ToastService.showSuccess(context, "Login berhasil!");
-
-        await Future.delayed(const Duration(milliseconds: 1500));
-        
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
-          );
-        }
-      } else {
-        ToastService.showError(context, "Email atau password salah!");
-      }
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }*/
     }
   }
 

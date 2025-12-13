@@ -173,4 +173,19 @@ class AuthProvider with ChangeNotifier {
     if (_userRole == null) return false;
     return allowedRoles.contains(_userRole);
   }
+
+  bool canAccessMenu(String menuName, List<String> requiredRoles) {
+    if (_userRole == null) return false;
+    return requiredRoles.contains(_userRole);
+  }
+
+  // Atau lebih sederhana:
+  bool hasRole(String role) {
+    return _userRole == role;
+  }
+
+  bool hasAnyRole(List<String> roles) {
+    if (_userRole == null) return false;
+    return roles.contains(_userRole);
+  }
 }
