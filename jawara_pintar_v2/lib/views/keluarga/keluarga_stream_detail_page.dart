@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../blocs/keluarga_bloc.dart';
 import '../../models/keluarga_model.dart';
 import 'keluarga_stream_form.dart';
+import 'package:provider/provider.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
+import 'package:jawara_pintar_v2/providers/auth_provider.dart';
 
 class KeluargaStreamDetailPage extends StatelessWidget {
   final KeluargaModel keluarga;
@@ -15,6 +18,10 @@ class KeluargaStreamDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
+
     return StreamBuilder<List<KeluargaModel>>(
       stream: bloc.keluargaStream,
       builder: (context, snapshot) {
@@ -26,6 +33,13 @@ class KeluargaStreamDetailPage extends StatelessWidget {
             : keluarga;
 
         return Scaffold(
+          drawer: Drawer(
+            child: Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return SidebarMenu(userRole: authProvider.userRole);
+              },
+            ),
+          ),
           backgroundColor: const Color(0xFFF8FAFF),
           body: CustomScrollView(
             slivers: [
@@ -42,22 +56,24 @@ class KeluargaStreamDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => KeluargaStreamForm(
-                    bloc: bloc,
-                    existingKeluarga: currentKeluarga,
-                  ),
-                ),
-              );
-            },
-            label: const Text('Edit Data'),
-            icon: const Icon(Icons.edit),
-            backgroundColor: Colors.orange,
-          ),
+          floatingActionButton: (isAdmin || isSekretaris)
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => KeluargaStreamForm(
+                          bloc: bloc,
+                          existingKeluarga: currentKeluarga,
+                        ),
+                      ),
+                    );
+                  },
+                  label: const Text('Edit Data'),
+                  icon: const Icon(Icons.edit),
+                  backgroundColor: Colors.orange,
+                )
+              : null,
         );
       },
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/providers/auth_provider.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/warga_provider.dart';
@@ -472,6 +474,13 @@ class _WargaFormPageState extends State<WargaFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return SidebarMenu(userRole: authProvider.userRole);
+          },
+        ),
+      ),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: Text(
@@ -491,7 +500,6 @@ class _WargaFormPageState extends State<WargaFormPage> {
           },
         ),
       ),
-      drawer: const Sidebar(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

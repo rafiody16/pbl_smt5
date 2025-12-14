@@ -207,19 +207,23 @@ class WargaProvider with ChangeNotifier {
 
   // Delete warga
   Future<bool> deleteWarga(String nik) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Hapus dari DB
       await _wargaService.deleteWarga(nik);
-      await loadWarga();
+
+      // Optimasi: hapus dari list lokal langsung tanpa reload semua
+      _wargaList.removeWhere((warga) => warga.nik == nik);
+
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
       _isLoading = false;
+      _errorMessage = 'Gagal menghapus warga: ${e.toString()}';
       notifyListeners();
       return false;
     }

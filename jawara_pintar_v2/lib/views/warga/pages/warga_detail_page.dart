@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/warga_provider.dart';
 import '../../../models/warga.dart';
-// Pastikan StatusChip diimport
 import '../../../warga/components/shared/status_chip.dart';
+import '../../../providers/auth_provider.dart';
 
 class WargaDetailPage extends StatelessWidget {
   const WargaDetailPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = context.select<AuthProvider, bool>((auth) => auth.isAdmin);
+    final isSekretaris = context.select<AuthProvider, bool>(
+      (auth) => auth.isSekretaris,
+    );
     final warga = ModalRoute.of(context)?.settings.arguments as Warga?;
 
     if (warga == null) {
@@ -21,6 +26,13 @@ class WargaDetailPage extends StatelessWidget {
     }
 
     return Scaffold(
+      drawer: Drawer(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return SidebarMenu(userRole: authProvider.userRole);
+          },
+        ),
+      ),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
@@ -37,18 +49,20 @@ class WargaDetailPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.blue),
-            onPressed: () {
-              Navigator.pushNamed(context, '/warga/edit', arguments: warga);
-            },
-            tooltip: 'Edit Data',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
-            onPressed: () => _showDeleteDialog(context, warga),
-            tooltip: 'Hapus Data',
-          ),
+          if (isAdmin || isSekretaris)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+              onPressed: () {
+                Navigator.pushNamed(context, '/warga/edit', arguments: warga);
+              },
+              tooltip: 'Edit Data',
+            ),
+          if (isAdmin || isSekretaris)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => _showDeleteDialog(context, warga),
+              tooltip: 'Hapus Data',
+            ),
         ],
       ),
       body: CustomScrollView(

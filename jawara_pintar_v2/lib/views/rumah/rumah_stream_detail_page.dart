@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/providers/auth_provider.dart';
 import '../../blocs/rumah_bloc.dart';
 import '../../models/rumah.dart';
 import 'rumah_stream_form.dart';
+import 'package:provider/provider.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
+import '../../sidebar/sidebar.dart';
 
 class RumahStreamDetailPage extends StatelessWidget {
   final Rumah rumah;
@@ -15,6 +19,10 @@ class RumahStreamDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ambil role menggunakan watch di dalam build
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
     // Kita gunakan StreamBuilder khusus untuk satu item ini agar update realtime
     // jika diedit di halaman lain (opsional, tapi bagus untuk konsistensi stream)
     return StreamBuilder<List<Rumah>>(
@@ -30,6 +38,13 @@ class RumahStreamDetailPage extends StatelessWidget {
             : rumah;
 
         return Scaffold(
+          drawer: Drawer(
+            child: Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return SidebarMenu(userRole: authProvider.userRole);
+              },
+            ),
+          ),
           backgroundColor: const Color(0xFFF8FAFF),
           body: CustomScrollView(
             slivers: [
@@ -43,20 +58,24 @@ class RumahStreamDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      RumahStreamForm(bloc: bloc, existingRumah: currentRumah),
-                ),
-              );
-            },
-            label: const Text('Edit Data'),
-            icon: const Icon(Icons.edit),
-            backgroundColor: Colors.orange,
-          ),
+          floatingActionButton: isAdmin || isSekretaris
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RumahStreamForm(
+                          bloc: bloc,
+                          existingRumah: currentRumah,
+                        ),
+                      ),
+                    );
+                  },
+                  label: const Text('Edit Data'),
+                  icon: const Icon(Icons.edit),
+                  backgroundColor: Colors.orange,
+                )
+              : null,
         );
       },
     );

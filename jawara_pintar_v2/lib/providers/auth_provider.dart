@@ -25,12 +25,13 @@ class AuthProvider with ChangeNotifier {
   bool get isSekretaris => _userRole == 'sekretaris';
   bool get isKetuaRT => _userRole == 'ketua_rt';
   bool get isKetuaRW => _userRole == 'ketua_rw';
+  bool get isWarga => _userRole == 'warga';
 
   AuthProvider() {
     _initialize();
   }
 
-  // Initialize auth state
+  // Initialize auth stat
   void _initialize() {
     _currentUser = _authService.currentUser;
     if (_currentUser != null) {

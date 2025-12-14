@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/providers/auth_provider.dart';
 import '../../blocs/keluarga_bloc.dart';
 import '../../models/keluarga_model.dart';
 import '../../sidebar/sidebar.dart';
 import 'keluarga_stream_form.dart';
 import 'keluarga_stream_detail_page.dart';
+import 'package:provider/provider.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 
 class KeluargaStreamPage extends StatefulWidget {
   const KeluargaStreamPage({Key? key}) : super(key: key);
@@ -56,7 +59,18 @@ class _KeluargaStreamPageState extends State<KeluargaStreamPage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
+
     return Scaffold(
+      drawer: Drawer(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return SidebarMenu(userRole: authProvider.userRole);
+          },
+        ),
+      ),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
@@ -67,7 +81,6 @@ class _KeluargaStreamPageState extends State<KeluargaStreamPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      drawer: const Sidebar(),
       body: StreamBuilder<List<KeluargaModel>>(
         stream: _bloc.keluargaStream,
         builder: (context, snapshot) {
@@ -93,24 +106,29 @@ class _KeluargaStreamPageState extends State<KeluargaStreamPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => KeluargaStreamForm(bloc: _bloc),
-            ),
-          );
-        },
-        label: const Text('Tambah Keluarga'),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.blue,
-      ),
+      floatingActionButton: isAdmin || isSekretaris
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => KeluargaStreamForm(bloc: _bloc),
+                  ),
+                );
+              },
+              label: const Text('Tambah Keluarga'),
+              icon: const Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            )
+          : null,
     );
   }
 
   Widget _buildKeluargaCard(KeluargaModel keluarga) {
     Color statusColor = keluarga.status == 'Aktif' ? Colors.green : Colors.grey;
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -161,65 +179,69 @@ class _KeluargaStreamPageState extends State<KeluargaStreamPage> {
             ),
           ],
         ),
-        trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.grey),
-          onSelected: (value) {
-            if (value == 'edit') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => KeluargaStreamForm(
-                    bloc: _bloc,
-                    existingKeluarga: keluarga,
+        trailing: (isAdmin || isSekretaris)
+            ? PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => KeluargaStreamForm(
+                          bloc: _bloc,
+                          existingKeluarga: keluarga,
+                        ),
+                      ),
+                    );
+                  } else if (value == 'delete') {
+                    if (keluarga.id != null)
+                      _confirmDelete(keluarga.id!, keluarga.namaKeluarga);
+                  } else if (value == 'detail') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => KeluargaStreamDetailPage(
+                          keluarga: keluarga,
+                          bloc: _bloc,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'detail',
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 20),
+                        SizedBox(width: 8),
+                        Text('Detail'),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            } else if (value == 'delete') {
-              if (keluarga.id != null)
-                _confirmDelete(keluarga.id!, keluarga.namaKeluarga);
-            } else if (value == 'detail') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      KeluargaStreamDetailPage(keluarga: keluarga, bloc: _bloc),
-                ),
-              );
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'detail',
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, size: 20),
-                  SizedBox(width: 8),
-                  Text('Detail'),
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 20),
+                        SizedBox(width: 8),
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, color: Colors.red, size: 20),
+                        SizedBox(width: 8),
+                        Text('Hapus', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 20),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
-                  SizedBox(width: 8),
-                  Text('Hapus', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
+              )
+            : null,
         onTap: () {
           Navigator.push(
             context,

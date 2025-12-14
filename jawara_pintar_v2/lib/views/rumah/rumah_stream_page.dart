@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_pintar_v2/providers/auth_provider.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
+import 'package:provider/provider.dart';
 import '../../blocs/rumah_bloc.dart';
 import '../../models/rumah.dart';
 import '../../sidebar/sidebar.dart'; // Pastikan path sidebar benar
@@ -55,7 +58,19 @@ class _RumahStreamPageState extends State<RumahStreamPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Ambil role melalui watch sekali di awal build
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
+
     return Scaffold(
+      drawer: Drawer(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return SidebarMenu(userRole: authProvider.userRole);
+          },
+        ),
+      ),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(
@@ -66,7 +81,6 @@ class _RumahStreamPageState extends State<RumahStreamPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      drawer: const Sidebar(),
       body: StreamBuilder<List<Rumah>>(
         stream: _bloc.rumahStream, // <--- Mendengarkan Stream di sini
         builder: (context, snapshot) {
@@ -106,23 +120,30 @@ class _RumahStreamPageState extends State<RumahStreamPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RumahStreamForm(bloc: _bloc),
-            ),
-          );
-        },
-        label: const Text('Tambah Rumah'),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.blue,
-      ),
+      floatingActionButton: isAdmin || isSekretaris
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RumahStreamForm(bloc: _bloc),
+                  ),
+                );
+              },
+              label: const Text('Tambah Rumah'),
+              icon: const Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            )
+          : null,
     );
   }
 
   Widget _buildRumahCard(Rumah rumah) {
+    // Jangan gunakan context.select di sini; gunakan nilai dari build()
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isSekretaris = auth.isSekretaris;
+
     Color statusColor = rumah.statusRumah == 'Ditempati'
         ? Colors.blue
         : Colors.green;
@@ -182,44 +203,47 @@ class _RumahStreamPageState extends State<RumahStreamPage> {
             ),
           ],
         ),
-        trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.grey),
-          onSelected: (value) {
-            if (value == 'edit') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      RumahStreamForm(bloc: _bloc, existingRumah: rumah),
-                ),
-              );
-            } else if (value == 'delete') {
-              if (rumah.id != null) _confirmDelete(rumah.id!, rumah.alamat);
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 20),
-                  SizedBox(width: 8),
-                  Text('Edit'),
+        trailing: isAdmin || isSekretaris
+            ? PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RumahStreamForm(bloc: _bloc, existingRumah: rumah),
+                      ),
+                    );
+                  } else if (value == 'delete') {
+                    if (rumah.id != null)
+                      _confirmDelete(rumah.id!, rumah.alamat);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 20),
+                        SizedBox(width: 8),
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, color: Colors.red, size: 20),
+                        SizedBox(width: 8),
+                        Text('Hapus', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
-                  SizedBox(width: 8),
-                  Text('Hapus', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
+              )
+            : null,
       ),
     );
   }

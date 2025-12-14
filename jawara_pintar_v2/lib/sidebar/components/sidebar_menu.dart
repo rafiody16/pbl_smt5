@@ -131,7 +131,7 @@ class SidebarMenu extends StatelessWidget {
       icon: Icons.people,
       subMenus: [
         SubMenu(
-          "Warga - Daftar",
+          "Warga",
           onTap: (context) {
             Navigator.pushReplacement(
               context,
@@ -139,15 +139,6 @@ class SidebarMenu extends StatelessWidget {
             );
           },
         ),
-        // SubMenu(
-        //   "Warga - Tambah",
-        //   onTap: (context) {
-        //     Navigator.pushReplacement(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => const WargaFormPage()),
-        //     );
-        //   },
-        // ),
         SubMenu(
           "Keluarga",
           onTap: (context) {
