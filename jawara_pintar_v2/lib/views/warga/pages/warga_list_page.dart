@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/warga_provider.dart';
 import '../widgets/warga_card.dart';
 import '../widgets/common_widgets.dart' as common_widgets;
 import '../widgets/filter_dialog.dart';
-import '../../../sidebar/sidebar.dart';
+import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 
 class WargaListPage extends StatefulWidget {
   const WargaListPage({Key? key}) : super(key: key);
@@ -50,29 +52,34 @@ class _WargaListPageState extends State<WargaListPage> {
   void _confirmDelete(BuildContext context, String nik, String nama) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: Text('Apakah Anda yakin ingin menghapus data warga "$nama"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Batal'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               final provider = context.read<WargaProvider>();
+
+              // Hapus dan tunggu respons
               final success = await provider.deleteWarga(nik);
 
               if (mounted) {
+                // Gunakan context dari page (outer scope), bukan dialogContext
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
                       success
                           ? 'Data warga berhasil dihapus'
-                          : 'Gagal menghapus data warga',
+                          : (provider.errorMessage ??
+                                'Gagal menghapus data warga'),
                     ),
                     backgroundColor: success ? Colors.green : Colors.red,
+                    duration: const Duration(seconds: 2),
                   ),
                 );
               }
@@ -87,7 +94,18 @@ class _WargaListPageState extends State<WargaListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = context.select<AuthProvider, bool>((auth) => auth.isAdmin);
+    final isSekretaris = context.select<AuthProvider, bool>(
+      (auth) => auth.isSekretaris,
+    );
     return Scaffold(
+      drawer: Drawer(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return SidebarMenu(userRole: authProvider.userRole);
+          },
+        ),
+      ),
       backgroundColor: const Color(
         0xFFF8FAFF,
       ), // Warna background sesuai desain lama
@@ -127,7 +145,6 @@ class _WargaListPageState extends State<WargaListPage> {
           ),
         ],
       ),
-      drawer: const Sidebar(),
       body: Column(
         children: [
           // Filter Aktif (Ditampilkan seperti Chips di atas list)
@@ -246,16 +263,30 @@ class _WargaListPageState extends State<WargaListPage> {
                             arguments: warga,
                           );
                         },
-                        onEdit: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/warga/edit',
-                            arguments: warga,
-                          );
-                        },
-                        onDelete: () {
-                          _confirmDelete(context, warga.nik, warga.namaLengkap);
-                        },
+                        onEdit: isAdmin || isSekretaris
+                            ? () => Navigator.pushNamed(
+                                context,
+                                '/warga/edit',
+                                arguments: warga,
+                              )
+                            : null,
+                        onDelete: isAdmin || isSekretaris
+                            ? () => _confirmDelete(
+                                context,
+                                warga.nik,
+                                warga.namaLengkap,
+                              )
+                            : null,
+                        // onEdit: () {
+                        //   Navigator.pushNamed(
+                        //     context,
+                        //     '/warga/edit',
+                        //     arguments: warga,
+                        //   );
+                        // },
+                        // onDelete: () {
+                        //   _confirmDelete(context, warga.nik, warga.namaLengkap);
+                        // },
                       );
                     },
                   ),
@@ -265,15 +296,17 @@ class _WargaListPageState extends State<WargaListPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/warga/add');
-        },
-        backgroundColor: Colors.blue, // Sesuaikan warna FAB
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
-      ),
+      floatingActionButton: isAdmin || isSekretaris
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.pushNamed(context, '/warga/add');
+              },
+              backgroundColor: Colors.blue, // Sesuaikan warna FAB
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah'),
+            )
+          : null,
     );
   }
 
