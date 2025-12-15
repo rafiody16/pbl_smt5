@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jawara_pintar_v2/providers/auth_provider.dart';
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 import '../../blocs/keluarga_bloc.dart';
 import '../../models/keluarga_model.dart';
-import 'package:provider/provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 
 class KeluargaStreamForm extends StatefulWidget {
   final KeluargaBloc bloc;
@@ -109,13 +107,7 @@ class _KeluargaStreamFormState extends State<KeluargaStreamForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(

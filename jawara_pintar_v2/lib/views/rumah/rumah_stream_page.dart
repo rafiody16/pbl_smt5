@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jawara_pintar_v2/providers/auth_provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:provider/provider.dart';
 import '../../blocs/rumah_bloc.dart';
 import '../../models/rumah.dart';
-import '../../sidebar/sidebar.dart'; // Pastikan path sidebar benar
+import '../../sidebar/sidebar.dart';
 import 'rumah_stream_form.dart';
 import 'rumah_stream_detail_page.dart';
 
@@ -64,13 +63,7 @@ class _RumahStreamPageState extends State<RumahStreamPage> {
     final isSekretaris = auth.isSekretaris;
 
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(

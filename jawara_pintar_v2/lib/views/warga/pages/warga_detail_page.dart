@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/warga_provider.dart';
 import '../../../models/warga.dart';
-import '../../../warga/components/shared/status_chip.dart';
 import '../../../providers/auth_provider.dart';
 
 class WargaDetailPage extends StatelessWidget {
@@ -26,13 +25,7 @@ class WargaDetailPage extends StatelessWidget {
     }
 
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(

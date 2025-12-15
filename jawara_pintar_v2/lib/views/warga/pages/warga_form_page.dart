@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jawara_pintar_v2/providers/auth_provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/warga_provider.dart';
@@ -25,7 +24,7 @@ import '../../../register/fields/golongan_darah_field.dart';
 import '../../../register/fields/alamat_rumah_field.dart';
 import '../../../register/fields/rumah_field.dart';
 import '../../../register/fields/status_rumah_field.dart';
-import '../../../warga/components/form/fields/status_hidup_field.dart';
+import '../../../register/fields/status_hidup_field.dart';
 
 class WargaFormPage extends StatefulWidget {
   final bool isEdit;
@@ -474,13 +473,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: Text(

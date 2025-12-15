@@ -4,7 +4,6 @@ import '../../blocs/rumah_bloc.dart';
 import '../../models/rumah.dart';
 import 'rumah_stream_form.dart';
 import 'package:provider/provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import '../../sidebar/sidebar.dart';
 
 class RumahStreamDetailPage extends StatelessWidget {
@@ -38,13 +37,7 @@ class RumahStreamDetailPage extends StatelessWidget {
             : rumah;
 
         return Scaffold(
-          drawer: Drawer(
-            child: Consumer<AuthProvider>(
-              builder: (context, authProvider, _) {
-                return SidebarMenu(userRole: authProvider.userRole);
-              },
-            ),
-          ),
+          drawer: Sidebar(),
           backgroundColor: const Color(0xFFF8FAFF),
           body: CustomScrollView(
             slivers: [

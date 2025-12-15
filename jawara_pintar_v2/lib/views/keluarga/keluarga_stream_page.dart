@@ -6,7 +6,6 @@ import '../../sidebar/sidebar.dart';
 import 'keluarga_stream_form.dart';
 import 'keluarga_stream_detail_page.dart';
 import 'package:provider/provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 
 class KeluargaStreamPage extends StatefulWidget {
   const KeluargaStreamPage({Key? key}) : super(key: key);
@@ -64,13 +63,7 @@ class _KeluargaStreamPageState extends State<KeluargaStreamPage> {
     final isSekretaris = auth.isSekretaris;
 
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xFFF8FAFF),
       appBar: AppBar(
         title: const Text(

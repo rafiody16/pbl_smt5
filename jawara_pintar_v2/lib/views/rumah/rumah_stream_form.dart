@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jawara_pintar_v2/providers/auth_provider.dart';
 import '../../blocs/rumah_bloc.dart';
 import '../../models/rumah.dart';
-import 'package:provider/provider.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
-import '../../sidebar/sidebar.dart'; // Pastikan path sidebar benar
+import '../../sidebar/sidebar.dart';
 
 class RumahStreamForm extends StatefulWidget {
   final RumahBloc bloc;
@@ -108,13 +105,7 @@ class _RumahStreamFormState extends State<RumahStreamForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(

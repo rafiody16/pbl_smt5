@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart';
-import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_tambah_pengguna.dart';
 import 'package:jawara_pintar_v2/mutasi_keluarga/halaman_tambah_mutasi.dart';
-import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_form.dart';
 import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_page.dart';
 import 'package:jawara_pintar_v2/views/rumah/rumah_stream_page.dart';
-import 'package:jawara_pintar_v2/warga/pages/keluarga.dart';
 import 'package:jawara_pintar_v2/dashboard/kependudukan.dart';
 import 'package:jawara_pintar_v2/keuangan/laporan.dart';
 import 'package:jawara_pintar_v2/keuangan/pemasukan.dart';
 import 'package:jawara_pintar_v2/keuangan/pengeluaran.dart';
-import '../../warga/pages/warga_daftar_page.dart';
 import '../../kegiatan/kegiatan_page.dart';
 import '../../marketplace/pages/produk_form_page.dart';
 import '../../mutasi_keluarga/halaman_daftar_mutasi.dart';
@@ -21,10 +16,6 @@ import '../../broadcast/broadcast_daftar_page.dart';
 import '../../broadcast/broadcast_tambah_page.dart';
 import '../../log_aktivitas/log_aktivitas_page.dart';
 import '../../pesan_warga/pesan_warga_page.dart';
-import '../../warga/pages/warga_tambah_page.dart';
-import '../../warga/pages/keluarga.dart';
-import '../../warga/pages/rumah_daftar_page.dart';
-import '../../warga/pages/rumah_tambah_page.dart';
 import '../../penerimaanWarga/pages/penerimaan_warga_page.dart';
 import '../../dashboard/keuangan.dart';
 import '../../dashboard/kegiatan.dart';
@@ -38,7 +29,6 @@ import '../../pengeluaran/tambah.dart';
 import '../../chanel_tranfer/halaman_daftar_chanel.dart';
 import '../../chanel_tranfer/halaman_tambah_chanel.dart';
 import '../../views/warga/pages/warga_list_page.dart';
-import '../../views/warga/pages/warga_form_page.dart';
 import '../../marketplace/pages/marketplace_list.dart';
 
 class SidebarMenu extends StatelessWidget {

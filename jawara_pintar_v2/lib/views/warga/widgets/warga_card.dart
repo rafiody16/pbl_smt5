@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/warga.dart';
-// Pastikan import StatusChip dari folder komponen lama Anda agar style-nya sama
-import '../../../warga/components/shared/status_chip.dart';
+import 'status_chip.dart';
 
 class WargaCard extends StatelessWidget {
   final Warga warga;
