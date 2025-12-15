@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 
 // Helper widget untuk membuat kartu informasi di bagian atas
 class InfoCard extends StatelessWidget {
@@ -128,18 +125,11 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Di sini kamu perlu mengambil data email dari state management atau cara lain
     // Untuk sementara, kita bisa gunakan nilai placeholder
-    const String currentUserEmail = "user@example.com";
 
     return Scaffold(
       // Sidebar tetap dipanggil dengan parameter email
       // drawer: const Sidebar(userEmail: currentUserEmail),
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xfff0f4f7), // Warna background abu-abu muda
       appBar: AppBar(
         title: const Text("Dashboard"),

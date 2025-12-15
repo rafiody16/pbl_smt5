@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:jawara_pintar_v2/sidebar/sidebar.dart'; // Pastikan path ini benar
-
-// --- Helper Widgets (Bisa dipindahkan ke file terpisah jika diinginkan) ---
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 
 // Card utama yang fleksibel untuk dashboard
 class StatCard extends StatelessWidget {
@@ -123,10 +121,9 @@ class Kependudukan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Placeholder untuk data email, sesuaikan dengan implementasi autentikasi
-    const String currentUserEmail = "user@example.com";
 
     return Scaffold(
-      drawer: const Sidebar(userEmail: currentUserEmail),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xfff0f4f7),
       appBar: AppBar(
         title: const Text("Kependudukan"),

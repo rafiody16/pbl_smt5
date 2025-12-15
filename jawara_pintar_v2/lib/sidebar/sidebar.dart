@@ -4,6 +4,8 @@ import '../login/login_page.dart';
 import 'components/sidebar_header.dart';
 import 'components/sidebar_menu.dart';
 import 'components/sidebar_footer.dart';
+import '../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class Sidebar extends StatefulWidget {
   final String? userEmail;
@@ -28,7 +30,13 @@ class _SidebarState extends State<Sidebar> {
               const SidebarHeader(),
 
               // menu items
-              Expanded(child: SidebarMenu()),
+              Expanded(
+                child: Consumer<AuthProvider>(
+                  builder: (context, authProvider, _) {
+                    return SidebarMenu(userRole: authProvider.userRole);
+                  },
+                ),
+              ),
 
               // footer
               SidebarFooter(

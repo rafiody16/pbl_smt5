@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:jawara_pintar_v2/sidebar/sidebar.dart'; // Pastikan path ini benar
-
-// --- Helper Widgets ---
+import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 
 // Card utama yang lebih fleksibel untuk dashboard kegiatan
 class DashboardCard extends StatelessWidget {
@@ -84,13 +82,8 @@ class Kegiatan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Di sini kamu perlu mengambil data email dari state management atau cara lain
-    // Untuk sementara, kita bisa gunakan nilai placeholder
-    const String currentUserEmail = "user@example.com";
-
     return Scaffold(
-      // Sidebar tetap dipanggil dengan parameter email dari placeholder
-      drawer: const Sidebar(userEmail: currentUserEmail),
+      drawer: Sidebar(),
       backgroundColor: const Color(0xfff0f4f7),
       appBar: AppBar(
         title: const Text("Kegiatan"),
