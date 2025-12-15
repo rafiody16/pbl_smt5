@@ -5,7 +5,6 @@ import '../../../providers/warga_provider.dart';
 import '../widgets/warga_card.dart';
 import '../widgets/common_widgets.dart' as common_widgets;
 import '../widgets/filter_dialog.dart';
-import 'package:jawara_pintar_v2/sidebar/components/sidebar_menu.dart';
 import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
 
 class WargaListPage extends StatefulWidget {
@@ -99,13 +98,7 @@ class _WargaListPageState extends State<WargaListPage> {
       (auth) => auth.isSekretaris,
     );
     return Scaffold(
-      drawer: Drawer(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            return SidebarMenu(userRole: authProvider.userRole);
-          },
-        ),
-      ),
+      drawer: Sidebar(),
       backgroundColor: const Color(
         0xFFF8FAFF,
       ), // Warna background sesuai desain lama
