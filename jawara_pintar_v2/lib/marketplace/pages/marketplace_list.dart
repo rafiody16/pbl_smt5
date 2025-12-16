@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 
 // Ganti import ini sesuai struktur project Anda
 import '../../../sidebar/sidebar.dart';
-import '../../../providers/produk_provider.dart'; // Asumsi nama provider
-// import '../../../services/toast_service.dart'; 
+import '../../../providers/produk_provider.dart';
+import '../../../services/visual_search_service.dart';
+// import '../../../services/toast_service.dart';
 
 class MarketplaceListPage extends StatefulWidget {
   const MarketplaceListPage({Key? key}) : super(key: key);
@@ -40,23 +41,43 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 50,
+        imageQuality: 60,
       );
 
-      if (pickedFile != null) {
+      if (pickedFile == null) return;
+
+      final imageFile = File(pickedFile.path);
+
+      setState(() {
+        _searchImage = imageFile;
+        _searchController.clear();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Menganalisis motif batik...")),
+      );
+
+      final keyword = await VisualSearchService.predictBatik(imageFile);
+
+      if (!mounted) return;
+
+      if (keyword != null) {
         setState(() {
-          _searchImage = File(pickedFile.path);
-          _searchController.clear();
+          _searchController.text = keyword;
         });
 
-        if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(
-             const SnackBar(content: Text("Mencari produk yang mirip...")),
-           );
-        }
+        context.read<ProdukProvider>().searchProduk(keyword);
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Motif terdeteksi: $keyword")));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Gagal mendeteksi batik")));
       }
     } catch (e) {
-      debugPrint("Error picking image: $e");
+      debugPrint("Visual search error: $e");
     }
   }
 
@@ -116,10 +137,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
       appBar: AppBar(
         title: const Text(
           'Marketplace',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -148,7 +166,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(width: 8),
@@ -170,15 +188,23 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                         controller: _searchController,
                         decoration: InputDecoration(
                           hintText: 'Cari produk...',
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                          ),
                           suffixIcon: IconButton(
-                            icon: const Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                            icon: const Icon(
+                              Icons.camera_alt_outlined,
+                              color: Colors.blue,
+                            ),
                             tooltip: "Cari dengan Gambar",
                             onPressed: _showVisualSearchOptions,
                           ),
                           filled: true,
                           fillColor: Colors.grey.shade100,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -191,7 +217,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     ),
                   ],
                 ),
-                
+
                 // Jika sedang filter gambar, tampilkan previewnya
                 if (_searchImage != null)
                   Padding(
@@ -214,13 +240,16 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                         const Expanded(
                           child: Text(
                             "Mencari berdasarkan gambar...",
-                            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.red),
                           onPressed: _clearVisualSearch,
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -246,7 +275,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
 
           // --- Grid Produk ---
           Expanded(
-            child: Consumer<ProdukProvider>( 
+            child: Consumer<ProdukProvider>(
               builder: (context, provider, _) {
                 final produkList = [
                   {
@@ -255,7 +284,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     'harga': 15000,
                     'stok': 20,
                     'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Bu Ani'
+                    'seller': 'Bu Ani',
                   },
                   {
                     'id': 2,
@@ -263,7 +292,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     'harga': 25000,
                     'stok': 10,
                     'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Pak Budi'
+                    'seller': 'Pak Budi',
                   },
                   {
                     'id': 3,
@@ -271,7 +300,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     'harga': 75000,
                     'stok': 99,
                     'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Teknik Jaya'
+                    'seller': 'Teknik Jaya',
                   },
                 ];
 
@@ -334,7 +363,11 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
   }
 
   Widget _buildProductCard(dynamic produk) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final currencyFormat = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -358,7 +391,9 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
                 image: DecorationImage(
                   image: NetworkImage(produk['gambar_url']),
                   fit: BoxFit.cover,
@@ -366,7 +401,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
               ),
             ),
           ),
-          
+
           // 2. Info Produk
           Padding(
             padding: const EdgeInsets.all(10),
@@ -400,7 +435,10 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                     Expanded(
                       child: Text(
                         produk['seller'],
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -424,7 +462,11 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                       border: Border.all(color: Colors.blue),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.add_shopping_cart, size: 18, color: Colors.blue),
+                    child: const Icon(
+                      Icons.add_shopping_cart,
+                      size: 18,
+                      color: Colors.blue,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -441,7 +483,10 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     child: const Text("Beli"),
                   ),
