@@ -229,10 +229,12 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jawara_pintar_v2/sidebar/sidebar.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
 
 // --- Halaman Utama Cetak Laporan ---
 class Laporan extends StatefulWidget {
@@ -282,22 +284,76 @@ class _LaporanState extends State<Laporan> {
     });
   }
 
-  // Fungsi untuk validasi dan download
-  void _downloadPdf() {
+  // Fungsi untuk validasi dan download (generate PDF)
+  Future<void> _downloadPdf() async {
     setState(() {
       _sudahDicobaDownload = true;
     });
 
-    // Cek apakah semua field sudah diisi
-    if (_tanggalMulaiController.text.isNotEmpty &&
-        _tanggalAkhirController.text.isNotEmpty) {
-      // Jika valid, tampilkan dialog (logika download PDF sebenarnya akan di sini)
+    // Validasi input tanggal
+    if (_tanggalMulaiController.text.isEmpty ||
+        _tanggalAkhirController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Logika download PDF dijalankan...'),
-          backgroundColor: Colors.green,
+          content: Text('Lengkapi periode tanggal terlebih dahulu.'),
+          backgroundColor: Colors.red,
         ),
       );
+      return;
+    }
+
+    try {
+      final doc = pw.Document();
+
+      // Header text
+      final title = 'Laporan Keuangan';
+      final periode =
+          '${_tanggalMulaiController.text} - ${_tanggalAkhirController.text}';
+      final jenis = _jenisLaporanTerpilih ?? 'Semua';
+
+      doc.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (context) => [
+            pw.Header(
+              level: 0,
+              child: pw.Text(title, style: pw.TextStyle(fontSize: 20)),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text('Periode: $periode', style: pw.TextStyle(fontSize: 12)),
+            pw.Text('Jenis Laporan: $jenis', style: pw.TextStyle(fontSize: 12)),
+            pw.SizedBox(height: 16),
+            pw.Divider(),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              'Ringkasan',
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              'Isi laporan belum diisi dengan data transaksi. Implementasikan pengambilan data dari provider jika ingin mencetak isi laporan.',
+              style: pw.TextStyle(fontSize: 10),
+            ),
+          ],
+        ),
+      );
+
+      // Tampilkan dialog print / share
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => doc.save(),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Preview/print PDF ditampilkan.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal membuat PDF: $e')));
+      }
     }
   }
 
@@ -370,7 +426,8 @@ class _LaporanState extends State<Laporan> {
                 // Tombol Aksi (FIX: Menggunakan Wrap untuk menghindari overflow)
                 Wrap(
                   spacing: 16.0, // Jarak horizontal antar tombol
-                  runSpacing: 16.0, // Jarak vertikal jika tombol turun ke baris baru
+                  runSpacing:
+                      16.0, // Jarak vertikal jika tombol turun ke baris baru
                   children: [
                     ElevatedButton(
                       onPressed: _downloadPdf,

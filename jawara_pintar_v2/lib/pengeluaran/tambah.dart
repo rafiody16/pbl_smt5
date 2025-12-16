@@ -33,8 +33,10 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<KeuanganProvider>(context);
+    // Use the same category filtering as in kategori_iuran.dart:
+    // show categories that have a default nominal > 0
     final listKategori = provider.listKategori
-        .where((e) => e.jenis == 'pengeluaran')
+        .where((e) => e.nominalDefault > 0)
         .toList();
 
     return Scaffold(
@@ -56,7 +58,7 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                           controller: namaController,
                           decoration: const InputDecoration(
                             labelText: 'Nama Pengeluaran',
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(),                                                                                                                  
                           ),
                           validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
                         ),
