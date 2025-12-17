@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../data/data_broadcast.dart';
-import 'detail/detail_broadcast_page.dart';
-import '../components/edit/edit_broadcast_page.dart';
+import 'package:provider/provider.dart';
+import '../../../models/broadcast.dart';
+import '../../../providers/broadcast_provider.dart';
+import '../../views/broadcast/broadcast_form_page.dart';
+import '../../views/broadcast/broadcast_detail_page.dart';
 
 class ListContent extends StatelessWidget {
   final List<Map<String, dynamic>> filteredData;
@@ -157,14 +159,26 @@ class ListContent extends StatelessWidget {
     Map<String, dynamic> broadcast,
     BuildContext context,
   ) async {
-    final updatedData = await Navigator.push(
+    final model = Broadcast(
+      id: broadcast['id'],
+      judul: broadcast['judul'] ?? '',
+      isiPesan: broadcast['isi_pesan'],
+      tanggalPublikasi: broadcast['tanggal_publikasi'] != null
+          ? DateTime.tryParse(broadcast['tanggal_publikasi'])
+          : null,
+      dibuatOleh: broadcast['dibuat_oleh'],
+      lampiranGambar: broadcast['lampiran_gambar'],
+      lampiranDokumen: broadcast['lampiran_dokumen'],
+    );
+
+    final updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BroadcastEditPage(broadcast: broadcast),
+        builder: (context) => BroadcastFormPage(existing: model),
       ),
     );
 
-    if (updatedData != null) {
+    if (updated == true && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Broadcast berhasil diperbarui!')),
       );
@@ -194,9 +208,15 @@ class ListContent extends StatelessWidget {
     );
 
     if (confirm == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Broadcast berhasil dihapus!')),
-      );
+      final id = broadcast['id'];
+      if (id != null) {
+        await context.read<BroadcastProvider>().remove(id as int);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Broadcast berhasil dihapus!')),
+          );
+        }
+      }
     }
   }
 
@@ -229,10 +249,22 @@ class ListContent extends StatelessWidget {
   }
 
   void _showDetail(Map<String, dynamic> broadcast, BuildContext context) {
+    final model = Broadcast(
+      id: broadcast['id'],
+      judul: broadcast['judul'] ?? '',
+      isiPesan: broadcast['isi_pesan'],
+      tanggalPublikasi: broadcast['tanggal_publikasi'] != null
+          ? DateTime.tryParse(broadcast['tanggal_publikasi'])
+          : null,
+      dibuatOleh: broadcast['dibuat_oleh'],
+      lampiranGambar: broadcast['lampiran_gambar'],
+      lampiranDokumen: broadcast['lampiran_dokumen'],
+    );
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BroadcastDetailPage(broadcast: broadcast),
+        builder: (context) => BroadcastDetailPage(broadcast: model),
       ),
     );
   }

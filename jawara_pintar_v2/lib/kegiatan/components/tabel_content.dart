@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../data/kegiatan_data.dart';
-import 'detail/detail_kegiatan_page.dart';
-import '../components/edit/edit_kegiatan_page.dart';
+import 'package:provider/provider.dart';
+import '../../views/kegiatan/kegiatan_form_page.dart';
+import '../../../providers/kegiatan_provider.dart';
+import '../../../models/kegiatan.dart';
+import '../../views/kegiatan/kegiatan_detail_page.dart';
 
 class ListContent extends StatelessWidget {
   final List<Map<String, dynamic>> filteredData;
@@ -152,14 +154,27 @@ class ListContent extends StatelessWidget {
     Map<String, dynamic> kegiatan,
     BuildContext context,
   ) async {
-    final updatedData = await Navigator.push(
+    final model = Kegiatan(
+      id: kegiatan['id'],
+      namaKegiatan: kegiatan['nama'] ?? '',
+      kategori: kegiatan['kategori'],
+      deskripsi: kegiatan['deskripsi'],
+      lokasi: kegiatan['lokasi'],
+      penanggungJawab: kegiatan['penanggungJawab'],
+      posterUrl: kegiatan['poster_url'],
+      tanggalPelaksanaan: kegiatan['tanggal'] != null
+          ? DateTime.tryParse(kegiatan['tanggal'])
+          : null,
+    );
+
+    final updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => KegiatanEditPage(kegiatan: kegiatan),
+        builder: (context) => KegiatanFormPage(existing: model),
       ),
     );
 
-    if (updatedData != null) {
+    if (updated == true && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kegiatan berhasil diperbarui!')),
       );
@@ -189,9 +204,16 @@ class ListContent extends StatelessWidget {
     );
 
     if (confirm == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Broadcast berhasil dihapus!')),
-      );
+      final provider = context.read<KegiatanProvider>();
+      final id = kegiatan['id'];
+      if (id != null) {
+        await provider.remove(id as int);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Kegiatan berhasil dihapus!')),
+          );
+        }
+      }
     }
   }
 
@@ -224,10 +246,23 @@ class ListContent extends StatelessWidget {
   }
 
   void _showDetail(Map<String, dynamic> kegiatan, BuildContext context) {
+    final model = Kegiatan(
+      id: kegiatan['id'],
+      namaKegiatan: kegiatan['nama'] ?? '',
+      kategori: kegiatan['kategori'],
+      deskripsi: kegiatan['deskripsi'],
+      lokasi: kegiatan['lokasi'],
+      penanggungJawab: kegiatan['penanggungJawab'],
+      posterUrl: kegiatan['poster_url'],
+      tanggalPelaksanaan: kegiatan['tanggal'] != null
+          ? DateTime.tryParse(kegiatan['tanggal'])
+          : null,
+    );
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => KegiatanDetailPage(kegiatan: kegiatan),
+        builder: (context) => KegiatanDetailPage(kegiatan: model),
       ),
     );
   }

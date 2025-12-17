@@ -10,7 +10,6 @@ import '../../../register/fields/nama_lengkap_field.dart';
 import '../../../register/fields/nik_field.dart';
 import '../../../register/fields/email_field.dart';
 import '../../../register/fields/telepon_field.dart';
-import '../../../register/fields/password_field.dart';
 import '../../../register/fields/jenis_kelamin_field.dart';
 import '../../../register/fields/keluarga_field.dart';
 import '../../../register/fields/peran_field.dart';
@@ -50,9 +49,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
   // Data State
   final Map<String, dynamic> _formData = {};
 
-  // Controller khusus untuk logic tambahan (misal password)
-  String? _password;
-  bool _createAccount = false;
+  // Controller khusus bila diperlukan di masa depan (tidak ada akun di sini)
 
   // Keys dan Controllers untuk Step 3
   final GlobalKey<State> _rumahKey = GlobalKey<State>();
@@ -138,18 +135,6 @@ class _WargaFormPageState extends State<WargaFormPage> {
   // --- Logic Submit ---
 
   Future<void> _submitForm() async {
-    // Validasi tambahan untuk step terakhir (Akun)
-    if (_createAccount && !widget.isEdit) {
-      if ((_formData['email'] == null || _formData['email'].isEmpty) ||
-          (_password == null || _password!.isEmpty)) {
-        ToastService.showError(
-          context,
-          "Email dan Password wajib diisi untuk membuat akun",
-        );
-        return;
-      }
-    }
-
     // Tampilkan Loading
     showDialog(
       context: context,
@@ -188,15 +173,8 @@ class _WargaFormPageState extends State<WargaFormPage> {
       if (widget.isEdit && _existingWarga != null) {
         success = await provider.updateWarga(_existingWarga!.nik, wargaObj);
       } else {
-        if (_createAccount) {
-          success = await provider.tambahWargaWithAccount(
-            warga: wargaObj,
-            email: _formData['email'],
-            password: _password!,
-          );
-        } else {
-          success = await provider.tambahWarga(wargaObj);
-        }
+        // Mode tambah: hanya simpan data warga tanpa membuat akun
+        success = await provider.tambahWarga(wargaObj);
       }
 
       Navigator.pop(context); // Tutup loading dialog
@@ -233,7 +211,7 @@ class _WargaFormPageState extends State<WargaFormPage> {
       case 2:
         return "Keluarga & Alamat";
       case 3:
-        return widget.isEdit ? "Konfirmasi" : "Akun Login";
+        return widget.isEdit ? "Konfirmasi" : "Informasi Kontak";
       default:
         return "";
     }
@@ -300,11 +278,6 @@ class _WargaFormPageState extends State<WargaFormPage> {
           JenisKelaminField(
             value: _formData['jenisKelamin'],
             onSaved: (val) => _formData['jenisKelamin'] = val,
-          ),
-          const SizedBox(height: 16),
-          TeleponField(
-            initialValue: _formData['telepon'],
-            onSaved: (val) => _formData['telepon'] = val,
           ),
           const SizedBox(height: 16),
           UploadIdentitasField(
@@ -407,64 +380,59 @@ class _WargaFormPageState extends State<WargaFormPage> {
 
   Widget _buildStep4() {
     if (widget.isEdit) {
-      // PERBAIKAN: Bungkus dengan Form agar _formKeys[3] terdeteksi
       return Form(
         key: _formKeys[3],
-        child: const Center(
-          child: Column(
-            children: [
-              Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
-              SizedBox(height: 16),
-              Text("Data siap diperbarui.", style: TextStyle(fontSize: 16)),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Kode untuk mode Tambah Baru (Create Account) biarkan tetap seperti semula
-    return Form(
-      key: _formKeys[3],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text("Buatkan Akun Login?"),
-            subtitle: const Text(
-              "Warga dapat login menggunakan Email & Password ini.",
-            ),
-            value: _createAccount,
-            onChanged: (val) {
-              setState(() => _createAccount = val ?? false);
-            },
-          ),
-          if (_createAccount) ...[
-            const Divider(),
-            const SizedBox(height: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             EmailField(
               initialValue: _formData['email'],
               onSaved: (val) => _formData['email'] = val,
             ),
             const SizedBox(height: 16),
-            PasswordField(onSaved: (val) => _password = val),
-            const SizedBox(height: 8),
-            const Text(
-              "* Password minimal 6 karakter",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+            TeleponField(
+              initialValue: _formData['telepon'],
+              onSaved: (val) => _formData['telepon'] = val,
             ),
-          ],
-          if (!_createAccount)
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Center(
-                child: Text(
-                  "Klik Simpan untuk menambahkan data warga tanpa akun login.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
+            const Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: 64,
+                    color: Colors.green,
+                  ),
+                  SizedBox(height: 16),
+                  Text("Data siap diperbarui.", style: TextStyle(fontSize: 16)),
+                ],
               ),
             ),
+          ],
+        ),
+      );
+    }
+
+    // Mode Tambah Baru: hanya email (akun dibuat terpisah di Manajemen Pengguna)
+    return Form(
+      key: _formKeys[3],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          EmailField(
+            initialValue: _formData['email'],
+            onSaved: (val) => _formData['email'] = val,
+            isRequired: false,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Catatan: Akun login dibuat di menu Manajemen Pengguna.",
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          TeleponField(
+            initialValue: _formData['telepon'],
+            onSaved: (val) => _formData['telepon'] = val,
+          ),
         ],
       ),
     );

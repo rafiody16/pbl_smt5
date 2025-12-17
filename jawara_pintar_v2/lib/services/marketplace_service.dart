@@ -13,11 +13,9 @@ class MarketplaceService {
   Future<List<Map<String, dynamic>>> getProduk() async {
     try {
       final response = await _supabase
-          .from('produk')
-          .select('*, warga(nama_lengkap)')
-          .eq('is_active', true)
+          .from('mp_products')
+          .select() // Ambil data produk saja dulu
           .order('created_at', ascending: false);
-
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       throw Exception('Gagal mengambil data produk: $e');
@@ -67,7 +65,7 @@ class MarketplaceService {
         final imageUrl = await _uploadImage(imageFile);
         data['gambar_url'] = imageUrl;
       }
-      await _supabase.from('produk').insert(data);
+      await _supabase.from('mp_products').insert(data); // Benar (Sesuai ERD)
     } catch (e) {
       throw Exception('Gagal menambah produk: $e');
     }
@@ -76,24 +74,36 @@ class MarketplaceService {
   Future<void> updateProduk(
     int id,
     Map<String, dynamic> data,
-    File? newImageFile,
+    File? imageFile,
   ) async {
     try {
-      if (newImageFile != null) {
-        final imageUrl = await _uploadImage(newImageFile);
+      // 1. Logic Upload Gambar (Biarkan seperti yang sudah ada)
+      if (imageFile != null) {
+        final fileExt = imageFile.path.split('.').last;
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+        final path = 'produk/$fileName';
+
+        await _supabase.storage.from('marketplace').upload(path, imageFile);
+        final imageUrl = _supabase.storage
+            .from('marketplace')
+            .getPublicUrl(path);
+
         data['gambar_url'] = imageUrl;
       }
-      await _supabase.from('produk').update(data).eq('id', id);
+
+      // 2. Update Data (Gunakan 'mp_products')
+      await _supabase.from('mp_products').update(data).eq('id', id);
     } catch (e) {
-      throw Exception('Gagal mengupdate produk: $e');
+      throw Exception('Gagal update produk: $e');
     }
   }
 
   Future<void> deleteProduk(int id) async {
     try {
-      await _supabase.from('produk').update({'is_active': false}).eq('id', id);
+      // Ganti jadi 'mp_products' sesuai database
+      await _supabase.from('mp_products').delete().eq('id', id);
     } catch (e) {
-      throw Exception('Gagal menghapus produk: $e');
+      throw Exception('Error hapus produk: $e');
     }
   }
 

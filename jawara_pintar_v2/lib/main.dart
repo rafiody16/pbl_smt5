@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jawara_pintar_v2/views/pengguna/pages/buat_akun_warga_page.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +10,8 @@ import 'providers/auth_provider.dart';
 import 'providers/warga_provider.dart';
 import 'providers/keuangan_provider.dart';
 import 'providers/produk_provider.dart'; // PENTING: Tambahkan ini
+import 'providers/kegiatan_provider.dart';
+import 'providers/broadcast_provider.dart';
 
 // === IMPORT SERVICES ===
 import 'services/preferences_service.dart';
@@ -16,7 +19,6 @@ import 'services/preferences_service.dart';
 // === IMPORT HALAMAN ===
 import 'login/login_page.dart';
 import 'register/register_page.dart';
-import 'manajemen_pengguna/halaman_daftar_pengguna.dart';
 import 'kegiatan/kegiatan_page.dart';
 import 'kegiatan/kegiatan_tambah_page.dart';
 import 'broadcast/broadcast_daftar_page.dart';
@@ -32,6 +34,18 @@ import 'marketplace/pages/produk_form_page.dart';
 import 'views/warga/pages/warga_list_page.dart';
 import 'views/warga/pages/warga_form_page.dart';
 import 'views/warga/pages/warga_detail_page.dart';
+
+// Import Pengguna (User Management)
+import 'views/pengguna/pages/pengguna_list_page.dart';
+import 'views/pengguna/pages/pengguna_detail_page.dart';
+import 'views/pengguna/pages/pengguna_edit_page.dart';
+
+// Import Kegiatan (New Views)
+import 'views/kegiatan/kegiatan_list_page.dart';
+import 'views/kegiatan/kegiatan_form_page.dart';
+// Import Broadcast (New Views)
+import 'views/broadcast/broadcast_list_page.dart';
+import 'views/broadcast/broadcast_form_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +77,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => WargaProvider()),
         ChangeNotifierProvider(create: (_) => ProdukProvider()),
+        ChangeNotifierProvider(create: (_) => KegiatanProvider()),
+        ChangeNotifierProvider(create: (_) => BroadcastProvider()),
 
         // PENTING: Provider Keuangan ditambahkan disini agar bisa diakses seluruh aplikasi
         // '..initData()' digunakan agar data langsung diambil saat aplikasi dibuka
@@ -91,10 +107,13 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginPage(),
           '/register': (context) => const RegisterPage(),
-          '/daftarPengguna': (context) => const UserListScreen(),
           '/dashboard': (context) => const DashboardPage(),
-          '/kegiatan': (context) => const KegiatanDaftarPage(),
-          '/kegiatan/tambah': (context) => const KegiatanTambahPage(),
+          // Kegiatan (New Routes)
+          '/kegiatan/list': (context) => const KegiatanListPage(),
+          '/kegiatan/form': (context) => const KegiatanFormPage(),
+          // Broadcast (New Routes)
+          '/broadcast/list': (context) => const BroadcastListPage(),
+          '/broadcast/form': (context) => const BroadcastFormPage(),
           '/broadcast': (context) => const BroadcastDaftarPage(),
           '/broadcast/tambah': (context) => const BroadcastTambahPage(),
           '/log': (context) => const LogDaftarPage(),
@@ -105,6 +124,11 @@ class MyApp extends StatelessWidget {
           '/warga/add': (context) => const WargaFormPage(),
           '/warga/edit': (context) => const WargaFormPage(isEdit: true),
           '/warga/detail': (context) => const WargaDetailPage(),
+
+          // Routes Pengguna (User Management)
+          '/pengguna/list': (context) => const PenggunaListPage(),
+          '/pengguna/add': (context) => const BuatAkunWargaPage(),
+          '/pengguna/edit': (context) => const PenggunaEditPage(),
 
           '/marketplace/list': (context) => const MarketplaceListPage(),
           '/produk/add': (context) => const ProdukFormPage(),
