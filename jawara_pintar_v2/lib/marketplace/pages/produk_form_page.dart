@@ -129,6 +129,7 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
   }
 
   // --- Logic Submit ---
+  // --- Logic Submit (Updated) ---
   Future<void> _submitForm() async {
     // 1. Validasi Form
     if (!_formKey.currentState!.validate()) {
@@ -136,11 +137,17 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
       return;
     }
 
-    // 2. Tampilkan Loading Dialog
+    // 2. Simpan referensi context dan provider sebelum async gap
+    // Ini penting agar context tidak "hilang" saat proses simpan berjalan
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<ProdukProvider>();
+    final nav = Navigator.of(context); // Navigasi halaman
+
+    // Tampilkan Loading Dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
+      builder: (ctx) => const Center(
         child: Card(
           child: Padding(
             padding: EdgeInsets.all(16.0),
@@ -151,13 +158,16 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
     );
 
     try {
-      final provider = context.read<ProdukProvider>();
-
       // Ambil User ID dari Supabase Auth
       final user = Supabase.instance.client.auth.currentUser;
       String sellerNik = user?.userMetadata?['nik'] ?? "1234567890123456";
 
-      final harga = int.parse(_hargaController.text.replaceAll('.', ''));
+      // Parsing Data
+      // Hapus titik pada harga sebelum parsing (contoh: 15.000 -> 15000)
+      final hargaRaw = _hargaController.text
+          .replaceAll('.', '')
+          .replaceAll(',', '');
+      final harga = int.tryParse(hargaRaw) ?? 0;
       final stok = int.tryParse(_stokController.text) ?? 0;
 
       Map<String, dynamic> data = {
@@ -172,31 +182,37 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
 
       bool success;
       if (widget.existingProduk != null) {
-        // Mode Update
         success = await provider.updateProduk(
           widget.existingProduk!['id'],
           data,
           imageFile: _imageFile,
         );
       } else {
-        // Mode Tambah
         success = await provider.tambahProduk(data, imageFile: _imageFile);
       }
 
-      // 3. Tutup Loading Dialog
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop(); // Tutup dialog
+      // 3. Tutup Loading Dialog (Gunakan rootNavigator untuk menutup dialog)
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
 
       // 4. Handle Hasil
       if (success) {
+        // Tampilkan Toast
         ToastService.showSuccess(
           context,
           widget.existingProduk != null
               ? "Produk berhasil diperbarui"
               : "Produk berhasil ditambahkan",
         );
-        // PERBAIKAN: Setelah simpan sukses, kembali ke Dashboard atau List
-        Navigator.pop(context);
+
+        // KEMBALI KE LIST PAGE
+        // Kita beri sedikit delay agar toast terbaca user merasa proses selesai
+        await Future.delayed(const Duration(milliseconds: 300));
+
+        if (mounted) {
+          nav.pop(true); // Return 'true' sebagai sinyal kalau data berubah
+        }
       } else {
         ToastService.showError(
           context,
@@ -204,9 +220,10 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
         );
       }
     } catch (e) {
-      // Handle Error Tak Terduga
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop(); // Tutup dialog
+      // Tutup dialog jika error tak terduga
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
       ToastService.showError(context, "Terjadi kesalahan: $e");
     }
   }
@@ -349,14 +366,38 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text("Status Aktif"),
-                        subtitle: const Text(
-                          "Tampilkan produk ini di katalog?",
-                        ),
-                        value: _isActive,
-                        onChanged: (val) => setState(() => _isActive = val),
+                      // ✅ SOLUSI: Gunakan Row dan Switch biasa
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Status Aktif",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Tampilkan produk ini di katalog?",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _isActive,
+                            onChanged: (val) => setState(() => _isActive = val),
+                            activeColor: Colors.blue,
+                          ),
+                        ],
                       ),
                     ],
                   ),

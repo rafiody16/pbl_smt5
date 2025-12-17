@@ -33,6 +33,7 @@ import '../../chanel_tranfer/halaman_tambah_chanel.dart';
 import '../../views/warga/pages/warga_list_page.dart';
 import '../../views/pengguna/pages/pengguna_list_page.dart';
 import '../../marketplace/pages/marketplace_list.dart';
+import '../../marketplace/pages/produk_list_pages.dart';
 
 class SidebarMenu extends StatelessWidget {
   final String? userRole;
@@ -333,12 +334,12 @@ class SidebarMenu extends StatelessWidget {
         ),
         SubMenu(
           "Produk",
-          // onTap: (context) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const ProdukListPage()),
-          //   );
-          // },
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ProdukListPage()),
+            );
+          },
         ),
         SubMenu(
           "Tambah Produk",

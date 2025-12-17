@@ -1,15 +1,18 @@
 class Produk {
   final int? id;
   final String sellerNik;
-  final String? sellerName; // Field tambahan dari join tabel warga
+  final String? sellerName;
   final String namaProduk;
   final String? deskripsi;
-  final int harga; // Menggunakan int/BigInt sesuai format database
+
+  // Gunakan double agar aman jika database mengirim desimal (numeric)
+  final double harga;
   final int stok;
+
   final String kategori;
   final String? gambarUrl;
   final bool isActive;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   Produk({
     this.id,
@@ -22,29 +25,39 @@ class Produk {
     required this.kategori,
     this.gambarUrl,
     this.isActive = true,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory Produk.fromMap(Map<String, dynamic> map) {
     return Produk(
       id: map['id'],
-      sellerNik: map['seller_nik'],
-      // Mengambil nama seller jika di-join dengan tabel warga
-      sellerName: map['warga'] != null ? map['warga']['nama_lengkap'] : null,
-      namaProduk: map['nama_produk'],
-      deskripsi: map['deskripsi'],
-      harga: map['harga'] is String ? int.parse(map['harga']) : map['harga'],
-      stok: map['stok'],
+      sellerNik: map['seller_nik'] ?? '',
+      sellerName: (map['warga'] != null && map['warga'] is Map)
+          ? map['warga']['nama_lengkap']
+          : null,
+      namaProduk: map['nama_produk'] ?? 'Tanpa Nama',
+      deskripsi: map['deskripsi'] ?? '',
+
+      // --- PERBAIKAN UTAMA DI SINI (Anti Error Null/Int/String) ---
+      // Apapun tipenya (String, Int, Null), paksa jadi Double. Jika gagal, jadi 0.0
+      harga: num.tryParse(map['harga']?.toString() ?? '0')?.toDouble() ?? 0.0,
+
+      // Apapun tipenya, paksa jadi Int. Jika gagal, jadi 0
+      stok: int.tryParse(map['stok']?.toString() ?? '0') ?? 0,
+
+      // -------------------------------------------------------------
       kategori: map['kategori'] ?? 'Lainnya',
       gambarUrl: map['gambar_url'],
       isActive: map['is_active'] ?? true,
-      createdAt: DateTime.parse(map['created_at']),
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'])
+          : null,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      // 'id' biasanya auto-increment, tidak perlu dikirim saat insert
+      'id': id,
       'seller_nik': sellerNik,
       'nama_produk': namaProduk,
       'deskripsi': deskripsi,
@@ -53,7 +66,6 @@ class Produk {
       'kategori': kategori,
       'gambar_url': gambarUrl,
       'is_active': isActive,
-      // 'created_at': di-handle database default value
     };
   }
 }
