@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart';
+import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_tambah_pengguna.dart';
 import 'package:jawara_pintar_v2/mutasi_keluarga/halaman_tambah_mutasi.dart';
 import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_page.dart';
 import 'package:jawara_pintar_v2/views/rumah/rumah_stream_page.dart';
@@ -29,6 +31,7 @@ import '../../pengeluaran/tambah.dart';
 import '../../chanel_tranfer/halaman_daftar_chanel.dart';
 import '../../chanel_tranfer/halaman_tambah_chanel.dart';
 import '../../views/warga/pages/warga_list_page.dart';
+import '../../views/pengguna/pages/pengguna_list_page.dart';
 import '../../marketplace/pages/marketplace_list.dart';
 
 class SidebarMenu extends StatelessWidget {
@@ -76,6 +79,7 @@ class SidebarMenu extends StatelessWidget {
       'ketua_rw',
       'bendahara',
     ],
+    'Pengguna': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
     'Mutasi Keluarga': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
     'Log Aktivitas': ['admin'],
     'Channel Transfer': ['bendahara', 'admin'],
@@ -373,7 +377,7 @@ class SidebarMenu extends StatelessWidget {
     ),
     MenuSection(
       title: "Mutasi Keluarga",
-      icon: Icons.group,
+      icon: Icons.family_restroom,
       subMenus: [
         SubMenu(
           "Daftar",
@@ -410,6 +414,21 @@ class SidebarMenu extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const LogDaftarPage()),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
+      title: "Pengguna",
+      icon: Icons.group,
+      subMenus: [
+        SubMenu(
+          "Manajemen Pengguna",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const PenggunaListPage()),
             );
           },
         ),

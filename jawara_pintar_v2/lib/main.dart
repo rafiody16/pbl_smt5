@@ -33,6 +33,12 @@ import 'views/warga/pages/warga_list_page.dart';
 import 'views/warga/pages/warga_form_page.dart';
 import 'views/warga/pages/warga_detail_page.dart';
 
+// Import Pengguna (User Management)
+import 'views/pengguna/pages/pengguna_list_page.dart';
+import 'views/pengguna/pages/pengguna_detail_page.dart';
+import 'views/pengguna/pages/pengguna_edit_page.dart';
+import 'manajemen_pengguna/pages/buat_akun_warga_page.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -105,6 +111,11 @@ class MyApp extends StatelessWidget {
           '/warga/add': (context) => const WargaFormPage(),
           '/warga/edit': (context) => const WargaFormPage(isEdit: true),
           '/warga/detail': (context) => const WargaDetailPage(),
+
+          // Routes Pengguna (User Management)
+          '/pengguna/list': (context) => const PenggunaListPage(),
+          '/pengguna/add': (context) => const BuatAkunWargaPage(),
+          '/pengguna/edit': (context) => const PenggunaEditPage(),
 
           '/marketplace/list': (context) => const MarketplaceListPage(),
           '/produk/add': (context) => const ProdukFormPage(),

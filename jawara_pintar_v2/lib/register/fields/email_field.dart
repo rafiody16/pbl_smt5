@@ -4,17 +4,22 @@ class EmailField extends StatelessWidget {
   final Function(String?)? onSaved;
   final String? Function(String?)? validator;
   final String? initialValue;
+  final bool isRequired;
 
   const EmailField({
     super.key,
     this.onSaved,
     this.validator,
     this.initialValue,
+    this.isRequired = true,
   });
 
   String? _defaultValidator(String? value) {
-    if (value == null || value.isEmpty) {
+    if (isRequired && (value == null || value.isEmpty)) {
       return 'Email harus diisi';
+    }
+    if (value == null || value.isEmpty) {
+      return null; // allow empty if not required
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
