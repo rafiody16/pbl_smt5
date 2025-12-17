@@ -9,6 +9,7 @@ import '../../../sidebar/sidebar.dart';
 import '../../../providers/produk_provider.dart';
 import '../../../services/visual_search_service.dart';
 import '../../../models/produk.dart'; // Pastikan model Produk diimport
+import 'produk_detail_page.dart';
 
 class MarketplaceListPage extends StatefulWidget {
   const MarketplaceListPage({Key? key}) : super(key: key);
@@ -266,114 +267,151 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Gambar Produk
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-              ),
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey[100],
-                child:
-                    (produk.gambarUrl != null && produk.gambarUrl!.isNotEmpty)
-                    ? Image.network(
-                        produk.gambarUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const Icon(Icons.broken_image, color: Colors.grey),
-                      )
-                    : const Icon(Icons.image, color: Colors.grey),
-              ),
+      child: InkWell(
+        // 1. Menambahkan InkWell untuk navigasi
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Navigasi ke halaman detail produk
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailPage(produk: produk),
             ),
-          ),
-          // Info Produk
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  produk.namaProduk,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    height: 1.2,
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Gambar Produk
+            Expanded(
+              child: Hero(
+                // 2. Hero Animation agar transisi mulus
+                tag: 'product-image-${produk.id}',
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  priceFormat.format(produk.harga),
-                  style: const TextStyle(
-                    color: Colors.orangeAccent,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.inventory_2_outlined,
-                      size: 12,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "Stok: ${produk.stok}",
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // Actions
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => _addToCart(produk),
                   child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.add_shopping_cart,
-                      size: 18,
-                      color: Colors.blue,
-                    ),
+                    width: double.infinity,
+                    color: Colors.grey[100],
+                    child:
+                        (produk.gambarUrl != null &&
+                            produk.gambarUrl!.isNotEmpty)
+                        ? Image.network(
+                            produk.gambarUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : const Icon(Icons.image, color: Colors.grey),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
+              ),
+            ),
+
+            // Info Produk
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    produk.namaProduk,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    priceFormat.format(produk.harga),
+                    style: const TextStyle(
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.inventory_2_outlined,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Stok: ${produk.stok}",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Actions
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Mencegah navigasi ke detail saat klik ikon keranjang
+                      _addToCart(produk);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blue),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
+                      child: const Icon(
+                        Icons.add_shopping_cart,
+                        size: 18,
+                        color: Colors.blue,
+                      ),
                     ),
-                    child: const Text("Beli", style: TextStyle(fontSize: 12)),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Bisa diarahkan langsung ke detail atau checkout
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetailPage(produk: produk),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text("Beli", style: TextStyle(fontSize: 12)),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
