@@ -79,7 +79,7 @@ class SidebarMenu extends StatelessWidget {
       'ketua_rw',
       'bendahara',
     ],
-    'Pengguna': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
+    'Data Pengguna': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
     'Mutasi Keluarga': ['admin', 'sekretaris', 'ketua_rt', 'ketua_rw'],
     'Log Aktivitas': ['admin'],
     'Channel Transfer': ['bendahara', 'admin'],
@@ -122,7 +122,7 @@ class SidebarMenu extends StatelessWidget {
 
     MenuSection(
       title: "Data Warga & Rumah",
-      icon: Icons.home,
+      icon: Icons.home_work_sharp,
       subMenus: [
         SubMenu(
           "Warga",
@@ -376,6 +376,21 @@ class SidebarMenu extends StatelessWidget {
       ],
     ),
     MenuSection(
+      title: "Data Pengguna",
+      icon: Icons.group,
+      subMenus: [
+        SubMenu(
+          "Manajemen Pengguna",
+          onTap: (context) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const PenggunaListPage()),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
       title: "Mutasi Keluarga",
       icon: Icons.family_restroom,
       subMenus: [
@@ -414,21 +429,6 @@ class SidebarMenu extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const LogDaftarPage()),
-            );
-          },
-        ),
-      ],
-    ),
-    MenuSection(
-      title: "Pengguna",
-      icon: Icons.group,
-      subMenus: [
-        SubMenu(
-          "Manajemen Pengguna",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const PenggunaListPage()),
             );
           },
         ),
