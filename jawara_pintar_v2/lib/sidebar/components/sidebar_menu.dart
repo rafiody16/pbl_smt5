@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_daftar_pengguna.dart';
-import 'package:jawara_pintar_v2/manajemen_pengguna/halaman_tambah_pengguna.dart';
 import 'package:jawara_pintar_v2/mutasi_keluarga/halaman_tambah_mutasi.dart';
+import 'package:jawara_pintar_v2/views/kegiatan/kegiatan_list_page.dart';
 import 'package:jawara_pintar_v2/views/keluarga/keluarga_stream_page.dart';
 import 'package:jawara_pintar_v2/views/rumah/rumah_stream_page.dart';
 import 'package:jawara_pintar_v2/dashboard/kependudukan.dart';
@@ -16,6 +15,7 @@ import '../../mutasi_keluarga/halaman_tambah_mutasi.dart';
 import '../../kegiatan/kegiatan_tambah_page.dart';
 import '../../broadcast/broadcast_daftar_page.dart';
 import '../../broadcast/broadcast_tambah_page.dart';
+import 'package:jawara_pintar_v2/views/broadcast/broadcast_list_page.dart';
 import '../../log_aktivitas/log_aktivitas_page.dart';
 import '../../pesan_warga/pesan_warga_page.dart';
 import '../../penerimaanWarga/pages/penerimaan_warga_page.dart';
@@ -278,45 +278,21 @@ class SidebarMenu extends StatelessWidget {
       icon: Icons.campaign,
       subMenus: [
         SubMenu(
-          "Kegiatan - Daftar",
+          "Kegiatan",
           onTap: (context) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => const KegiatanDaftarPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const KegiatanListPage()),
             );
           },
         ),
         SubMenu(
-          "Kegiatan - Tambah",
+          "Broadcast",
           onTap: (context) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const KegiatanTambahPage(),
-              ),
-            );
-          },
-        ),
-        SubMenu(
-          "Broadcast - Daftar",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BroadcastDaftarPage(),
-              ),
-            );
-          },
-        ),
-        SubMenu(
-          "Broadcast - Tambah",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BroadcastTambahPage(),
+                builder: (context) => const BroadcastListPage(),
               ),
             );
           },
@@ -434,34 +410,34 @@ class SidebarMenu extends StatelessWidget {
         ),
       ],
     ),
-    MenuSection(
-      title: "Channel Transfer",
-      icon: Icons.swap_horiz,
-      subMenus: [
-        SubMenu(
-          "Daftar Channel",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HalamanDaftarChanel(),
-              ),
-            );
-          },
-        ),
-        SubMenu(
-          "Tambah Channel",
-          onTap: (context) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ChanelTambahScreen(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+    // MenuSection(
+    //   title: "Channel Transfer",
+    //   icon: Icons.swap_horiz,
+    //   subMenus: [
+    //     SubMenu(
+    //       "Daftar Channel",
+    //       onTap: (context) {
+    //         Navigator.pushReplacement(
+    //           context,
+    //           MaterialPageRoute(
+    //             builder: (context) => const HalamanDaftarChanel(),
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //     SubMenu(
+    //       "Tambah Channel",
+    //       onTap: (context) {
+    //         Navigator.pushReplacement(
+    //           context,
+    //           MaterialPageRoute(
+    //             builder: (context) => const ChanelTambahScreen(),
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   ],
+    // ),
   ];
 
   @override
