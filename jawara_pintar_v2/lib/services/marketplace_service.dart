@@ -39,20 +39,25 @@ class MarketplaceService {
 
   Future<String?> searchProdukByImage(File image) async {
     try {
-      final uri = Uri.parse("$_mlApiUrl/predict");
-
+      final uri = Uri.parse(
+        "https://tamadio-batiknitik-classifier-dioandika.hf.space/predict",
+      );
       final request = http.MultipartRequest("POST", uri)
         ..files.add(await http.MultipartFile.fromPath("file", image.path));
 
       final response = await request.send();
-
       if (response.statusCode == 200) {
         final body = await response.stream.bytesToString();
-        final jsonData = json.decode(body);
 
-        return jsonData["prediction"];
+        // Logika ekstraksi teks dari HTML
+        if (body.contains('🎨')) {
+          final start = body.indexOf('🎨') + 2;
+          final end = body.indexOf('</div>', start);
+          return body.substring(start, end).trim();
+        }
+        return null;
       } else {
-        throw Exception("Gagal mengenali motif batik");
+        throw Exception("Gagal mengenali motif");
       }
     } catch (e) {
       throw Exception("Visual search error: $e");

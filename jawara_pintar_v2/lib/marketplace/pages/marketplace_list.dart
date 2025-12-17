@@ -41,7 +41,8 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 60,
+        imageQuality: 100,
+        maxWidth: 1024,
       );
 
       if (pickedFile == null) return;
