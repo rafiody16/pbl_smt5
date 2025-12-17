@@ -122,7 +122,7 @@ class SidebarMenu extends StatelessWidget {
 
     MenuSection(
       title: "Data Warga & Rumah",
-      icon: Icons.people,
+      icon: Icons.home,
       subMenus: [
         SubMenu(
           "Warga",
