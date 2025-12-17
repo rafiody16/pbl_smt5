@@ -6,27 +6,28 @@ import '../services/marketplace_service.dart';
 class ProdukProvider with ChangeNotifier {
   final MarketplaceService _service = MarketplaceService();
 
-  // State
   List<Produk> _produkList = [];
-  List<Produk> _filteredProdukList = []; // Untuk filter kategori lokal
+  List<Produk> _filteredProdukList = [];
   bool _isLoading = false;
   String? _errorMessage;
   String _activeCategory = "Semua";
+  String? _lastDetectedKeyword;
 
-  // Getters
   List<Produk> get produkList =>
       _activeCategory == "Semua" ? _produkList : _filteredProdukList;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String get activeCategory => _activeCategory;
+  String? get lastDetectedKeyword => _lastDetectedKeyword;
 
-  // 1. Load Semua Produk
   Future<void> loadProduk() async {
     _setLoading(true);
     try {
       final data = await _service.getProduk();
-      _produkList = data.map((map) => Produk.fromMap(map)).toList();
-      _applyLocalFilter(); // Reset filter
+      _produkList = data.map((e) => Produk.fromMap(e)).toList();
+      _lastDetectedKeyword = null;
+      _applyLocalFilter();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -34,7 +35,6 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 2. Tambah Produk
   Future<bool> tambahProduk(
     Map<String, dynamic> data, {
     File? imageFile,
@@ -42,7 +42,7 @@ class ProdukProvider with ChangeNotifier {
     _setLoading(true);
     try {
       await _service.tambahProduk(data, imageFile);
-      await loadProduk(); // Refresh list
+      await loadProduk();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -51,7 +51,6 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 3. Update Produk
   Future<bool> updateProduk(
     int id,
     Map<String, dynamic> data, {
@@ -69,7 +68,6 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 4. Delete Produk
   Future<bool> deleteProduk(int id) async {
     _setLoading(true);
     try {
@@ -83,17 +81,17 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 5. Search Text
   Future<void> searchProduk(String query) async {
-    if (query.isEmpty) {
+    if (query.trim().isEmpty) {
       await loadProduk();
       return;
     }
+
     _setLoading(true);
     try {
       final data = await _service.searchProduk(query);
-      _produkList = data.map((map) => Produk.fromMap(map)).toList();
-      _applyLocalFilter(); // Re-apply category filter if needed
+      _produkList = data.map((e) => Produk.fromMap(e)).toList();
+      _applyLocalFilter();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -101,19 +99,22 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 6. Search Image
   Future<void> searchProdukByImage(File image) async {
     _setLoading(true);
     try {
-      // Memanggil service visual search
-      final data = await _service.searchProdukByImage(image);
+      final keyword = await _service.searchProdukByImage(image);
 
-      if (data.isEmpty) {
-        // Jika mock masih kosong, kita tidak ubah list, tapi beri notif (via UI handling)
-        // Atau bisa reset ke semua produk
-      } else {
-        _produkList = data.map((map) => Produk.fromMap(map)).toList();
+      if (keyword == null || keyword.isEmpty) {
+        _errorMessage = "Motif batik tidak dapat dikenali";
+        return;
       }
+
+      _lastDetectedKeyword = keyword;
+
+      final data = await _service.searchProduk(keyword);
+
+      _produkList = data.map((e) => Produk.fromMap(e)).toList();
+      _applyLocalFilter();
     } catch (e) {
       _errorMessage = "Gagal memproses gambar: $e";
     } finally {
@@ -121,7 +122,6 @@ class ProdukProvider with ChangeNotifier {
     }
   }
 
-  // 7. Filter Kategori (Lokal)
   void filterByCategory(String category) {
     _activeCategory = category;
     _applyLocalFilter();
