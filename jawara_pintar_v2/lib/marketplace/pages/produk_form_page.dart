@@ -131,26 +131,23 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
   // --- Logic Submit ---
   // --- Logic Submit (Updated) ---
   Future<void> _submitForm() async {
-    // 1. Validasi Form
+    // 1️⃣ Validasi Form
     if (!_formKey.currentState!.validate()) {
       ToastService.showWarning(context, "Mohon lengkapi data formulir");
       return;
     }
 
-    // 2. Simpan referensi context dan provider sebelum async gap
-    // Ini penting agar context tidak "hilang" saat proses simpan berjalan
-    final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ProdukProvider>();
-    final nav = Navigator.of(context); // Navigasi halaman
+    final nav = Navigator.of(context);
 
-    // Tampilkan Loading Dialog
+    // 2️⃣ Loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(
+      builder: (_) => const Center(
         child: Card(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(),
           ),
         ),
@@ -158,20 +155,39 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
     );
 
     try {
-      // Ambil User ID dari Supabase Auth
       final user = Supabase.instance.client.auth.currentUser;
-      String sellerNik = user?.userMetadata?['nik'] ?? "1234567890123456";
 
-      // Parsing Data
-      // Hapus titik pada harga sebelum parsing (contoh: 15.000 -> 15000)
+      if (user == null) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ToastService.showError(context, "User belum login");
+        return;
+      }
+
+      // DEBUG (boleh dihapus setelah yakin)
+      debugPrint("USER METADATA: ${user.userMetadata}");
+
+      final dynamic nikRaw = user.userMetadata?['nik'];
+      final String? sellerNik = nikRaw?.toString();
+
+      debugPrint("SELLER NIK: $sellerNik");
+
+      if (sellerNik == null || sellerNik.trim().isEmpty) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ToastService.showError(
+          context,
+          "Profil Anda belum memiliki data NIK yang valid.",
+        );
+        return;
+      }
+
       final hargaRaw = _hargaController.text
           .replaceAll('.', '')
           .replaceAll(',', '');
       final harga = int.tryParse(hargaRaw) ?? 0;
       final stok = int.tryParse(_stokController.text) ?? 0;
 
-      Map<String, dynamic> data = {
-        'seller_nik': sellerNik,
+      final Map<String, dynamic> data = {
+        'seller_nik': sellerNik, // ⬅️ FIXED
         'nama_produk': _namaController.text.trim(),
         'deskripsi': _deskripsiController.text.trim(),
         'harga': harga,
@@ -191,14 +207,10 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
         success = await provider.tambahProduk(data, imageFile: _imageFile);
       }
 
-      // 3. Tutup Loading Dialog (Gunakan rootNavigator untuk menutup dialog)
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
+      // Tutup loading
+      Navigator.of(context, rootNavigator: true).pop();
 
-      // 4. Handle Hasil
       if (success) {
-        // Tampilkan Toast
         ToastService.showSuccess(
           context,
           widget.existingProduk != null
@@ -206,24 +218,20 @@ class _ProdukFormPageState extends State<ProdukFormPage> {
               : "Produk berhasil ditambahkan",
         );
 
-        // KEMBALI KE LIST PAGE
-        // Kita beri sedikit delay agar toast terbaca user merasa proses selesai
         await Future.delayed(const Duration(milliseconds: 300));
-
-        if (mounted) {
-          nav.pop(true); // Return 'true' sebagai sinyal kalau data berubah
-        }
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/marketplace/list',
+          (route) => route.isFirst || route.settings.name == '/dashboard',
+        );
       } else {
         ToastService.showError(
           context,
-          provider.errorMessage ?? "Gagal menyimpan data",
+          provider.errorMessage ?? "Gagal menyimpan produk",
         );
       }
     } catch (e) {
-      // Tutup dialog jika error tak terduga
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
+      Navigator.of(context, rootNavigator: true).pop();
       ToastService.showError(context, "Terjadi kesalahan: $e");
     }
   }

@@ -40,12 +40,14 @@ class ProdukProvider with ChangeNotifier {
     File? imageFile,
   }) async {
     _setLoading(true);
+    _errorMessage = null; // Reset error lama
     try {
       await _service.tambahProduk(data, imageFile);
       await loadProduk();
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
+      // Hilangkan teks "Exception:" agar pesan lebih bersih di UI
+      _errorMessage = e.toString().replaceAll('Exception:', '').trim();
       _setLoading(false);
       return false;
     }

@@ -4,11 +4,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-// Ganti import ini sesuai struktur project Anda
+// Import sesuai struktur project Anda
 import '../../../sidebar/sidebar.dart';
 import '../../../providers/produk_provider.dart';
 import '../../../services/visual_search_service.dart';
-// import '../../../services/toast_service.dart';
+import '../../../models/produk.dart'; // Pastikan model Produk diimport
 
 class MarketplaceListPage extends StatefulWidget {
   const MarketplaceListPage({Key? key}) : super(key: key);
@@ -19,14 +19,14 @@ class MarketplaceListPage extends StatefulWidget {
 
 class _MarketplaceListPageState extends State<MarketplaceListPage> {
   final TextEditingController _searchController = TextEditingController();
-  File? _searchImage; // Menyimpan gambar untuk filter visual
+  File? _searchImage;
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
+    // Memuat data asli dari provider saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Load data produk awal
       context.read<ProdukProvider>().loadProduk();
     });
   }
@@ -37,6 +37,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
     super.dispose();
   }
 
+  // --- Logic Pencarian Visual ---
   Future<void> _pickImageAndSearch(ImageSource source) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -58,6 +59,7 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
         const SnackBar(content: Text("Menganalisis motif batik...")),
       );
 
+      // Memanggil service visual search
       final keyword = await VisualSearchService.predictBatik(imageFile);
 
       if (!mounted) return;
@@ -66,65 +68,35 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
         setState(() {
           _searchController.text = keyword;
         });
-
+        // Memfilter produk di provider berdasarkan hasil AI
         context.read<ProdukProvider>().searchProduk(keyword);
 
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Motif terdeteksi: $keyword")));
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Gagal mendeteksi batik")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal mendeteksi motif batik")),
+        );
       }
     } catch (e) {
       debugPrint("Visual search error: $e");
     }
   }
 
-  void _showVisualSearchOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Wrap(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt, color: Colors.blue),
-            title: const Text('Cari dengan Kamera'),
-            onTap: () {
-              Navigator.pop(ctx);
-              _pickImageAndSearch(ImageSource.camera);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library, color: Colors.green),
-            title: const Text('Cari dengan Gambar Galeri'),
-            onTap: () {
-              Navigator.pop(ctx);
-              _pickImageAndSearch(ImageSource.gallery);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   void _clearVisualSearch() {
     setState(() {
       _searchImage = null;
+      _searchController.clear();
     });
-    context.read<ProdukProvider>().loadProduk(); // Reset ke semua produk
+    context.read<ProdukProvider>().loadProduk();
   }
 
-  // --- Logic Cart & Buy ---
-  void _addToCart(dynamic produk) {
-    // Implementasi ke provider cart
-    // context.read<CartProvider>().addToCart(produk);
+  void _addToCart(Produk produk) {
+    // Implementasi keranjang bisa ditambahkan di sini
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("${produk['nama_produk']} masuk keranjang"),
+        content: Text("${produk.namaProduk} ditambahkan ke keranjang"),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 1),
       ),
@@ -143,185 +115,59 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
-        actions: [
-          // Icon Keranjang Belanja
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined),
-                onPressed: () {
-                  // Navigator.pushNamed(context, '/cart');
-                },
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    "2", // Ganti dengan total item dinamis
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
+        actions: [_buildCartBadge(), const SizedBox(width: 8)],
       ),
       drawer: const Sidebar(),
       body: Column(
         children: [
-          // --- Header: Search Bar & Visual Search Indicator ---
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Cari produk...',
-                          prefixIcon: const Icon(
-                            Icons.search,
-                            color: Colors.grey,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.blue,
-                            ),
-                            tooltip: "Cari dengan Gambar",
-                            onPressed: _showVisualSearchOptions,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade100,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        onSubmitted: (val) {
-                          // context.read<ProdukProvider>().searchProduk(val);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+          // --- Search Bar & Visual Search Preview ---
+          _buildSearchBar(),
 
-                // Jika sedang filter gambar, tampilkan previewnya
-                if (_searchImage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue),
-                            image: DecorationImage(
-                              image: FileImage(_searchImage!),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            "Mencari berdasarkan gambar...",
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: _clearVisualSearch,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          // --- Filter Kategori ---
+          _buildCategoryFilter(),
 
-          // --- Kategori (Optional) ---
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                _buildCategoryChip("Semua", true),
-                _buildCategoryChip("Makanan", false),
-                _buildCategoryChip("Minuman", false),
-                _buildCategoryChip("Kerajinan", false),
-                _buildCategoryChip("Jasa", false),
-              ],
-            ),
-          ),
-
-          // --- Grid Produk ---
+          // --- Grid Produk (Data Real dari Provider) ---
           Expanded(
             child: Consumer<ProdukProvider>(
               builder: (context, provider, _) {
-                final produkList = [
-                  {
-                    'id': 1,
-                    'nama_produk': 'Batik Kawung',
-                    'harga': 15000,
-                    'stok': 20,
-                    'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Bu Ani',
-                  },
-                  {
-                    'id': 2,
-                    'nama_produk': 'Batik Krawitan',
-                    'harga': 25000,
-                    'stok': 10,
-                    'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Pak Budi',
-                  },
-                  {
-                    'id': 3,
-                    'nama_produk': 'Batik Nitik',
-                    'harga': 75000,
-                    'stok': 99,
-                    'gambar_url': 'https://via.placeholder.com/150',
-                    'seller': 'Teknik Jaya',
-                  },
-                ];
-
-                if (produkList.isEmpty) {
-                  return const Center(child: Text("Belum ada produk"));
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
                 }
 
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 Kolom
-                    childAspectRatio: 0.70, // Rasio kartu (tinggi > lebar)
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                if (provider.produkList.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text("Produk tidak ditemukan"),
+                      ],
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () => provider.loadProduk(),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.68,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    itemCount: provider.produkList.length,
+                    itemBuilder: (context, index) {
+                      final produk = provider.produkList[index];
+                      return _buildProductCard(produk);
+                    },
                   ),
-                  itemCount: produkList.length,
-                  itemBuilder: (context, index) {
-                    final produk = produkList[index];
-                    return _buildProductCard(produk);
-                  },
                 );
               },
             ),
@@ -332,39 +178,76 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
         onPressed: () => Navigator.pushNamed(context, '/produk/add'),
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
-        tooltip: "Jual Produk",
       ),
     );
   }
 
-  // --- Widgets ---
+  // --- Widget Components ---
 
-  Widget _buildCategoryChip(String label, bool isActive) {
+  Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: isActive,
-        onSelected: (bool value) {},
-        backgroundColor: Colors.white,
-        selectedColor: Colors.blue.shade100,
-        labelStyle: TextStyle(
-          color: isActive ? Colors.blue.shade800 : Colors.black87,
-          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isActive ? Colors.blue : Colors.grey.shade300,
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
+            onChanged: (val) =>
+                context.read<ProdukProvider>().searchProduk(val),
+            decoration: InputDecoration(
+              hintText: 'Cari kain, baju, motif...',
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                onPressed: _showVisualSearchOptions,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
           ),
-        ),
-        showCheckmark: false,
+          if (_searchImage != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      _searchImage!,
+                      width: 45,
+                      height: 45,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      "Mencari motif serupa...",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    onPressed: _clearVisualSearch,
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildProductCard(dynamic produk) {
-    final currencyFormat = NumberFormat.currency(
+  Widget _buildProductCard(Produk produk) {
+    final priceFormat = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
       decimalDigits: 0,
@@ -374,94 +257,94 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Gambar Produk
+          // Gambar Produk
           Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                image: DecorationImage(
-                  image: NetworkImage(produk['gambar_url']),
-                  fit: BoxFit.cover,
-                ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[100],
+                child:
+                    (produk.gambarUrl != null && produk.gambarUrl!.isNotEmpty)
+                    ? Image.network(
+                        produk.gambarUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            const Icon(Icons.broken_image, color: Colors.grey),
+                      )
+                    : const Icon(Icons.image, color: Colors.grey),
               ),
             ),
           ),
-
-          // 2. Info Produk
+          // Info Produk
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  produk['nama_produk'],
+                  produk.namaProduk,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
                     height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  currencyFormat.format(produk['harga']),
+                  priceFormat.format(produk.harga),
                   style: const TextStyle(
+                    color: Colors.orangeAccent,
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Colors.orange, // Warna khas harga e-commerce
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.store, size: 12, color: Colors.grey),
+                    const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 12,
+                      color: Colors.grey,
+                    ),
                     const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        produk['seller'],
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Text(
+                      "Stok: ${produk.stok}",
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-
-          // 3. Action Buttons (Beli & Keranjang)
+          // Actions
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
             child: Row(
               children: [
-                InkWell(
+                GestureDetector(
                   onTap: () => _addToCart(produk),
-                  borderRadius: BorderRadius.circular(4),
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Icon(
                       Icons.add_shopping_cart,
@@ -471,29 +354,120 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Tombol Beli (Besar)
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Navigator.pushNamed(context, '/checkout', arguments: produk);
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
-                      visualDensity: VisualDensity.compact,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
                     ),
-                    child: const Text("Beli"),
+                    child: const Text("Beli", style: TextStyle(fontSize: 12)),
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilter() {
+    return SizedBox(
+      height: 50,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        children: [
+          _buildCategoryChip("Semua", true),
+          _buildCategoryChip("Kain Batik", false),
+          _buildCategoryChip("Pakaian", false),
+          _buildCategoryChip("Aksesoris", false),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String label, bool isActive) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isActive ? Colors.white : Colors.black87,
+          ),
+        ),
+        selected: isActive,
+        onSelected: (_) {},
+        backgroundColor: Colors.white,
+        selectedColor: Colors.blue,
+        checkmarkColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartBadge() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.shopping_cart_outlined),
+          onPressed: () {},
+        ),
+        Positioned(
+          right: 8,
+          top: 8,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+            child: const Text(
+              "0",
+              style: TextStyle(color: Colors.white, fontSize: 8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showVisualSearchOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Wrap(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt, color: Colors.blue),
+            title: const Text('Ambil Foto Motif'),
+            onTap: () {
+              Navigator.pop(ctx);
+              _pickImageAndSearch(ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library, color: Colors.green),
+            title: const Text('Pilih dari Galeri'),
+            onTap: () {
+              Navigator.pop(ctx);
+              _pickImageAndSearch(ImageSource.gallery);
+            },
           ),
         ],
       ),
