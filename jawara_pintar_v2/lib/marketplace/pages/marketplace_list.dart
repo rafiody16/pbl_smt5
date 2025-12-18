@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 // Import sesuai struktur project Anda
 import '../../../sidebar/sidebar.dart';
 import '../../../providers/produk_provider.dart';
+import '../../../providers/cart_provider.dart';
 import '../../../services/visual_search_service.dart';
 import '../../../models/produk.dart'; // Pastikan model Produk diimport
 import 'produk_detail_page.dart';
@@ -94,10 +95,11 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
   }
 
   void _addToCart(Produk produk) {
-    // Implementasi keranjang bisa ditambahkan di sini
+    context.read<CartProvider>().addItem(produk, 1); // Tambah 1 item
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("${produk.namaProduk} ditambahkan ke keranjang"),
+        content: Text("${produk.namaProduk} masuk keranjang"),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 1),
       ),
@@ -457,29 +459,42 @@ class _MarketplaceListPageState extends State<MarketplaceListPage> {
   }
 
   Widget _buildCartBadge() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () {},
-        ),
-        Positioned(
-          right: 8,
-          top: 8,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
+    return Consumer<CartProvider>(
+      builder: (context, cart, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined),
+              onPressed: () {
+                // Navigasi menggunakan named route yang sudah terdaftar di main.dart
+                Navigator.pushNamed(context, '/cart/list');
+              },
             ),
-            child: const Text(
-              "0",
-              style: TextStyle(color: Colors.white, fontSize: 8),
-            ),
-          ),
-        ),
-      ],
+            if (cart.itemCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Text(
+                    cart.itemCount.toString(),
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

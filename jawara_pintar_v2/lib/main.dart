@@ -12,6 +12,8 @@ import 'providers/keuangan_provider.dart';
 import 'providers/produk_provider.dart'; // PENTING: Tambahkan ini
 import 'providers/kegiatan_provider.dart';
 import 'providers/broadcast_provider.dart';
+import 'providers/transaction_provider.dart';
+import 'providers/cart_provider.dart';
 
 // === IMPORT SERVICES ===
 import 'services/preferences_service.dart';
@@ -29,6 +31,7 @@ import 'dashboard/keuangan.dart';
 import 'penerimaanWarga/pages/penerimaan_warga_page.dart';
 import 'marketplace/pages/marketplace_list.dart';
 import 'marketplace/pages/produk_form_page.dart';
+import 'marketplace/pages/cart_page.dart';
 
 // Import Warga (New Structure)
 import 'views/warga/pages/warga_list_page.dart';
@@ -79,6 +82,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProdukProvider()),
         ChangeNotifierProvider(create: (_) => KegiatanProvider()),
         ChangeNotifierProvider(create: (_) => BroadcastProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
 
         // PENTING: Provider Keuangan ditambahkan disini agar bisa diakses seluruh aplikasi
         // '..initData()' digunakan agar data langsung diambil saat aplikasi dibuka
@@ -132,6 +137,7 @@ class MyApp extends StatelessWidget {
 
           '/marketplace/list': (context) => const MarketplaceListPage(),
           '/produk/add': (context) => const ProdukFormPage(),
+          '/cart/list': (context) => const CartPage(),
 
           // Routes Lainnya
           '/penerimaanWarga': (context) => PenerimaanWargaPage(),

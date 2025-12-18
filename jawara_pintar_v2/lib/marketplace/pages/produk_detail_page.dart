@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart'; // Pastikan import ini ada
 import '../../models/produk.dart';
+import '../../providers/cart_provider.dart';
 import 'checkout_page.dart';
+import 'cart_page.dart'; // Pastikan Anda mengimport CartPage untuk navigasi LIHAT
 
 class ProductDetailPage extends StatefulWidget {
   final Produk produk;
@@ -15,7 +18,17 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   int _quantity = 1;
 
-  void _increment() => setState(() => _quantity++);
+  // Fungsi untuk menambah jumlah (batas stok jika ada)
+  void _increment() {
+    if (_quantity < widget.produk.stok) {
+      setState(() => _quantity++);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Batas stok tercapai")));
+    }
+  }
+
   void _decrement() {
     if (_quantity > 1) setState(() => _quantity--);
   }
@@ -52,7 +65,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero Animation membuat transisi gambar jadi halus
                   Hero(
                     tag: 'product-image-${widget.produk.id}',
                     child: ClipRRect(
@@ -112,7 +124,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Produk batik ini diproses dengan teknik tradisional yang menjaga kualitas motif. Material kain yang digunakan sangat nyaman untuk iklim tropis. Sangat cocok untuk menambah koleksi busana etnik Anda.",
+                    "Produk batik ini diproses dengan teknik tradisional yang menjaga kualitas motif. Material kain yang digunakan sangat nyaman untuk iklim tropis.",
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 15,
@@ -120,8 +132,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Info Stok & Counter
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -179,10 +189,29 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
+                      // Gunakan Provider.of dengan listen: false untuk memanggil fungsi
+                      Provider.of<CartProvider>(
+                        context,
+                        listen: false,
+                      ).addItem(widget.produk, _quantity);
+
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
                             "${widget.produk.namaProduk} ditambahkan",
+                          ),
+                          duration: const Duration(seconds: 2),
+                          action: SnackBarAction(
+                            label: 'LIHAT',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CartPage(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       );
@@ -198,7 +227,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
                 const SizedBox(width: 15),
-                // Di dalam produk_detail_page.dart (Bottom Action Bar)
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -211,7 +239,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         return;
                       }
 
-                      // Arahkan ke Halaman Konfirmasi Pembelian (Checkout)
                       Navigator.push(
                         context,
                         MaterialPageRoute(

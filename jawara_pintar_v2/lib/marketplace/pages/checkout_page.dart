@@ -17,21 +17,12 @@ class CheckoutPage extends StatelessWidget {
     final authProvider = context.watch<AuthProvider>();
     final wargaData = authProvider.wargaData;
 
-    // 🔐 VALIDASI DATA LOGIN
-    if (wargaData == null || !wargaData.containsKey('nik')) {
-      return const Scaffold(
-        body: Center(
-          child: Text(
-            "Data warga tidak ditemukan.\nSilakan login ulang.",
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+    if (wargaData == null) {
+      return const Scaffold(body: Center(child: Text("Silakan login kembali")));
     }
 
     final String userNik = wargaData['nik'];
     final double totalHarga = produk.harga * jumlahBeli;
-
     final currency = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -46,43 +37,27 @@ class CheckoutPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildSectionTitle("Barang yang Dibeli"),
+                const Text(
+                  "Rincian Produk",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 ListTile(
-                  leading: Image.network(
-                    produk.gambarUrl ?? '',
-                    width: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.image_not_supported),
-                  ),
                   title: Text(produk.namaProduk),
                   subtitle: Text(
-                    "$jumlahBeli item x ${currency.format(produk.harga)}",
+                    "$jumlahBeli x ${currency.format(produk.harga)}",
                   ),
                   trailing: Text(currency.format(totalHarga)),
                 ),
                 const Divider(),
-                _buildSectionTitle("Informasi Pembeli (Warga)"),
                 ListTile(
-                  leading: const Icon(Icons.person_outline),
-                  title: const Text("NIK Anda"),
-                  subtitle: Text(userNik),
+                  title: const Text("Pembeli"),
+                  subtitle: Text("NIK: $userNik"),
                 ),
               ],
             ),
           ),
           _buildBottomBar(context, totalHarga, userNik),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     );
   }
@@ -107,14 +82,15 @@ class CheckoutPage extends StatelessWidget {
                 ? null
                 : () async {
                     final success = await transProvider.checkout(
-                      buyerNik: userNik, // ✅ NIK USER LOGIN
+                      buyerNik: userNik,
                       totalHarga: total,
                       items: [
                         {
                           'product_id': produk.id,
                           'jumlah': jumlahBeli,
                           'harga_satuan': produk.harga,
-                          'stok_sekarang': produk.stok,
+                          'stok_sekarang':
+                              produk.stok, // Kirim stok saat ini ke repo
                         },
                       ],
                     );
@@ -141,15 +117,13 @@ class CheckoutPage extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text("Transaksi Berhasil"),
-        content: const Text(
-          "Pesanan Anda telah dicatat. Silakan cek riwayat pesanan.",
-        ),
+        title: const Text("Berhasil"),
+        content: const Text("Stok otomatis berkurang dan pesanan dicatat."),
         actions: [
           TextButton(
             onPressed: () =>
                 Navigator.of(context).popUntil((route) => route.isFirst),
-            child: const Text("Selesai"),
+            child: const Text("OK"),
           ),
         ],
       ),
